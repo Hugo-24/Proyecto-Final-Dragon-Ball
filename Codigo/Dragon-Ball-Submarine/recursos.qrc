@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <!-- Fondos -->
+        <file>sprites/fondos/fondo_menu.jpg</file>
+    </qresource>
+</RCC>

@@ -9,11 +9,18 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    juego.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    nivel1.cpp \
+    nivel2.cpp
 
 HEADERS += \
-    mainwindow.h
+    juego.h \
+    mainwindow.h \
+    nivel.h \
+    nivel1.h \
+    nivel2.h
 
 FORMS += \
     mainwindow.ui
@@ -22,3 +29,6 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    recursos.qrc
