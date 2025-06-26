@@ -1,4 +1,4 @@
-#include "Nivel1.h"
+#include "nivel1.h"
 #include <QLabel>
 
 Nivel1::Nivel1(QWidget* parent) : Nivel(parent) {

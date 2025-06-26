@@ -2,5 +2,10 @@
     <qresource prefix="/">
         <!-- Fondos -->
         <file>sprites/fondos/fondo_menu.jpg</file>
+	<file>sprites/fondos/fondo_nivel2.jpg</file>
+	
+	<!-- Naves -->
+	<file>sprites/Nave/Nave_RR.png</file>
+
     </qresource>
 </RCC>

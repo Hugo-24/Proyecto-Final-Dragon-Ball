@@ -1,5 +1,5 @@
 #pragma once
-#include "Nivel.h"
+#include "nivel.h"
 
 class Nivel1 : public Nivel {
     Q_OBJECT
