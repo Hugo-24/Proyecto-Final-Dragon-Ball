@@ -7,5 +7,10 @@
 	<!-- Naves -->
 	<file>Sprites/Nave/Nave_RR.png</file>
 
+	<!-- Proyectiles -->
+	<file>Sprites/Lunch/torpedo_jugador.png</file>
+	<file>Sprites/Lunch/minas.png</file>
+
+
     </qresource>
 </RCC>
