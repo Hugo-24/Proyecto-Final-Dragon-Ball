@@ -11,10 +11,12 @@ INCLUDEPATH += \
     Codigo/Niveles/Nivel \
     Codigo/Niveles/Nivel1 \
     Codigo/Niveles/Nivel2 \
-    Codigo/Niveles/Nivel2/Personajes
+    Codigo/Niveles/Nivel2/Personajes \
+    Codigo/Niveles/Nivel2/Objetos
 
 # SOURCES
 SOURCES += \
+    Codigo/Core/objeto.cpp \
     main.cpp \
     Codigo/Core/entidad.cpp \
     Codigo/Core/juego.cpp \
@@ -24,6 +26,8 @@ SOURCES += \
     Codigo/Niveles/Nivel/nivel.cpp \
     Codigo/Niveles/Nivel1/nivel1.cpp \
     Codigo/Niveles/Nivel2/nivel2.cpp \
+    Codigo/Niveles/Nivel2/Objetos/mina.cpp \
+    Codigo/Niveles/Nivel2/Objetos/torpedo.cpp \
     Codigo/Niveles/Nivel2/Personajes/submarinojugador.cpp
 
 # HEADERS
@@ -31,11 +35,14 @@ HEADERS += \
     Codigo/Core/entidad.h \
     Codigo/Core/juego.h \
     Codigo/Core/mapa.h \
+    Codigo/Core/objeto.h \
     Codigo/UI/mainwindow.h \
     Codigo/UI/menu_principal.h \
     Codigo/Niveles/Nivel/nivel.h \
     Codigo/Niveles/Nivel1/nivel1.h \
     Codigo/Niveles/Nivel2/nivel2.h \
+    Codigo/Niveles/Nivel2/Objetos/mina.h \
+    Codigo/Niveles/Nivel2/Objetos/torpedo.h \
     Codigo/Niveles/Nivel2/Personajes/submarinojugador.h
 
 # FORMULARIOS DE Qt Designer
@@ -48,3 +55,4 @@ RESOURCES += Codigo/Core/recursos.qrc
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
