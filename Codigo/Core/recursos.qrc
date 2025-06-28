@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/">
+        <!-- Fondos -->
+        <file>Sprites/Fondos/fondo_menu.jpg</file>
+	<file>Sprites/Fondos/fondo_nivel2.jpg</file>
+	
+	<!-- Naves -->
+	<file>Sprites/Nave/Nave_RR.png</file>
+
+    </qresource>
+</RCC>
