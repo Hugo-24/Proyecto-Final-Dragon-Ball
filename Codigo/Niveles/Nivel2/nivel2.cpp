@@ -34,7 +34,12 @@ void Nivel2::cargarNivel() {
 
     // 💣 Objetos hostiles (de prueba por ahora)
     agregarMina(QVector2D(400, 350));
-    agregarTorpedo(QVector2D(700, 150), QVector2D(-1, 0)); // torpedo enemigo que va hacia la izquierda
+    agregarMina(QVector2D(600, 200));
+    agregarMina(QVector2D(250, 400));
+    agregarMina(QVector2D(100, 150));
+
+
+    agregarTorpedo(QVector2D(700, 150), QVector2D(-1, 0)); // torpedo enemigo que va hacia la izquierda tomar esta linea de ejemplo para la inversión de los disparos
 
     // 🔁 Timer para actualizar el juego
     connect(timerActualizacion, &QTimer::timeout, this, [=]() {
@@ -88,14 +93,46 @@ void Nivel2::keyReleaseEvent(QKeyEvent* event) {
 
 // 🚨 Colisiones entre submarino y objetos hostiles
 void Nivel2::verificarColisiones() {
-    for (Objeto* obj : objetosHostiles) {
-        obj->actualizar(); // En caso de que el objeto se mueva o cambie
-        if (colisiona(
-                submarino->getPosicion(), submarino->getSprite()->size(),
-                obj->getPosicion(), obj->getSprite()->size())) {
 
-            obj->interactuar(submarino);
+
+
+    for (Objeto* obj : objetosHostiles) {
+
+        if (!obj->getSprite()->isVisible()) continue;
+
+        obj->actualizar(); // En caso de que el objeto se mueva o cambie
+        // Ignorar colisiones con torpedos lanzados por el jugador
+        if (dynamic_cast<Torpedo*>(obj)) {
+            continue;
         }
+
+    }
+
+    for (int i = 0; i < objetosHostiles.size(); ++i) {
+        Objeto* obj1 = objetosHostiles[i];
+
+        if (!obj1->getSprite()->isVisible()) continue;
+
+        // Colisión con el jugador
+        if (colisiona(submarino->getPosicion(), submarino->getSprite()->size(),
+                      obj1->getPosicion(), obj1->getSprite()->size())) {
+            obj1->interactuar(submarino);
+        }
+
+        // Colisión entre objetos (torpedo vs mina)
+        for (int j = i + 1; j < objetosHostiles.size(); ++j) {
+            Objeto* obj2 = objetosHostiles[j];
+
+            if (!obj2->getSprite()->isVisible()) continue;
+
+            if (colisiona(obj1->getPosicion(), obj1->getSprite()->size(),
+                          obj2->getPosicion(), obj2->getSprite()->size())) {
+                obj1->getSprite()->hide();
+                obj2->getSprite()->hide();
+            }
+        }
+
+        obj1->actualizar();
     }
 }
 

@@ -3,8 +3,8 @@
 #include <cmath>
 
 Torpedo::Torpedo(QWidget* parent, const QVector2D& posicion, const QVector2D& direccion)
-    : Objeto(parent, posicion), direccion(direccion), velocidad(8.0f),
-    tiempoTotal(0.0f), amplitud(10.0f), frecuencia(0.05f), posicionInicialY(posicion.y()) {
+    : Objeto(parent, posicion), direccion(direccion), velocidad(7.0f),
+    tiempoTotal(0.0f), amplitud(30.0f), frecuencia(2.0f), posicionInicialY(posicion.y()) {
 
     QPixmap imagen(":/Sprites/Lunch/torpedo_jugador.png");
     if (imagen.isNull()) {
@@ -22,13 +22,24 @@ void Torpedo::actualizar() {
     // Movimiento horizontal constante
     posicion.setX(posicion.x() + direccion.normalized().x() * velocidad);
 
-    // Movimiento vertical senoidal
-    tiempoTotal += 0.5f; // Puedes ajustar la velocidad de oscilación
-    float offsetY = amplitud * std::sin(frecuencia * posicion.x());
+    // Movimiento vertical senoidal (basado en tiempo, no en X)
+    tiempoTotal += 0.05f;  // Puedes ajustar este valor para controlar frecuencia
+    float offsetY = amplitud * std::sin(frecuencia * tiempoTotal);
     posicion.setY(posicionInicialY + offsetY);
 
     sprite->move(posicion.toPoint());
+
+    // Lógica para eliminar si sale de la pantalla
+    QWidget* escena = dynamic_cast<QWidget*>(sprite->parent());
+    if (escena) {
+        if (posicion.x() > escena->width() || posicion.x() < -sprite->width()) {
+            sprite->hide(); // Desaparece al salir de la escena
+        }
+    }
 }
+
+
+
 
 
 void Torpedo::interactuar(Entidad* entidad) {
