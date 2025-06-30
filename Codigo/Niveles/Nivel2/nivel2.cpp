@@ -23,16 +23,16 @@ Nivel2::Nivel2(QWidget* parent) : Nivel(parent) {
 }
 
 void Nivel2::cargarNivel() {
-    // 🌊 Fondo submarino
+    // Fondo submarino
     mapa = new Mapa(":/Sprites/Fondos/fondo_nivel2.jpg", this);
     mapa->setGeometry(0, 0, 800, 600);
     mapa->show();
 
-    // 🚢 Submarino del jugador
+    // Submarino del jugador
     submarino = new SubmarinoJugador(this);
     submarino->getSprite()->raise(); // Mostrar sobre el fondo
 
-    // 💣 Objetos hostiles (de prueba por ahora)
+    // Objetos hostiles (de prueba por ahora)
     agregarMina(QVector2D(400, 350));
     agregarMina(QVector2D(600, 200));
     agregarMina(QVector2D(250, 400));
@@ -41,7 +41,7 @@ void Nivel2::cargarNivel() {
 
     agregarTorpedo(QVector2D(700, 150), QVector2D(-1, 0)); // torpedo enemigo que va hacia la izquierda tomar esta linea de ejemplo para la inversión de los disparos
 
-    // 🔁 Timer para actualizar el juego
+    // Timer para actualizar el juego
     connect(timerActualizacion, &QTimer::timeout, this, [=]() {
         // 1. Movimiento del jugador
         submarino->procesarEntrada(teclasPresionadas);
@@ -53,7 +53,7 @@ void Nivel2::cargarNivel() {
             Torpedo* t = torpedos[i];
             t->actualizar();
 
-            // 🚫 Eliminar si el torpedo sale de la pantalla
+            // Eliminar si el torpedo sale de la pantalla
             if (t->getPosicion().x() > width() || t->getPosicion().x() < 0) {
                 t->getSprite()->hide();
                 delete t;
@@ -76,7 +76,7 @@ void Nivel2::cargarNivel() {
 }
 
 
-// 🎮 Evento: presionar tecla
+// Evento: presionar tecla
 void Nivel2::keyPressEvent(QKeyEvent* event) {
     teclasPresionadas.insert(event->key());
 
@@ -86,12 +86,12 @@ void Nivel2::keyPressEvent(QKeyEvent* event) {
         agregarTorpedo(posicionInicial, direccion);
     }
 }
-// 🎮 Evento: soltar tecla
+// Evento: soltar tecla
 void Nivel2::keyReleaseEvent(QKeyEvent* event) {
     teclasPresionadas.remove(event->key());
 }
 
-// 🚨 Colisiones entre submarino y objetos hostiles
+// Colisiones entre submarino y objetos hostiles
 void Nivel2::verificarColisiones() {
 
 
@@ -136,7 +136,7 @@ void Nivel2::verificarColisiones() {
     }
 }
 
-// ➕ Añadir mina al mapa
+// Añadir mina al mapa
 void Nivel2::agregarMina(const QVector2D& pos) {
     Mina* mina = new Mina(this, pos);
     objetosHostiles.push_back(mina);
@@ -144,7 +144,7 @@ void Nivel2::agregarMina(const QVector2D& pos) {
 
 
 
-// ➕ Añadir torpedo al mapa
+// Añadir torpedo al mapa
 void Nivel2::agregarTorpedo(const QVector2D& pos, const QVector2D& dir) {
     Torpedo* torpedo = new Torpedo(this, pos, dir);
     objetosHostiles.push_back(torpedo);

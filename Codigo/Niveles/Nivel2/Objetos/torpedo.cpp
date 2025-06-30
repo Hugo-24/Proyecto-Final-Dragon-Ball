@@ -6,7 +6,7 @@ Torpedo::Torpedo(QWidget* parent, const QVector2D& posicion, const QVector2D& di
     : Objeto(parent, posicion), direccion(direccion), velocidad(7.0f),
     tiempoTotal(0.0f), amplitud(30.0f), frecuencia(2.0f), posicionInicialY(posicion.y()) {
 
-    QPixmap imagen(":/Sprites/Lunch/torpedo_jugador.png");
+    QPixmap imagen(":/Sprites/Nave/torpedo_jugador.png");
     if (imagen.isNull()) {
         qDebug() << "No se pudo cargar el sprite del torpedo";
     }

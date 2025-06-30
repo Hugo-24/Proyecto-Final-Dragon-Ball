@@ -8,7 +8,7 @@
 Mina::Mina(QWidget* parent, const QVector2D& pos)
     : Objeto(parent, pos), contenedor(parent)  // guardamos el parent
 {
-    QPixmap imagen(":/Sprites/Lunch/minas.png");
+    QPixmap imagen(":/Sprites/Nave/minas.png");
     if (imagen.isNull()) {
         qDebug() << "Error al cargar el sprite de la mina.";
     } else {

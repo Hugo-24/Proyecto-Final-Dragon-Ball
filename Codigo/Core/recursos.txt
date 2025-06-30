@@ -1,0 +1,26 @@
+<RCC>
+    <qresource prefix="/">
+        <!-- Fondos -->
+        <file>Sprites/Fondos/fondo_menu.jpg</file>
+        <file>Sprites/Fondos/fondo_nivel1.jpg</file>
+        <file>Sprites/Fondos/fondo_nivel2.jpg</file>
+
+        <!-- Naves -->
+        <file>Sprites/Nave/Nave_RR.png</file>
+
+        <!-- Proyectiles y obstáculos -->
+        <file>Sprites/Nave/torpedo_jugador.png</file>
+        <file>Sprites/Nave/minas.png</file>
+
+        <!-- Maestro Roshi -->
+        <file>Sprites/Roshi/R_Idle_Roshi.png</file>
+        <file>Sprites/Roshi/L_Idle_Roshi.png</file>
+        <file>Sprites/Roshi/R_Punching_Roshi.png</file>
+        <file>Sprites/Roshi/L_Punching_Roshi.png</file>
+        <file>Sprites/Roshi/R_Launching_Roshi.png</file>
+        <file>Sprites/Roshi/L_Launching_Roshi.png</file>
+
+        <!-- Launch (usa los mismos nombres que Roshi para lógica compartida) -->
+
+    </qresource>
+</RCC>
