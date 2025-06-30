@@ -65,8 +65,8 @@ void Entidad::aplicarFisica() {
     vel.setY(vel.y() + 0.8); // gravedad
     pos += vel;
 
-    if (pos.y() > 480) {
-        pos.setY(480);
+    if (pos.y() > 444) {
+        pos.setY(444);
         vel.setY(0);
         enElSuelo = true;  // ¡Está en el suelo!
     } else {

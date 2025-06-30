@@ -4,6 +4,8 @@
         <file>Sprites/Fondos/fondo_menu.jpg</file>
         <file>Sprites/Fondos/fondo_nivel1.jpg</file>
         <file>Sprites/Fondos/fondo_nivel2.jpg</file>
+        <file>Sprites/Fondos/Fondo_scroll_largo.jpg</file>
+        <file>Sprites/Fondos/Fondo_scroll_largo_2.jpg</file>
 
         <!-- Naves y proyectiles submarinos -->
         <file>Sprites/Nave/Nave_RR.png</file>
