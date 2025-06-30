@@ -64,12 +64,12 @@ HEADERS += \
 # =========================================
 SOURCES += \
     Codigo/Niveles/Nivel1/nivel1.cpp \
-    Codigo/Niveles/Nivel1/Personajes/roshi.cpp
+    Codigo/Niveles/Nivel1/Personajes/roshi.cpp \
     Codigo/Niveles/Nivel1/Personajes/lunch.cpp
 
 HEADERS += \
     Codigo/Niveles/Nivel1/nivel1.h \
-    Codigo/Niveles/Nivel1/Personajes/roshi.h
+    Codigo/Niveles/Nivel1/Personajes/roshi.h \
     Codigo/Niveles/Nivel1/Personajes/lunch.h
 # =========================================
 # NIVEL 2

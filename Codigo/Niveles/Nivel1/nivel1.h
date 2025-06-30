@@ -18,7 +18,7 @@ protected:
     void keyReleaseEvent(QKeyEvent* event) override;
 
 private:
-    Roshi* jugador;
+    Personaje* jugador;
     QTimer* timer;
     QSet<int> teclasPresionadas;
 };

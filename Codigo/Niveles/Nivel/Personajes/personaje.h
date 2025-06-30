@@ -14,6 +14,11 @@ public:
 
     // Salto vertical
     virtual void saltar();
+    // Ataque cuerpo a cuerpo (opcional en subclases)
+    virtual void atacar() {}
+
+    // Ataque de energía (opcional en subclases)
+    virtual void lanzarEnergia() {}
 
 protected:
     bool mirandoDerecha;  // true = derecha, false = izquierda
