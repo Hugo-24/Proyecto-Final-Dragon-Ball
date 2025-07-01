@@ -39,7 +39,9 @@ void Nivel2::cargarNivel() {
     agregarMina(QVector2D(100, 150));
 
 
-    agregarTorpedo(QVector2D(700, 150), QVector2D(-1, 0)); // torpedo enemigo que va hacia la izquierda tomar esta linea de ejemplo para la inversión de los disparos
+    agregarSubmarinoEnemigo(QVector2D(600, 100));
+    agregarSubmarinoEnemigo(QVector2D(700, 300));
+
 
     // 🔁 Timer para actualizar el juego
     connect(timerActualizacion, &QTimer::timeout, this, [=]() {
@@ -62,12 +64,17 @@ void Nivel2::cargarNivel() {
             }
         }
 
-        // 3. Actualización de objetos (como minas)
+        // 3. Movimiento de enemigos
+        for (SubmarinoEnemigo* enemigo : enemigos) {
+            enemigo->actualizar();
+        }
+
+        // 4. Actualización de objetos (como minas)
         for (Objeto* obj : objetosHostiles) {
             obj->actualizar();
         }
 
-        // 4. Verificar colisiones
+        // 5. Verificar colisiones
         verificarColisiones();
     });
 
@@ -81,7 +88,7 @@ void Nivel2::keyPressEvent(QKeyEvent* event) {
     teclasPresionadas.insert(event->key());
 
     if (event->key() == Qt::Key_Space && submarino) {
-        QVector2D posicionInicial = submarino->getPosicion() + QVector2D(50, 0); // un poco al frente
+        QVector2D posicionInicial = submarino->getPosicion() + QVector2D(80, 55); // un poco al frente
         QVector2D direccion = QVector2D(1, 0); // hacia la derecha
         agregarTorpedo(posicionInicial, direccion);
     }
@@ -132,6 +139,28 @@ void Nivel2::verificarColisiones() {
             }
         }
 
+        for (Torpedo* torpedo : torpedosJugador) {
+            if (!torpedo->getSprite()->isVisible()) continue;
+
+            for (Entidad* entidad : enemigos) { // Asegúrate de tener un QVector<Entidad*> enemigos;
+                if (!entidad->getSprite()->isVisible()) continue;
+
+                if (colisiona(
+                        torpedo->getPosicion(), torpedo->getSprite()->size(),
+                        entidad->getPosicion(), entidad->getSprite()->size())) {
+
+                    torpedo->interactuar(entidad);
+
+                    // Intenta hacer cast a SubmarinoEnemigo y aplicar daño
+                    SubmarinoEnemigo* enemigo = dynamic_cast<SubmarinoEnemigo*>(entidad);
+                    if (enemigo) {
+                        enemigo->recibirDaño(10);  // Ajusta el daño a lo que desees
+                    }
+                }
+            }
+        }
+
+
         obj1->actualizar();
     }
 }
@@ -148,6 +177,18 @@ void Nivel2::agregarMina(const QVector2D& pos) {
 void Nivel2::agregarTorpedo(const QVector2D& pos, const QVector2D& dir) {
     Torpedo* torpedo = new Torpedo(this, pos, dir);
     objetosHostiles.push_back(torpedo);
+    torpedosJugador.push_back(torpedo);
+
 }
+
+void Nivel2::agregarSubmarinoEnemigo(const QVector2D& pos) {
+    SubmarinoEnemigo* enemigo = new SubmarinoEnemigo(this, pos);
+    enemigo->getSprite()->setParent(this);  // Por si no lo hiciste en el constructor
+    enemigo->getSprite()->move(pos.toPoint());
+    enemigo->getSprite()->show();
+
+    enemigos.append(enemigo);
+}
+
 
 

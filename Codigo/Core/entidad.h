@@ -13,6 +13,7 @@ public:
     virtual void mover();       // lógica de movimiento
     virtual void actualizar();  // actualiza la posición del sprite
 
+
     void setPosicion(const QVector2D& pos);
     QVector2D getPosicion() const;
 
@@ -20,6 +21,11 @@ public:
     QVector2D getVelocidad() const;
 
     QLabel* getSprite();
+
+    virtual void interactuar(Entidad* otra);
+
+
+
 
 protected:
     QVector2D posicion;

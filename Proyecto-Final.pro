@@ -17,6 +17,7 @@ INCLUDEPATH += \
 # SOURCES
 SOURCES += \
     Codigo/Core/objeto.cpp \
+    Codigo/Niveles/Nivel2/Personajes/submarinoenemigo.cpp \
     main.cpp \
     Codigo/Core/entidad.cpp \
     Codigo/Core/juego.cpp \
@@ -36,6 +37,7 @@ HEADERS += \
     Codigo/Core/juego.h \
     Codigo/Core/mapa.h \
     Codigo/Core/objeto.h \
+    Codigo/Niveles/Nivel2/Personajes/submarinoenemigo.h \
     Codigo/UI/mainwindow.h \
     Codigo/UI/menu_principal.h \
     Codigo/Niveles/Nivel/nivel.h \

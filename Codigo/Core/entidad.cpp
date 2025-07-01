@@ -39,3 +39,7 @@ QVector2D Entidad::getVelocidad() const {
 QLabel* Entidad::getSprite() {
     return sprite;
 }
+
+void Entidad::interactuar(Entidad* /*otra*/) {
+    // No hace nada por defecto
+}

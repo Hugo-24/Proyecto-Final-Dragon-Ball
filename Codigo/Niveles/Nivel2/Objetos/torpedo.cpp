@@ -12,7 +12,7 @@ Torpedo::Torpedo(QWidget* parent, const QVector2D& posicion, const QVector2D& di
     }
 
     // 👉 Establece primero el tamaño del QLabel (sprite)
-    sprite->setFixedSize(26, 10); // Tamaño del contenedor
+    sprite->setFixedSize(30, 12); // Tamaño del contenedor
     sprite->setPixmap(imagen.scaled(sprite->size())); // Ajusta el QPixmap al QLabel
     sprite->show();
 }
