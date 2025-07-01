@@ -4,7 +4,7 @@
 #include "entidad.h"
 
 // Clase base para personajes jugables como Roshi, Lunch, Goku
-class Personaje : public QObject, public Entidad {
+class Personaje : public Entidad, public QObject  {
 public:
     Personaje(QWidget* parent);
 

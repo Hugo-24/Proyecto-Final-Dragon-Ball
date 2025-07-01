@@ -42,9 +42,26 @@
         <file>Sprites/Lunch/R_Idle_BlueLunch.png</file>
         <file>Sprites/Lunch/L_Idle_BlueLunch.png</file>
 
+        <!-- Animación de subfusil de Launch -->
+        <file>Sprites/Lunch/R_Subfusil1_Launch.png</file>
+        <file>Sprites/Lunch/R_Subfusil2_Launch.png</file>
+        <file>Sprites/Lunch/R_Subfusil3_Launch.png</file>
+        <file>Sprites/Lunch/R_Subfusil4_Launch.png</file>
+        <file>Sprites/Lunch/L_Subfusil1_Launch.png</file>
+        <file>Sprites/Lunch/L_Subfusil2_Launch.png</file>
+        <file>Sprites/Lunch/L_Subfusil3_Launch.png</file>
+        <file>Sprites/Lunch/L_Subfusil4_Launch.png</file>
+
+        <!-- Sprites de muerte -->
+        <file>Sprites/Lunch/R_Lunch_Muerta.png</file>
+        <file>Sprites/Lunch/L_Lunch_Muerta.png</file>
+        <file>Sprites/Roshi/R_Roshi_Muerto.png</file>
+        <file>Sprites/Roshi/L_Roshi_Muerto.png</file>
+
         <!-- Proyectiles -->
         <file>Sprites/Proyectiles/Bola_Energia.png</file>
         <file>Sprites/Proyectiles/R_BalaCohete.png</file>
         <file>Sprites/Proyectiles/L_BalaCohete.png</file>
+        <file>Sprites/Proyectiles/BalaSubfusil.png</file>
     </qresource>
 </RCC>

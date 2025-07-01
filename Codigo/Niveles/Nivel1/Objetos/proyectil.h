@@ -2,37 +2,25 @@
 #define PROYECTIL_H
 
 #include "objeto.h"
-#include <QVector2D>
 
 /**
- * @brief Clase Proyectil: representa un disparo lanzado por un personaje (Roshi o Lunch).
+ * Clase que representa un proyectil lanzado por un personaje (Lunch o Roshi).
+ * Hereda de Objeto porque puede colisionar con otras entidades.
  */
 class Proyectil : public Objeto {
 public:
-    /**
-     * @brief Constructor del proyectil.
-     * @param parent Widget contenedor (escena).
-     * @param posicion Posición inicial del proyectil.
-     * @param direccion Dirección de movimiento (normalizada).
-     * @param tipo Tipo de proyectil: "roshi" o "lunch".
-     */
-    Proyectil(QWidget* parent, const QVector2D& posicion, const QVector2D& direccion, const QString& tipo);
+    Proyectil(QWidget* parent,
+              const QVector2D& posicion,
+              const QVector2D& direccion,
+              const QString& tipo, // "roshi" o "lunch"
+              float velocidad = 10.0f);
 
-    /**
-     * @brief Lógica de movimiento del proyectil.
-     */
     void actualizar() override;
-
-    /**
-     * @brief Reacción al colisionar con otra entidad.
-     * @param entidad La entidad con la que colisiona.
-     */
-    void interactuar(Entidad* entidad) override;
+    void interactuar(Entidad* otra) override;
 
 private:
-    QVector2D direccion;  // Dirección de desplazamiento
-    float velocidad;      // Velocidad de movimiento
-    QString tipo;         // Tipo del proyectil (para determinar sprite y comportamiento)
+    QVector2D direccion;  // Dirección de movimiento (1,0) o (-1,0)
+    float velocidad;      // Velocidad del proyectil
 };
 
 #endif // PROYECTIL_H

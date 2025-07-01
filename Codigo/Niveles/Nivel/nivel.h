@@ -2,11 +2,6 @@
 
 #include <QWidget>
 #include "mapa.h"
-#include <vector>
-
-//#include "Jugador.h"
-//#include "Enemigo.h"
-//#include "Objeto.h"
 
 class Nivel : public QWidget
 {
@@ -21,7 +16,4 @@ public:
 
 protected:
     Mapa *mapa;
-    //Jugador* jugador;
-    //std::vector<Enemigo*> enemigos;
-    //std::vector<Objeto*> objetos;
 };

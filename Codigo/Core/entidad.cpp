@@ -17,8 +17,12 @@ void Entidad::mover() {
     if (posicion.x() < 0) {
         posicion.setX(0);
     }
-    if (posicion.x() > 736 - sprite->width()) {  // Suponiendo fondo de 736px
-        posicion.setX(736 - sprite->width());
+    QWidget* escena = qobject_cast<QWidget*>(sprite->parent());
+    if (escena) {
+        float limite = escena->width() - sprite->width();
+        if (posicion.x() > limite) {
+            posicion.setX(limite);
+        }
     }
 }
 

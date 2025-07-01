@@ -2,55 +2,59 @@
 #include <QPixmap>
 #include <QDebug>
 
-Proyectil::Proyectil(QWidget* parent, const QVector2D& posicion, const QVector2D& direccion, const QString& tipo)
-    : Objeto(parent, posicion), direccion(direccion.normalized()), velocidad(6.0f), tipo(tipo)
+Proyectil::Proyectil(QWidget* parent,
+                     const QVector2D& posicion,
+                     const QVector2D& direccion,
+                     const QString& tipo,
+                     float velocidad)
+    : Objeto(parent, posicion),
+    direccion(direccion.normalized()),
+    velocidad(velocidad)
 {
     QPixmap imagen;
 
+    // Cargar imagen según tipo
     if (tipo == "roshi") {
         imagen.load(":/Sprites/Proyectiles/Bola_Energia.png");
-        sprite->setFixedSize(100, 100);  // Tamaño para la bola de energía
-    }
-    else if (tipo == "lunch") {
-        if (direccion.x() > 0) {
+        sprite->setFixedSize(80, 80);
+    } else if (tipo == "lunch") {
+        if (direccion.x() >= 0)
             imagen.load(":/Sprites/Proyectiles/R_BalaCohete.png");
-        } else {
+        else
             imagen.load(":/Sprites/Proyectiles/L_BalaCohete.png");
-        }
-        sprite->setFixedSize(100, 50);  // Tamaño para el cohete
+
+        sprite->setFixedSize(80, 40);
     }
 
+    // Validar imagen
     if (imagen.isNull()) {
-        qDebug() << "No se pudo cargar el sprite del proyectil de tipo:" << tipo;
+        qDebug() << "No se pudo cargar el sprite del proyectil tipo:" << tipo;
     } else {
         sprite->setPixmap(imagen.scaled(sprite->size()));
-        sprite->show();
     }
+
+    sprite->show();
 }
 
-void Proyectil::actualizar()
-{
-    // Movimiento lineal del proyectil
+// Actualiza la posición del proyectil
+void Proyectil::actualizar() {
+    // Movimiento lineal constante
     posicion += direccion * velocidad;
-    sprite->move(static_cast<int>(posicion.x()), static_cast<int>(posicion.y()));
+    sprite->move(posicion.toPoint());
 
-    // Verificar si el proyectil se sale de la pantalla
+    // No se aplica gravedad
+    // El proyectil se elimina si sale de la pantalla
     QWidget* escena = dynamic_cast<QWidget*>(sprite->parent());
     if (escena) {
-        int limitePantalla = escena->width();
-
-        if (posicion.x() > limitePantalla || posicion.x() < -sprite->width()) {
-            sprite->hide(); // Ocultar proyectil si sale de la escena
+        if (posicion.x() < -sprite->width() || posicion.x() > escena->width() + 8000) {
+            sprite->hide();
         }
     }
 }
 
-void Proyectil::interactuar(Entidad* entidad)
-{
-    if (!entidad) return;
-
-    // Aquí puedes implementar lógica futura como quitar vida
-    qDebug() << "Proyectil de tipo" << tipo << "impactó una entidad.";
-
-    sprite->hide(); // Desaparecer proyectil tras impacto
+// Acción en colisión (a definir)
+void Proyectil::interactuar(Entidad* otra) {
+    if (!otra) return;
+    qDebug() << "Proyectil impactó con una entidad.";
+    sprite->hide(); // Por ahora solo se oculta al impactar
 }

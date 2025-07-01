@@ -2,21 +2,31 @@
 #define LUNCH_H
 
 #include "personaje.h"
+#include <QTimer>
 
-// Clase Launch: personaje con transformación y disparo
+/**
+ * Clase Lunch: personaje con transformación entre modos.
+ * En modo agresiva puede atacar con bazuca o subfusil.
+ */
 class Lunch : public Personaje {
 public:
     Lunch(QWidget* parent);
 
-    void atacar();       // Golpe cuerpo a cuerpo (como Roshi)
-    void disparar();     // Disparo con animación de bazuca (si está transformada)
-    void transformar();  // Alterna entre modo tranquila y agresiva
+    void atacar() override;
+    void disparar();
+    void comenzarRafaga();  // Disparo con subfusil (sostener tecla)
+    void detenerRafaga();   // Se suelta la tecla E
+    void transformar();     // Alternar entre modos
+    bool estaEnModoAgresiva() const;
 
 protected:
     void actualizarSprite() override;
 
 private:
-    bool transformada; // true si es Launch agresiva (puede atacar y disparar)
+    bool transformada;
+    bool rafagaActiva;
+    QTimer* timerRafaga;
+    QWidget* contenedor; // Para lanzar proyectiles en la escenaz
 };
 
 #endif // LUNCH_H

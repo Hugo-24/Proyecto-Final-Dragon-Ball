@@ -3,7 +3,9 @@
 
 #include "nivel.h"
 #include "personaje.h"
+#include "proyectil.h"
 
+#include <QVector>
 #include <QTimer>
 #include <QSet>
 #include <QLabel>
@@ -29,6 +31,7 @@ private:
     QTimer* timer;                // Timer principal (actualiza físicas y scroll)
     QSet<int> teclasPresionadas; // Teclas actualmente presionadas
     int offsetX;                  // Desplazamiento horizontal para scroll lateral
+    QVector<Proyectil*> proyectiles; // Lista de proyectiles activos
 
     QLabel* fondoSeleccion;      // Fondo visible durante la selección de personaje
     QWidget* selector;           // Contenedor de botones para elegir personaje
