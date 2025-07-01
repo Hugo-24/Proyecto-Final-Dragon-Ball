@@ -18,21 +18,20 @@ Mina::Mina(QWidget* parent, const QVector2D& pos)
     setPosicion(pos);
     sprite->show();
 }
-
 void Mina::interactuar(Entidad* entidad) {
     if (!entidad || !sprite->isVisible()) return;
 
     qDebug() << "¡Mina explotó!";
-    sprite->hide();  // Desaparece
+    sprite->hide();  // Desaparece visualmente
 
-    // Retroceso animado del jugador (si es jugador)
-    QWidget* contenedor = qobject_cast<QWidget*>(this->getSprite()->parent());
+    // 🌀 Retroceso solo si fue el jugador
+    QWidget* contenedor = qobject_cast<QWidget*>(sprite->parent());
     if (contenedor) {
         QTimer* animador = new QTimer(contenedor);
         int pasos = 10;
         int contador = 0;
         QVector2D inicio = entidad->getPosicion();
-        QVector2D destino = inicio - QVector2D(50, 0); // Retroceso a la izquierda
+        QVector2D destino = inicio - QVector2D(150, 0);
         QVector2D delta = (destino - inicio) / pasos;
 
         QObject::connect(animador, &QTimer::timeout, [=]() mutable {
@@ -41,18 +40,17 @@ void Mina::interactuar(Entidad* entidad) {
                 animador->deleteLater();
                 return;
             }
-
-            entidad->setPosicion(entidad->getPosicion() + delta * 4);
+            entidad->setPosicion(entidad->getPosicion() + delta);
             entidad->actualizar();
             contador++;
         });
 
-        animador->start(20); // 20 ms por paso = 200 ms de animación
+        animador->start(20);
     }
 
-    // Reaparecer en lugar aleatorio tras 10 segundos
+    // 🧠 Asegúrate de que esta parte siempre se ejecute después de cada explosión
     QTimer::singleShot(10000, [this]() {
-        QWidget* contenedor = qobject_cast<QWidget*>(this->getSprite()->parent());
+        QWidget* contenedor = qobject_cast<QWidget*>(sprite->parent());
         if (!contenedor) return;
 
         int maxX = contenedor->width() - sprite->width();
@@ -63,8 +61,10 @@ void Mina::interactuar(Entidad* entidad) {
 
         setPosicion(QVector2D(nuevaX, nuevaY));
         sprite->show();
+        actualizar();
     });
 }
+
 
 
 

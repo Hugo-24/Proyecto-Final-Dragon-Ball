@@ -39,7 +39,7 @@ void Nivel2::cargarNivel() {
     agregarMina(QVector2D(100, 150));
 
 
-    agregarTorpedo(QVector2D(700, 150), QVector2D(-1, 0)); // torpedo enemigo que va hacia la izquierda tomar esta linea de ejemplo para la inversión de los disparos
+    //agregarTorpedo(QVector2D(700, 150), QVector2D(-1, 0)); // torpedo enemigo que va hacia la izquierda tomar esta linea de ejemplo para la inversión de los disparos
 
     // Timer para actualizar el juego
     connect(timerActualizacion, &QTimer::timeout, this, [=]() {
