@@ -48,7 +48,7 @@ void Mina::interactuar(Entidad* entidad) {
         animador->start(20);
     }
 
-    // 🧠 Asegúrate de que esta parte siempre se ejecute después de cada explosión
+
     QTimer::singleShot(10000, [this]() {
         QWidget* contenedor = qobject_cast<QWidget*>(sprite->parent());
         if (!contenedor) return;
@@ -69,5 +69,5 @@ void Mina::interactuar(Entidad* entidad) {
 
 
 void Mina::actualizar() {
-    // Aquí puedes animar la mina si lo deseas
+    // Si se desea animar la mina
 }

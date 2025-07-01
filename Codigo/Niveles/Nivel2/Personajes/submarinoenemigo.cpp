@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <cmath>
 
+
 SubmarinoEnemigo::SubmarinoEnemigo(QWidget* parent, const QVector2D& posicion)
     : Entidad(parent),
     direccion(-1, 0),
@@ -12,28 +13,42 @@ SubmarinoEnemigo::SubmarinoEnemigo(QWidget* parent, const QVector2D& posicion)
     amplitudVertical(4.0f),
     frecuencia(0.2f),
     pasosDesdeUltimoAvance(0),
-    pasosPorAvance(10) {
-
+    pasosPorAvance(10),
+    enModoAtaque(false),
+    tiempoEnAtaque(0.0f),
+    objetivo(nullptr)
+{
     QPixmap imagen(":/Sprites/Nave/Nave_RR_Izquierda.png");
     if (imagen.isNull()) {
         qDebug() << "No se pudo cargar el sprite del submarino enemigo";
     }
 
-    sprite->setFixedSize(64, 32);
+    sprite->setFixedSize(104, 42);
     sprite->setPixmap(imagen.scaled(sprite->size()));
     setPosicion(posicion);
     sprite->show();
+
+    // Timers
+    temporizadorAtaque = new QTimer(this);
+    connect(temporizadorAtaque, &QTimer::timeout, this, &SubmarinoEnemigo::salirDeModoAtaque);
+
+    temporizadorDisparo = new QTimer(this);
+    connect(temporizadorDisparo, &QTimer::timeout, this, &SubmarinoEnemigo::dispararTorpedo);
 }
 
 void SubmarinoEnemigo::actualizar() {
+    if (objetivo && !enModoAtaque) {
+        verificarFoco(objetivo);
+    }
+
+    if (enModoAtaque) return; // No se mueve si está atacando
+
     tiempoTotal += 0.2f;
 
-    // Movimiento vertical senoidal
     float offsetY = amplitudVertical * std::sin(frecuencia * tiempoTotal);
     QVector2D nuevaPos = posicion;
     nuevaPos.setY(posicion.y() + offsetY);
 
-    // Avance horizontal cada X pasos
     pasosDesdeUltimoAvance++;
     if (pasosDesdeUltimoAvance >= pasosPorAvance) {
         nuevaPos.setX(nuevaPos.x() + direccion.normalized().x() * velocidad);
@@ -42,6 +57,34 @@ void SubmarinoEnemigo::actualizar() {
 
     setPosicion(nuevaPos);
     sprite->move(nuevaPos.toPoint());
+}
+
+void SubmarinoEnemigo::verificarFoco(const Entidad* jugador) {
+    QRect zonaFoco(posicion.x() - 200, posicion.y() - 50, 400, 100);
+
+    if (zonaFoco.contains(jugador->getPosicion().toPoint())) {
+        enModoAtaque = true;
+        tiempoEnAtaque = 0;
+        temporizadorAtaque->start(8000);     // 8 segundos
+        temporizadorDisparo->start(1500);    // Disparo cada 1.5 segundos
+    }
+}
+
+void SubmarinoEnemigo::salirDeModoAtaque() {
+    enModoAtaque = false;
+    temporizadorAtaque->stop();
+    temporizadorDisparo->stop();
+}
+
+void SubmarinoEnemigo::dispararTorpedo() {
+    if (!sprite || !enModoAtaque) return;
+
+    QVector2D posTorpedo = this->getPosicion() + QVector2D(-sprite->width(), sprite->height() / 2);
+    QVector2D direccion(-1, 0);  // Dirección hacia la izquierda
+
+    emit torpedoDisparado(posTorpedo, direccion);
+    qDebug() << "Torpedo enemigo en:" << posTorpedo << " dirección:" << direccion;
+
 }
 
 void SubmarinoEnemigo::recibirDaño(int cantidad) {
@@ -58,5 +101,5 @@ bool SubmarinoEnemigo::estaDestruido() const {
 
 void SubmarinoEnemigo::interactuar(Entidad* otra) {
     if (!otra) return;
-    // Aquí puedes añadir daño al jugador si lo deseas
+    // Daño o reacción al colisionar con jugador (si se desea)
 }

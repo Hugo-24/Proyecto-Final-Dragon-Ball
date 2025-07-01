@@ -13,6 +13,7 @@
         <file>Sprites/Nave/minas.png</file>
         <file>Sprites/Nave/Nave_RR_Izquierda.png</file>
         <file>Sprites/Nave/Nave_Jugador.png</file>
+	<file>Sprites/Nave/explosion.png</file>
 
         <!-- Maestro Roshi -->
         <file>Sprites/Roshi/R_Idle_Roshi.png</file>

@@ -30,23 +30,50 @@ void Nivel2::cargarNivel() {
 
     // Submarino del jugador
     submarino = new SubmarinoJugador(this);
-    submarino->getSprite()->raise(); // Mostrar sobre el fondo
+    submarino->getSprite()->raise();
 
-    // Objetos hostiles (de prueba por ahora)
+    // Objetos hostiles (minas)
     agregarMina(QVector2D(400, 350));
     agregarMina(QVector2D(600, 200));
     agregarMina(QVector2D(250, 400));
     agregarMina(QVector2D(100, 150));
 
+    // Submarinos enemigos
+    QVector<QVector2D> posicionesEnemigos = {
+        QVector2D(600, 100),
+        QVector2D(700, 300)
+    };
+
+    for (const QVector2D& pos : posicionesEnemigos) {
+        SubmarinoEnemigo* enemigo = new SubmarinoEnemigo(this, pos);
+        enemigos.push_back(enemigo);
+
+        // 🎯 Comportamiento de ataque cuando jugador está en rango
+        QTimer* ataqueTimer = new QTimer(enemigo);
+        connect(ataqueTimer, &QTimer::timeout, this, [=]() {
+            if (!enemigo->getSprite()->isVisible() || !submarino) return;
+
+            float distanciaX = std::abs(enemigo->getPosicion().x() - submarino->getPosicion().x());
+
+            // Si el jugador está en rango horizontal
+            if (distanciaX < 300) {
+                static int contador = 0;
+
+                if (contador < 8 * (1000 / 800)) { // ~8 segundos con paso cada 800ms
+                    QVector2D direccion = (submarino->getPosicion() - enemigo->getPosicion()).normalized();
+                    agregarTorpedo(enemigo->getPosicion(), direccion, false);
+                    ++contador;
+                } else {
+                    contador = 0;
+                }
+            }
+        });
+        ataqueTimer->start(800); // Verifica cada 800 ms
 
 
-    //agregarTorpedo(QVector2D(700, 150), QVector2D(-1, 0)); // torpedo enemigo que va hacia la izquierda tomar esta linea de ejemplo para la inversión de los disparos
+    }
 
-    agregarSubmarinoEnemigo(QVector2D(600, 100));
-    agregarSubmarinoEnemigo(QVector2D(700, 300));
-
-
-    // Timer para actualizar el juego
+    // ⏱️ Timer principal de juego
     connect(timerActualizacion, &QTimer::timeout, this, [=]() {
         // 1. Movimiento del jugador
         submarino->procesarEntrada(teclasPresionadas);
@@ -58,7 +85,6 @@ void Nivel2::cargarNivel() {
             Torpedo* t = torpedos[i];
             t->actualizar();
 
-            // Eliminar si el torpedo sale de la pantalla
             if (t->getPosicion().x() > width() || t->getPosicion().x() < 0) {
                 t->getSprite()->hide();
                 delete t;
@@ -72,17 +98,17 @@ void Nivel2::cargarNivel() {
             enemigo->actualizar();
         }
 
-        // 4. Actualización de objetos (como minas)
+        // 4. Actualización de objetos
         for (Objeto* obj : objetosHostiles) {
             obj->actualizar();
         }
 
-        // 5. Verificar colisiones
+        // 5. Verificación de colisiones
         verificarColisiones();
     });
 
-    timerActualizacion->start(16); // Aproximadamente 60 FPS
-    this->setFocus(); // Captura del teclado
+    timerActualizacion->start(16); // ~60 FPS
+    this->setFocus();
 }
 
 
@@ -93,7 +119,7 @@ void Nivel2::keyPressEvent(QKeyEvent* event) {
     if (event->key() == Qt::Key_Space && submarino) {
         QVector2D posicionInicial = submarino->getPosicion() + QVector2D(80, 55); // un poco al frente
         QVector2D direccion = QVector2D(1, 0); // hacia la derecha
-        agregarTorpedo(posicionInicial, direccion);
+        agregarTorpedo(posicionInicial, direccion, true);
     }
 }
 // Evento: soltar tecla
@@ -126,6 +152,7 @@ void Nivel2::verificarColisiones() {
         // Colisión con el jugador
         if (colisiona(submarino->getPosicion(), submarino->getSprite()->size(),
                       obj1->getPosicion(), obj1->getSprite()->size())) {
+            mostrarExplosion(obj1->getPosicion());
             obj1->interactuar(submarino);
         }
 
@@ -137,6 +164,7 @@ void Nivel2::verificarColisiones() {
 
             if (colisiona(obj1->getPosicion(), obj1->getSprite()->size(),
                           obj2->getPosicion(), obj2->getSprite()->size())) {
+                mostrarExplosion(obj1->getPosicion());
                 obj1->getSprite()->hide();
                 obj2->getSprite()->hide();
             }
@@ -159,6 +187,7 @@ void Nivel2::verificarColisiones() {
                     if (enemigo) {
                         enemigo->recibirDaño(10);  // Ajusta el daño a lo que desees
                     }
+                    mostrarExplosion(torpedo->getPosicion());
                 }
             }
         }
@@ -177,12 +206,14 @@ void Nivel2::agregarMina(const QVector2D& pos) {
 
 
 // Añadir torpedo al mapa
-void Nivel2::agregarTorpedo(const QVector2D& pos, const QVector2D& dir) {
+void Nivel2::agregarTorpedo(const QVector2D& pos, const QVector2D& dir, bool delJugador) {
     Torpedo* torpedo = new Torpedo(this, pos, dir);
     objetosHostiles.push_back(torpedo);
-    torpedosJugador.push_back(torpedo);
 
+    if (delJugador)
+        torpedosJugador.push_back(torpedo);
 }
+
 
 void Nivel2::agregarSubmarinoEnemigo(const QVector2D& pos) {
     SubmarinoEnemigo* enemigo = new SubmarinoEnemigo(this, pos);
@@ -192,6 +223,23 @@ void Nivel2::agregarSubmarinoEnemigo(const QVector2D& pos) {
 
     enemigos.append(enemigo);
 }
+
+void Nivel2::mostrarExplosion(const QVector2D& posicion) {
+    QLabel* explosion = new QLabel(this);
+    QPixmap imagen(":/Sprites/Nave/explosion.png");
+
+    explosion->setPixmap(imagen.scaled(40, 40)); // Tamaño opcional
+    explosion->setAttribute(Qt::WA_TranslucentBackground);
+    explosion->move(posicion.toPoint());
+    explosion->show();
+
+    // Oculta y destruye la explosión después de un tiempo
+    QTimer::singleShot(400, explosion, [explosion]() {
+        explosion->hide();
+        explosion->deleteLater();
+    });
+}
+
 
 
 
