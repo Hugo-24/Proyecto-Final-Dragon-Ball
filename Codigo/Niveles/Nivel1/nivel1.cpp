@@ -85,7 +85,7 @@ void Nivel1::cargarNivel() {
 
         // Crear al jugador seleccionado
         jugador = personaje;
-        jugador->setPosicion(QVector2D(100, 450));
+        jugador->setPosicion(QVector2D(100, 420));
         jugador->getSprite()->show();
         jugador->getSprite()->raise();
 
@@ -112,7 +112,7 @@ void Nivel1::cargarNivel() {
     connect(timer, &QTimer::timeout, this, [=]() {
         if (!jugador || !jugador->getSprite() || !fondoNivel) return;
 
-        // Movimiento horizontal con teclas A y D
+        // Movimiento horizontal
         if (teclasPresionadas.contains(Qt::Key_A)) {
             jugador->moverIzquierda();
         } else if (teclasPresionadas.contains(Qt::Key_D)) {
@@ -121,32 +121,37 @@ void Nivel1::cargarNivel() {
             jugador->setVelocidad(QVector2D(0, jugador->getVelocidad().y()));
         }
 
-        // Aplicar gravedad al jugador
+        // Aplicar físicas (incluye gravedad y salto)
         jugador->aplicarFisica();
+
+        // Obtener posición lógica del jugador actualizada
         QVector2D pos = jugador->getPosicion();
 
-        // Scroll lateral hacia la derecha
+        // Scroll lateral: mover fondo si el personaje se acerca a los bordes visibles
         if (pos.x() > 400 && offsetX < 7200) {
             offsetX += jugador->getVelocidad().x();
             fondoNivel->move(-offsetX, 0);
-            jugador->getSprite()->move(400, pos.y());
+            jugador->getSprite()->move(400, pos.y());  // Visual: mantenerlo en centro
         }
-        // Scroll lateral hacia la izquierda
         else if (pos.x() < 100 && offsetX > 0) {
-            offsetX += jugador->getVelocidad().x(); // negativo
+            offsetX += jugador->getVelocidad().x();
             fondoNivel->move(-offsetX, 0);
-            jugador->getSprite()->move(100, pos.y());
-        } else {
-            jugador->actualizar();
+            jugador->getSprite()->move(100, pos.y());  // Visual: mantenerlo a la izquierda
+        }
+        else {
+            // Cuando no hay scroll, mover sprite normalmente según posición lógica
+            jugador->getSprite()->move(pos.x() - offsetX, pos.y());
         }
 
-        // ACTUALIZAR proyectiles
+        // Actualizar proyectiles
         for (int i = 0; i < proyectiles.size(); ++i) {
             Proyectil* p = proyectiles[i];
             p->actualizar();
 
-            // Eliminar proyectil si sale del rango visible (ancho nivel completo)
-            if (p->getPosicion().x() < -100 || p->getPosicion().x() > 8100) {
+            QVector2D posP = p->getPosicion();
+            p->getSprite()->move(posP.x() - offsetX, posP.y());
+
+            if (posP.x() < -100 || posP.x() > 8200) {
                 p->getSprite()->hide();
                 delete p;
                 proyectiles.remove(i);
@@ -166,17 +171,24 @@ void Nivel1::keyPressEvent(QKeyEvent* event) {
 
     // Ataques especiales
     if (event->key() == Qt::Key_R) {
+        if (!jugador || !jugador->getSprite()) return;
+
+        // Verificamos si está en cooldown
+        if (!jugador->estaListoParaDisparar()) return;
+        jugador->setPuedeDisparar(false);
+
         auto* l = dynamic_cast<Lunch*>(jugador);
 
         if (l && l->estaEnModoAgresiva()) {
             l->disparar();
 
-            // Retrasar el disparo 550 ms para que coincida con la animación
+            // Esperar el tiempo total de la animación para permitir nuevo disparo
+            QTimer::singleShot(800, this, [=]() { jugador->setPuedeDisparar(true); });
+
+            // Disparo después del retardo (animación sincronizada)
             QTimer::singleShot(550, this, [=]() {
                 QVector2D direccion = l->estaMirandoDerecha() ? QVector2D(1, 0) : QVector2D(-1, 0);
-
-                // Ajustamos la posición con offsetX
-                QVector2D posicion = QVector2D(l->getSprite()->x() + offsetX, l->getSprite()->y() + 10);
+                QVector2D posicion = l->getPosicion() + QVector2D(0, 10);
 
                 Proyectil* bala = new Proyectil(this, posicion, direccion, "lunch", 10.0f);
                 bala->getSprite()->raise();
@@ -186,10 +198,10 @@ void Nivel1::keyPressEvent(QKeyEvent* event) {
         else if (!l) {
             jugador->lanzarEnergia();
 
-            QVector2D direccion = jugador->estaMirandoDerecha() ? QVector2D(1, 0) : QVector2D(-1, 0);
+            QTimer::singleShot(500, this, [=]() { jugador->setPuedeDisparar(true); });
 
-            // Posición del proyectil considerando offsetX (y lo subimos un poco)
-            QVector2D posicion = QVector2D(jugador->getSprite()->x() + offsetX, jugador->getSprite()->y() - 5);
+            QVector2D direccion = jugador->estaMirandoDerecha() ? QVector2D(1, 0) : QVector2D(-1, 0);
+            QVector2D posicion = jugador->getPosicion() + QVector2D(0, -5);
 
             Proyectil* bola = new Proyectil(this, posicion, direccion, "roshi", 10.0f);
             bola->getSprite()->raise();
@@ -197,11 +209,11 @@ void Nivel1::keyPressEvent(QKeyEvent* event) {
         }
     }
 
-    // Nuevo: ataque con subfusil (presionar E)
+    // NUEVO: subfusil por toque (E)
     if (event->key() == Qt::Key_E) {
         auto* l = dynamic_cast<Lunch*>(jugador);
         if (l && l->estaEnModoAgresiva()) {
-            l->comenzarRafaga(); // animación y disparo continuo
+            l->dispararSubfusil(); // Nuevo método de disparo rápido
         }
     }
 
@@ -215,10 +227,9 @@ void Nivel1::keyPressEvent(QKeyEvent* event) {
 // Evento: tecla soltada
 void Nivel1::keyReleaseEvent(QKeyEvent* event) {
     teclasPresionadas.remove(event->key());
+}
 
-    // Detener la ráfaga si se suelta la tecla E
-    if (event->key() == Qt::Key_E) {
-        auto* l = dynamic_cast<Lunch*>(jugador);
-        if (l) l->detenerRafaga();
-    }
+// NUEVO: Método para que Lunch pueda agregar proyectiles a la lista
+void Nivel1::agregarProyectil(Proyectil* p) {
+    proyectiles.append(p);
 }

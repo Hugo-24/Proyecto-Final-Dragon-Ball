@@ -1,6 +1,7 @@
 #include "proyectil.h"
 #include <QPixmap>
 #include <QDebug>
+#include <QWidget>
 
 Proyectil::Proyectil(QWidget* parent,
                      const QVector2D& posicion,
@@ -22,8 +23,10 @@ Proyectil::Proyectil(QWidget* parent,
             imagen.load(":/Sprites/Proyectiles/R_BalaCohete.png");
         else
             imagen.load(":/Sprites/Proyectiles/L_BalaCohete.png");
-
         sprite->setFixedSize(80, 40);
+    } else if (tipo == "subfusil") {
+        imagen.load(":/Sprites/Proyectiles/BalaSubfusil.png");
+        sprite->setFixedSize(28, 8);
     }
 
     // Validar imagen
@@ -40,15 +43,9 @@ Proyectil::Proyectil(QWidget* parent,
 void Proyectil::actualizar() {
     // Movimiento lineal constante
     posicion += direccion * velocidad;
-    sprite->move(posicion.toPoint());
-
-    // No se aplica gravedad
-    // El proyectil se elimina si sale de la pantalla
-    QWidget* escena = dynamic_cast<QWidget*>(sprite->parent());
-    if (escena) {
-        if (posicion.x() < -sprite->width() || posicion.x() > escena->width() + 8000) {
-            sprite->hide();
-        }
+    // Eliminación si sale de pantalla
+    if (posicion.x() < -100 || posicion.x() > 8200) {
+        sprite->hide();
     }
 }
 

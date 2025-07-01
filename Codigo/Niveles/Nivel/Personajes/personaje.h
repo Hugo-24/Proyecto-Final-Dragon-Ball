@@ -4,7 +4,7 @@
 #include "entidad.h"
 
 // Clase base para personajes jugables como Roshi, Lunch, Goku
-class Personaje : public Entidad, public QObject  {
+class Personaje : public Entidad, public QObject {
 public:
     Personaje(QWidget* parent);
 
@@ -14,6 +14,7 @@ public:
 
     // Salto vertical
     virtual void saltar();
+
     // Ataque cuerpo a cuerpo (opcional en subclases)
     virtual void atacar() {}
 
@@ -22,9 +23,16 @@ public:
 
     bool estaMirandoDerecha() const;
 
+    // Control de cooldown de disparo
+    bool estaListoParaDisparar() const { return puedeDisparar; }
+    void setPuedeDisparar(bool estado) { puedeDisparar = estado; }
+
 protected:
-    bool mirandoDerecha;  // true = derecha, false = izquierda
+    bool mirandoDerecha;         // true = derecha, false = izquierda
     virtual void actualizarSprite(); // Se redefine en subclases
+
+    //Estado que controla si el personaje puede disparar o está en cooldown
+    bool puedeDisparar = true;
 };
 
 #endif // PERSONAJE_H

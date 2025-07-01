@@ -6,7 +6,7 @@ Personaje::Personaje(QWidget* parent)
 // Mover a la izquierda
 void Personaje::moverIzquierda() {
     QVector2D vel = getVelocidad();
-    vel.setX(-3);
+    vel.setX(-4);
     setVelocidad(vel);
     mirandoDerecha = false;
     actualizarSprite();
@@ -15,7 +15,7 @@ void Personaje::moverIzquierda() {
 // Mover a la derecha
 void Personaje::moverDerecha() {
     QVector2D vel = getVelocidad();
-    vel.setX(3);
+    vel.setX(4);
     setVelocidad(vel);
     mirandoDerecha = true;
     actualizarSprite();
@@ -26,7 +26,7 @@ void Personaje::saltar() {
     if (!enElSuelo) return; // Solo puede saltar desde el suelo
 
     QVector2D vel = getVelocidad();
-    vel.setY(-12); // salto
+    vel.setY(-20); // salto
     setVelocidad(vel);
     enElSuelo = false;
 }

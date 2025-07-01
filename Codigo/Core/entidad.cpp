@@ -28,8 +28,8 @@ void Entidad::mover() {
 
 // Actualiza sprite en pantalla
 void Entidad::actualizar() {
-    mover();
-    sprite->move(static_cast<int>(posicion.x()), static_cast<int>(posicion.y()));
+    mover();  // Aplica desplazamiento por velocidad
+    // El sprite visual será movido desde Nivel
 }
 
 // Posición manual del sprite

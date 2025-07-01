@@ -11,22 +11,20 @@
 class Lunch : public Personaje {
 public:
     Lunch(QWidget* parent);
-
-    void atacar() override;
-    void disparar();
-    void comenzarRafaga();  // Disparo con subfusil (sostener tecla)
-    void detenerRafaga();   // Se suelta la tecla E
-    void transformar();     // Alternar entre modos
+    void disparar();            // Disparo de bazuca (tecla R)
+    void dispararSubfusil();    // NUEVO: Disparo individual con subfusil (tecla E)
+    void transformar();         // Alternar entre modos
     bool estaEnModoAgresiva() const;
+    // No redefine atacar(): Lunch no puede atacar cuerpo a cuerpo
 
 protected:
     void actualizarSprite() override;
 
 private:
-    bool transformada;
-    bool rafagaActiva;
-    QTimer* timerRafaga;
-    QWidget* contenedor; // Para lanzar proyectiles en la escenaz
+    bool transformada;         // true si está en modo agresiva (Launch rubia)
+    bool rafagaActiva;         // Ya no se usa, pero lo dejamos por compatibilidad si se desea reactivar
+    QTimer* timerRafaga;       // Ya no se usa activamente
+    QWidget* contenedor;       // Referencia al contenedor (Nivel1) para lanzar proyectiles en la escena
 };
 
 #endif // LUNCH_H

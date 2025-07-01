@@ -12,7 +12,7 @@ public:
     Proyectil(QWidget* parent,
               const QVector2D& posicion,
               const QVector2D& direccion,
-              const QString& tipo, // "roshi" o "lunch"
+              const QString& tipo, // "roshi", "lunch", "subfusil"
               float velocidad = 10.0f);
 
     void actualizar() override;
