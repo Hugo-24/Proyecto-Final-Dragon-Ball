@@ -2,6 +2,7 @@
 #include "nivel.h"
 #include "mapa.h"
 #include "submarinojugador.h"
+#include "submarinoenemigo.h"
 
 class Objeto;
 class Torpedo;
@@ -27,12 +28,16 @@ private:
     // Interacción objetos de colision:
     std::vector<Objeto*> objetosHostiles;
     QVector<Torpedo*> torpedos;
+    QVector<Torpedo*> torpedosJugador;
+    QVector<SubmarinoEnemigo*> enemigos;
 
 
 
     void agregarMina(const QVector2D& pos);
     void agregarTorpedo(const QVector2D& pos, const QVector2D& direccion);
     void verificarColisiones();  // método auxiliar para fase 2
+    void agregarSubmarinoEnemigo(const QVector2D& pos);
+
 };
 
 

@@ -16,6 +16,7 @@ public:
     virtual void aplicarFisica(); // Física simple (gravedad)
     bool enElSuelo; // ¿Está tocando el suelo?
 
+
     void setPosicion(const QVector2D& pos);
     QVector2D getPosicion() const;
 
@@ -25,6 +26,11 @@ public:
     QLabel* getSprite();              // Acceso al sprite
 
     void setSprite(const QString& ruta); // Cambiar imagen del sprite
+
+    virtual void interactuar(Entidad* otra);
+
+
+
 
 protected:
     QVector2D posicion;

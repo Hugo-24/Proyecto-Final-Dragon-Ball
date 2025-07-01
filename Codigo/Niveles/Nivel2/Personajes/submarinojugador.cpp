@@ -8,15 +8,20 @@ const float LIMITE_VELOCIDAD = 5.0f;
 SubmarinoJugador::SubmarinoJugador(QWidget* parent)
     : Entidad(parent) {
 
-    // Cargar sprite del submarino
-    QPixmap imagen(":/Sprites/Nave/Nave_RR.png");
+    QPixmap imagen(":/Sprites/Nave/Nave_Jugador.png");
     if (imagen.isNull()) {
         qDebug() << "Error: no se pudo cargar el sprite del submarino.";
+        return;
     }
 
-    sprite->setPixmap(imagen.scaled(sprite->size()));
+    QSize nuevoTamaño(86, 126 );  // ✅ Ajusta según lo que se vea mejor
+    sprite->setFixedSize(nuevoTamaño);  // Cambia el tamaño del QLabel
+    sprite->setPixmap(imagen.scaled(nuevoTamaño));  // Escala el sprite
+    sprite->show();
+
     setPosicion(QVector2D(100, 300));
 }
+
 
 // Teclas: flechas o WASD
 void SubmarinoJugador::procesarEntrada(const QSet<int>& teclasPresionadas) {

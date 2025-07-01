@@ -50,6 +50,7 @@ QLabel* Entidad::getSprite() {
     return sprite;
 }
 
+
 // Cambia la imagen del sprite
 void Entidad::setSprite(const QString& ruta) {
     QPixmap pix(ruta);                     // Cargar imagen
@@ -75,4 +76,8 @@ void Entidad::aplicarFisica() {
 
     setVelocidad(vel);
     setPosicion(pos);
+}
+void Entidad::interactuar(Entidad* /*otra*/) {
+    // No hace nada por defecto
+
 }

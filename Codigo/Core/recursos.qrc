@@ -2,6 +2,7 @@
     <qresource prefix="/">
         <!-- Fondos -->
         <file>Sprites/Fondos/fondo_menu.jpg</file>
+
         <file>Sprites/Fondos/fondo_nivel1.jpg</file>
         <file>Sprites/Fondos/fondo_nivel2.jpg</file>
         <file>Sprites/Fondos/Fondo_scroll_largo.jpg</file>
@@ -11,6 +12,8 @@
         <file>Sprites/Nave/Nave_RR.png</file>
         <file>Sprites/Nave/torpedo_jugador.png</file>
         <file>Sprites/Nave/minas.png</file>
+        <file>Sprites/Nave/Nave_RR_Izquierda.png</file>
+        <file>Sprites/Nave/Nave_Jugador.png</file>
 
         <!-- Maestro Roshi -->
         <file>Sprites/Roshi/R_Idle_Roshi.png</file>

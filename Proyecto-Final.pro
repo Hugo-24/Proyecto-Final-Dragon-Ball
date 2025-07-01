@@ -22,16 +22,26 @@ INCLUDEPATH += \
 # CORE DEL JUEGO
 # =========================================
 SOURCES += \
+    Codigo/Core/objeto.cpp \
+    Codigo/Niveles/Nivel2/Personajes/submarinoenemigo.cpp \
     Codigo/Core/entidad.cpp \
     Codigo/Core/juego.cpp \
     Codigo/Core/mapa.cpp \
-    Codigo/Core/objeto.cpp \
 
 HEADERS += \
     Codigo/Core/entidad.h \
     Codigo/Core/juego.h \
     Codigo/Core/mapa.h \
     Codigo/Core/objeto.h \
+    Codigo/Niveles/Nivel2/Personajes/submarinoenemigo.h \
+    Codigo/UI/mainwindow.h \
+    Codigo/UI/menu_principal.h \
+    Codigo/Niveles/Nivel/nivel.h \
+    Codigo/Niveles/Nivel1/nivel1.h \
+    Codigo/Niveles/Nivel2/nivel2.h \
+    Codigo/Niveles/Nivel2/Objetos/mina.h \
+    Codigo/Niveles/Nivel2/Objetos/torpedo.h \
+    Codigo/Niveles/Nivel2/Personajes/submarinojugador.h
 
 # =========================================
 # UI / INTERFAZ
