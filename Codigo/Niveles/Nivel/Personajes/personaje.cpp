@@ -35,3 +35,6 @@ void Personaje::saltar() {
 void Personaje::actualizarSprite() {
     // Por defecto, no hace nada
 }
+bool Personaje::estaMirandoDerecha() const {
+    return mirandoDerecha;
+}

@@ -20,6 +20,8 @@ public:
     // Ataque de energía (opcional en subclases)
     virtual void lanzarEnergia() {}
 
+    bool estaMirandoDerecha() const;
+
 protected:
     bool mirandoDerecha;  // true = derecha, false = izquierda
     virtual void actualizarSprite(); // Se redefine en subclases

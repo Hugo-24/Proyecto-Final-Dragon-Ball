@@ -2,7 +2,6 @@
     <qresource prefix="/">
         <!-- Fondos -->
         <file>Sprites/Fondos/fondo_menu.jpg</file>
-
         <file>Sprites/Fondos/fondo_nivel1.jpg</file>
         <file>Sprites/Fondos/fondo_nivel2.jpg</file>
         <file>Sprites/Fondos/Fondo_scroll_largo.jpg</file>
@@ -43,8 +42,9 @@
         <file>Sprites/Lunch/R_Idle_BlueLunch.png</file>
         <file>Sprites/Lunch/L_Idle_BlueLunch.png</file>
 
-        <!-- Proyectil de bala -->
-        <file>Sprites/Lunch/R_BalaCohete.png</file>
-        <file>Sprites/Lunch/L_BalaCohete.png</file>
+        <!-- Proyectiles -->
+        <file>Sprites/Proyectiles/Bola_Energia.png</file>
+        <file>Sprites/Proyectiles/R_BalaCohete.png</file>
+        <file>Sprites/Proyectiles/L_BalaCohete.png</file>
     </qresource>
 </RCC>
