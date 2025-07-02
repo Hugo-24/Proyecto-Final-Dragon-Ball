@@ -13,11 +13,14 @@
         <file>Sprites/Nave/minas.png</file>
         <file>Sprites/Nave/Nave_RR_Izquierda.png</file>
         <file>Sprites/Nave/Nave_Jugador.png</file>
-	<file>Sprites/Nave/explosion.png</file>
 
         <!-- Maestro Roshi -->
         <file>Sprites/Roshi/R_Idle_Roshi.png</file>
         <file>Sprites/Roshi/L_Idle_Roshi.png</file>
+        <file>Sprites/Roshi/R_Walk1_Roshi.png</file>
+        <file>Sprites/Roshi/R_Walk2_Roshi.png</file>
+        <file>Sprites/Roshi/L_Walk1_Roshi.png</file>
+        <file>Sprites/Roshi/L_Walk2_Roshi.png</file>
         <file>Sprites/Roshi/R_Punching_Roshi.png</file>
         <file>Sprites/Roshi/L_Punching_Roshi.png</file>
         <file>Sprites/Roshi/R_Launching_Roshi.png</file>
@@ -26,6 +29,10 @@
         <!-- Launch (modo agresiva) -->
         <file>Sprites/Lunch/R_Idle_Launch.png</file>
         <file>Sprites/Lunch/L_Idle_Launch.png</file>
+        <file>Sprites/Lunch/R_Walk1_Launch.png</file>
+        <file>Sprites/Lunch/R_Walk2_Launch.png</file>
+        <file>Sprites/Lunch/L_Walk1_Launch.png</file>
+        <file>Sprites/Lunch/L_Walk2_Launch.png</file>
         <file>Sprites/Lunch/R_Punching_Launch.png</file>
         <file>Sprites/Lunch/L_Punching_Launch.png</file>
 
@@ -42,6 +49,10 @@
         <!-- BlueLunch (modo tranquila) -->
         <file>Sprites/Lunch/R_Idle_BlueLunch.png</file>
         <file>Sprites/Lunch/L_Idle_BlueLunch.png</file>
+        <file>Sprites/Lunch/R_Walk1_BlueLunch.png</file>
+        <file>Sprites/Lunch/R_Walk2_BlueLunch.png</file>
+        <file>Sprites/Lunch/L_Walk1_BlueLunch.png</file>
+        <file>Sprites/Lunch/L_Walk2_BlueLunch.png</file>
 
         <!-- Animación de subfusil de Launch -->
         <file>Sprites/Lunch/R_Subfusil1_Launch.png</file>
