@@ -5,7 +5,6 @@
 #include <QObject>
 #include <QProgressBar>
 
-
 class SubmarinoEnemigo : public QObject, public Entidad {
     Q_OBJECT
 
@@ -17,8 +16,9 @@ public:
     bool estaDestruido() const;
     int getVida() const;
 
-    void verificarFoco(const Entidad* jugador);  // Verifica si el jugador está en rango
-    Entidad* objetivo; // Referencia al jugador para seguimiento
+    void setObjetivo(Entidad* obj); // ← Añade esta línea
+    void verificarFoco(const Entidad* jugador);
+
 
 signals:
     void torpedoDisparado(const QVector2D& pos, const QVector2D& dir);
@@ -34,10 +34,8 @@ private:
 
     // Patrullaje
     float tiempoTotal;
-    float amplitudVertical;
-    float frecuencia;
-    int pasosDesdeUltimoAvance;
-    int pasosPorAvance;
+    float radio;
+    QVector2D centroMovimiento;
 
     // Modo ataque
     bool enModoAtaque;
@@ -46,4 +44,6 @@ private:
     QTimer* temporizadorDisparo;
 
     QProgressBar* barraVida;
+
+    Entidad* objetivo;
 };

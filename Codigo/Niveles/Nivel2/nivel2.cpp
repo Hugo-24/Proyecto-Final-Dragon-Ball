@@ -64,8 +64,10 @@ void Nivel2::cargarNivel() {
         QVector2D(700, 300)
     };
 
+
     for (const QVector2D& pos : posicionesEnemigos) {
         SubmarinoEnemigo* enemigo = new SubmarinoEnemigo(this, pos);
+        enemigo->setObjetivo(submarino);
         enemigos.push_back(enemigo);
 
         // 🎯 Comportamiento de ataque cuando jugador está en rango

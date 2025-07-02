@@ -3,17 +3,14 @@
 #include <QDebug>
 #include <cmath>
 
-
 SubmarinoEnemigo::SubmarinoEnemigo(QWidget* parent, const QVector2D& posicion)
     : Entidad(parent),
     direccion(-1, 0),
     velocidad(2.0f),
     vida(100),
     tiempoTotal(0.0f),
-    amplitudVertical(4.0f),
-    frecuencia(0.2f),
-    pasosDesdeUltimoAvance(0),
-    pasosPorAvance(10),
+    radio(30.0f),
+    centroMovimiento(posicion),
     enModoAtaque(false),
     tiempoEnAtaque(0.0f),
     objetivo(nullptr)
@@ -28,9 +25,9 @@ SubmarinoEnemigo::SubmarinoEnemigo(QWidget* parent, const QVector2D& posicion)
     setPosicion(posicion);
     sprite->show();
 
-    //Barra de vida
+    // Barra de vida
     barraVida = new QProgressBar(parent);
-    barraVida->setFixedSize(60, 8);  // Ajusta tamaño a tu gusto
+    barraVida->setFixedSize(60, 8);
     barraVida->setRange(0, 100);
     barraVida->setValue(vida);
     barraVida->setStyleSheet(
@@ -40,7 +37,7 @@ SubmarinoEnemigo::SubmarinoEnemigo(QWidget* parent, const QVector2D& posicion)
         "  background: #ddd;"
         "}"
         "QProgressBar::chunk {"
-        "  background-color: #e74c3c;"  // rojo para enemigo
+        "  background-color: #e74c3c;"
         "}"
         );
     barraVida->setTextVisible(false);
@@ -59,39 +56,45 @@ void SubmarinoEnemigo::actualizar() {
         verificarFoco(objetivo);
     }
 
-    if (enModoAtaque) return; // No se mueve si está atacando
+    tiempoTotal += 0.1f;
 
-    tiempoTotal += 0.2f;
-
-    float offsetY = amplitudVertical * std::sin(frecuencia * tiempoTotal);
-    QVector2D nuevaPos = posicion;
-    nuevaPos.setY(posicion.y() + offsetY);
-
-    pasosDesdeUltimoAvance++;
-    if (pasosDesdeUltimoAvance >= pasosPorAvance) {
-        nuevaPos.setX(nuevaPos.x() + direccion.normalized().x() * velocidad);
-        pasosDesdeUltimoAvance = 0;
+    if (enModoAtaque && objetivo) {
+        QVector2D dir = (objetivo->getPosicion() - posicion).normalized();
+        setPosicion(posicion + dir * velocidad);
+    } else {
+        float angle = tiempoTotal;
+        float x = centroMovimiento.x() + radio * std::cos(angle);
+        float y = centroMovimiento.y() + radio * std::sin(angle);
+        setPosicion(QVector2D(x, y));
     }
-
-    setPosicion(nuevaPos);
-    sprite->move(nuevaPos.toPoint());
 
     sprite->move(posicion.toPoint());
 
-    // Posición de la barra (justo arriba del sprite)
+    // Mantener en pantalla (solo por seguridad)
+    int maxX = sprite->parentWidget()->width() - sprite->width();
+    int maxY = sprite->parentWidget()->height() - sprite->height();
+
+    if (posicion.x() < 0) posicion.setX(0);
+    if (posicion.y() < 0) posicion.setY(0);
+    if (posicion.x() > maxX) posicion.setX(maxX);
+    if (posicion.y() > maxY) posicion.setY(maxY);
+
+    sprite->move(posicion.toPoint());
+
+    // Posición de la barra de vida
     QPoint barraPos = posicion.toPoint() + QPoint((sprite->width() - barraVida->width()) / 2, -barraVida->height() - 5);
     barraVida->move(barraPos);
     barraVida->setValue(vida);
 }
 
 void SubmarinoEnemigo::verificarFoco(const Entidad* jugador) {
-    QRect zonaFoco(posicion.x() - 200, posicion.y() - 50, 400, 100);
+    QRect zonaFoco(posicion.x() - 500, posicion.y() - 60, 800, 120); //Rectangulo que verifica foco
 
     if (zonaFoco.contains(jugador->getPosicion().toPoint())) {
         enModoAtaque = true;
         tiempoEnAtaque = 0;
-        temporizadorAtaque->start(8000);     // 8 segundos
-        temporizadorDisparo->start(1500);    // Disparo cada 1.5 segundos
+        temporizadorAtaque->start(8000);
+        temporizadorDisparo->start(1500);
     }
 }
 
@@ -105,11 +108,9 @@ void SubmarinoEnemigo::dispararTorpedo() {
     if (!sprite || !enModoAtaque) return;
 
     QVector2D posTorpedo = this->getPosicion() + QVector2D(-sprite->width(), sprite->height() / 2);
-    QVector2D direccion(-1, 0);  // Dirección hacia la izquierda
+    QVector2D dir = (objetivo->getPosicion() - getPosicion()).normalized();
 
-    emit torpedoDisparado(posTorpedo, direccion);
-    qDebug() << "Torpedo enemigo en:" << posTorpedo << " dirección:" << direccion;
-
+    emit torpedoDisparado(posTorpedo, dir);
 }
 
 void SubmarinoEnemigo::recibirDaño(int cantidad) {
@@ -121,8 +122,6 @@ void SubmarinoEnemigo::recibirDaño(int cantidad) {
     if (vida == 0) {
         sprite->hide();
         barraVida->hide();
-        // Cuando el padre es destruido y aliberamos memoria
-        // Aquí agregas lógica para "morir"
     }
 }
 
@@ -131,6 +130,10 @@ bool SubmarinoEnemigo::estaDestruido() const {
 }
 
 void SubmarinoEnemigo::interactuar(Entidad* otra) {
-    if (!otra) return;
-    // Daño o reacción al colisionar con jugador (si se desea)
+    // Interacción si se desea (no implementado aún)
 }
+
+void SubmarinoEnemigo::setObjetivo(Entidad* obj) {
+    objetivo = obj;
+}
+
