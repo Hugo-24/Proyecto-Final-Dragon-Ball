@@ -36,6 +36,18 @@ void Nivel2::cargarNivel() {
     barraVida->setGeometry(10, 10, 200, 25);              // posición y tamaño
     barraVida->setRange(0, submarino->getVidaMaxima());  // rango de la barra
     barraVida->setValue(submarino->getVida());           // valor inicial
+    barraVida->setStyleSheet(
+        "QProgressBar {"
+        "  border: 2px solid grey;"
+        "  border-radius: 5px;"
+        "  text-align: center;"
+        "}"
+        "QProgressBar::chunk {"
+        "  background-color: #4CAF50;"  // verde
+        "  width: 20px;"
+        "}"
+        );
+
     barraVida->show();
 
 
@@ -165,6 +177,7 @@ void Nivel2::verificarColisiones() {
             obj1->interactuar(submarino);
 
             submarino->recibirDanio(10);
+            barraVida->setValue(submarino->getVida());
         }
 
         // Colisión entre objetos (torpedo vs mina)

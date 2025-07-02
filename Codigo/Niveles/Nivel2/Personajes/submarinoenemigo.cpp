@@ -8,7 +8,7 @@ SubmarinoEnemigo::SubmarinoEnemigo(QWidget* parent, const QVector2D& posicion)
     : Entidad(parent),
     direccion(-1, 0),
     velocidad(2.0f),
-    vida(30),
+    vida(100),
     tiempoTotal(0.0f),
     amplitudVertical(4.0f),
     frecuencia(0.2f),
@@ -27,6 +27,24 @@ SubmarinoEnemigo::SubmarinoEnemigo(QWidget* parent, const QVector2D& posicion)
     sprite->setPixmap(imagen.scaled(sprite->size()));
     setPosicion(posicion);
     sprite->show();
+
+    //Barra de vida
+    barraVida = new QProgressBar(parent);
+    barraVida->setFixedSize(60, 8);  // Ajusta tamaño a tu gusto
+    barraVida->setRange(0, 100);
+    barraVida->setValue(vida);
+    barraVida->setStyleSheet(
+        "QProgressBar {"
+        "  border: 1px solid gray;"
+        "  border-radius: 3px;"
+        "  background: #ddd;"
+        "}"
+        "QProgressBar::chunk {"
+        "  background-color: #e74c3c;"  // rojo para enemigo
+        "}"
+        );
+    barraVida->setTextVisible(false);
+    barraVida->show();
 
     // Timers
     temporizadorAtaque = new QTimer(this);
@@ -57,6 +75,13 @@ void SubmarinoEnemigo::actualizar() {
 
     setPosicion(nuevaPos);
     sprite->move(nuevaPos.toPoint());
+
+    sprite->move(posicion.toPoint());
+
+    // Posición de la barra (justo arriba del sprite)
+    QPoint barraPos = posicion.toPoint() + QPoint((sprite->width() - barraVida->width()) / 2, -barraVida->height() - 5);
+    barraVida->move(barraPos);
+    barraVida->setValue(vida);
 }
 
 void SubmarinoEnemigo::verificarFoco(const Entidad* jugador) {
@@ -89,9 +114,15 @@ void SubmarinoEnemigo::dispararTorpedo() {
 
 void SubmarinoEnemigo::recibirDaño(int cantidad) {
     vida -= cantidad;
-    qDebug() << "Submarino enemigo recibió daño. Vida restante:" << vida;
-    if (vida <= 0) {
+    if (vida < 0) vida = 0;
+
+    barraVida->setValue(vida);
+
+    if (vida == 0) {
         sprite->hide();
+        barraVida->hide();
+        // Cuando el padre es destruido y aliberamos memoria
+        // Aquí agregas lógica para "morir"
     }
 }
 

@@ -6,7 +6,7 @@ const float RESISTENCIA = 0.95f; // desaceleración progresiva
 const float LIMITE_VELOCIDAD = 5.0f;
 
 SubmarinoJugador::SubmarinoJugador(QWidget* parent)
-    : Entidad(parent) {
+    : Entidad(parent){
 
     QPixmap imagen(":/Sprites/Nave/Nave_Jugador.png");
     if (imagen.isNull()) {
@@ -68,11 +68,10 @@ void SubmarinoJugador::actualizar() {
 
 }
 
+
 void SubmarinoJugador::recibirDanio(int cantidad) {
     vidaActual -= cantidad;
     if (vidaActual < 0) vidaActual = 0;
-    // Aquí puedes agregar lógica para detectar "muerte" y reaccionar
-    qDebug() << "Vida actual del jugador:" << vidaActual;
 }
 
 

@@ -4,9 +4,10 @@
 #include <QVector2D>
 #include <QLabel>
 #include <QWidget>
+#include <QObject>
 
 // Clase base para cualquier objeto con posición, velocidad y sprite
-class Entidad {
+class Entidad{
 public:
     Entidad(QWidget* parent = nullptr);
     virtual ~Entidad();

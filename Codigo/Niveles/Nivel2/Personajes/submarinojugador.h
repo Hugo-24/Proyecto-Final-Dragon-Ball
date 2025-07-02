@@ -20,7 +20,9 @@ public:
 
     int getVida() const { return vidaActual; }
     int getVidaMaxima() const { return vidaMaxima; }
+
     void recibirDanio(int cantidad);
+
 
 
 

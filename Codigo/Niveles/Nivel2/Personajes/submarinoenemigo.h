@@ -3,6 +3,7 @@
 #include <QVector2D>
 #include <QTimer>
 #include <QObject>
+#include <QProgressBar>
 
 
 class SubmarinoEnemigo : public QObject, public Entidad {
@@ -14,6 +15,7 @@ public:
     void interactuar(Entidad* otra) override;
     void recibirDaño(int cantidad);
     bool estaDestruido() const;
+    int getVida() const;
 
     void verificarFoco(const Entidad* jugador);  // Verifica si el jugador está en rango
     Entidad* objetivo; // Referencia al jugador para seguimiento
@@ -42,4 +44,6 @@ private:
     float tiempoEnAtaque;
     QTimer* temporizadorAtaque;
     QTimer* temporizadorDisparo;
+
+    QProgressBar* barraVida;
 };
