@@ -2,6 +2,7 @@
 #include "objeto.h"
 #include <QVector2D>
 #include <QWidget>
+#include <QTimer>
 
 class Mina : public Objeto {
 public:
@@ -12,4 +13,6 @@ public:
 
 private:
     QWidget* contenedor; // Referencia al widget contenedor (el mapa o nivel)
+
+
 };

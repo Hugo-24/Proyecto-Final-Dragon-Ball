@@ -32,6 +32,14 @@ void Nivel2::cargarNivel() {
     submarino = new SubmarinoJugador(this);
     submarino->getSprite()->raise();
 
+    barraVida = new QProgressBar(this);
+    barraVida->setGeometry(10, 10, 200, 25);              // posición y tamaño
+    barraVida->setRange(0, submarino->getVidaMaxima());  // rango de la barra
+    barraVida->setValue(submarino->getVida());           // valor inicial
+    barraVida->show();
+
+
+
     // Objetos hostiles (minas)
     agregarMina(QVector2D(400, 350));
     agregarMina(QVector2D(600, 200));
@@ -132,6 +140,7 @@ void Nivel2::verificarColisiones() {
 
 
 
+
     for (Objeto* obj : objetosHostiles) {
 
         if (!obj->getSprite()->isVisible()) continue;
@@ -154,6 +163,8 @@ void Nivel2::verificarColisiones() {
                       obj1->getPosicion(), obj1->getSprite()->size())) {
             mostrarExplosion(obj1->getPosicion());
             obj1->interactuar(submarino);
+
+            submarino->recibirDanio(10);
         }
 
         // Colisión entre objetos (torpedo vs mina)
@@ -165,8 +176,8 @@ void Nivel2::verificarColisiones() {
             if (colisiona(obj1->getPosicion(), obj1->getSprite()->size(),
                           obj2->getPosicion(), obj2->getSprite()->size())) {
                 mostrarExplosion(obj1->getPosicion());
-                obj1->getSprite()->hide();
-                obj2->getSprite()->hide();
+                obj1->interactuar(obj2);
+                obj2->interactuar(obj1);
             }
         }
 

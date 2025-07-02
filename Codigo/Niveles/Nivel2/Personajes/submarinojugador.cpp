@@ -68,4 +68,12 @@ void SubmarinoJugador::actualizar() {
 
 }
 
+void SubmarinoJugador::recibirDanio(int cantidad) {
+    vidaActual -= cantidad;
+    if (vidaActual < 0) vidaActual = 0;
+    // Aquí puedes agregar lógica para detectar "muerte" y reaccionar
+    qDebug() << "Vida actual del jugador:" << vidaActual;
+}
+
+
 

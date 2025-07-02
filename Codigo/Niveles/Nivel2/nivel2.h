@@ -3,6 +3,7 @@
 #include "mapa.h"
 #include "submarinojugador.h"
 #include "submarinoenemigo.h"
+#include "QProgressBar"
 
 class Objeto;
 class Torpedo;
@@ -23,6 +24,7 @@ private:
     SubmarinoJugador* submarino;
     QTimer* timerActualizacion;
     QSet<int> teclasPresionadas;
+    QProgressBar* barraVida;
 
 
     // Interacción objetos de colision:
