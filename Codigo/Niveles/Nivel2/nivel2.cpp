@@ -4,6 +4,8 @@
 #include <QTimer>
 #include <QRectF>
 #include <cmath>
+#include <QDateTime>
+
 
 #include "objeto.h"
 #include "mina.h"
@@ -32,11 +34,11 @@ void Nivel2::cargarNivel() {
     submarino = new SubmarinoJugador(this);
     submarino->getSprite()->raise();
 
-
+    // Barra de vida del jugador
     barraVida = new QProgressBar(this);
-    barraVida->setGeometry(10, 10, 200, 25);              // posición y tamaño
-    barraVida->setRange(0, submarino->getVidaMaxima());  // rango de la barra
-    barraVida->setValue(submarino->getVida());           // valor inicial
+    barraVida->setGeometry(10, 10, 200, 25);
+    barraVida->setRange(0, submarino->getVidaMaxima());
+    barraVida->setValue(submarino->getVida());
     barraVida->setStyleSheet(
         "QProgressBar {"
         "  border: 2px solid grey;"
@@ -44,57 +46,26 @@ void Nivel2::cargarNivel() {
         "  text-align: center;"
         "}"
         "QProgressBar::chunk {"
-        "  background-color: #4CAF50;"  // verde
+        "  background-color: #4CAF50;"
         "  width: 20px;"
         "}"
         );
-
     barraVida->show();
 
-
-
-    // Objetos hostiles (minas)
+    // Minas
     agregarMina(QVector2D(400, 350));
     agregarMina(QVector2D(600, 200));
     agregarMina(QVector2D(250, 400));
     agregarMina(QVector2D(100, 150));
 
-    // Submarinos enemigos
-    QVector<QVector2D> posicionesEnemigos = {
-        QVector2D(600, 100),
-        QVector2D(700, 300)
-    };
+    // 🚨 Paso 1: Definir las oleadas
+    oleadas.clear();
+    oleadas.push_back({ QVector2D(600, 100), QVector2D(700, 300) }); // Primera oleada
+    oleadas.push_back({ QVector2D(550, 250), QVector2D(750, 150) }); // Segunda oleada
+    oleadas.push_back({ QVector2D(620, 200), QVector2D(720, 350) }); // Tercera oleada
 
-
-    for (const QVector2D& pos : posicionesEnemigos) {
-        SubmarinoEnemigo* enemigo = new SubmarinoEnemigo(this, pos);
-        enemigo->setObjetivo(submarino);
-        enemigos.push_back(enemigo);
-
-        // 🎯 Comportamiento de ataque cuando jugador está en rango
-        QTimer* ataqueTimer = new QTimer(enemigo);
-        connect(ataqueTimer, &QTimer::timeout, this, [=]() {
-            if (!enemigo->getSprite()->isVisible() || !submarino) return;
-
-            float distanciaX = std::abs(enemigo->getPosicion().x() - submarino->getPosicion().x());
-
-            // Si el jugador está en rango horizontal
-            if (distanciaX < 300) {
-                static int contador = 0;
-
-                if (contador < 8 * (1000 / 800)) { // ~8 segundos con paso cada 800ms
-                    QVector2D direccion = (submarino->getPosicion() - enemigo->getPosicion()).normalized();
-                    agregarTorpedo(enemigo->getPosicion(), direccion, false);
-                    ++contador;
-                } else {
-                    contador = 0;
-                }
-            }
-        });
-        ataqueTimer->start(800); // Verifica cada 800 ms
-
-
-    }
+    indiceOleadaActual = 0; // Reiniciar índice
+    cargarOleadaActual();   // Cargar la primera oleada
 
     // ⏱️ Timer principal de juego
     connect(timerActualizacion, &QTimer::timeout, this, [=]() {
@@ -102,6 +73,39 @@ void Nivel2::cargarNivel() {
         submarino->procesarEntrada(teclasPresionadas);
         submarino->aplicarFisica();
         submarino->actualizar();
+
+        // 1. Disparo controlado
+        ////////////////////////////////////////
+        qint64 ahora = QDateTime::currentMSecsSinceEpoch();
+
+        if (teclasPresionadas.contains(Qt::Key_Space) && ahora - ultimoDisparo >= intervaloDisparo) {
+            QVector2D direccion(1, 0); // Por defecto: derecha
+
+            if (teclasPresionadas.contains(Qt::Key_W)) direccion = QVector2D(0, -1);  // arriba
+            else if (teclasPresionadas.contains(Qt::Key_S)) direccion = QVector2D(0, 1);  // abajo
+            else if (teclasPresionadas.contains(Qt::Key_A)) direccion = QVector2D(-1, 0); // izquierda
+
+            QVector2D origen = submarino->getPosicion();
+            QSize tamañoSubmarino = submarino->getSprite()->size();
+
+            if (direccion == QVector2D(1, 0)) {        // Derecha
+                origen += QVector2D(tamañoSubmarino.width(), tamañoSubmarino.height() / 2);
+            }
+            else if (direccion == QVector2D(-1, 0)) {  // Izquierda
+                origen += QVector2D(-20, tamañoSubmarino.height() / 2);
+            }
+            else if (direccion == QVector2D(0, -1)) {  // Arriba
+                origen += QVector2D(tamañoSubmarino.width() / 2, -20);
+            }
+            else if (direccion == QVector2D(0, 1)) {   // Abajo
+                origen += QVector2D(tamañoSubmarino.width() / 2, tamañoSubmarino.height());
+            }
+
+
+            agregarTorpedo(origen, direccion, true);
+            ultimoDisparo = ahora;
+        }
+
 
         // 2. Movimiento de torpedos
         for (int i = 0; i < torpedos.size(); ++i) {
@@ -121,7 +125,7 @@ void Nivel2::cargarNivel() {
             enemigo->actualizar();
         }
 
-        // 4. Actualización de objetos
+        // 4. Actualización de objetos hostiles
         for (Objeto* obj : objetosHostiles) {
             obj->actualizar();
         }
@@ -129,6 +133,7 @@ void Nivel2::cargarNivel() {
         // 5. Verificación de colisiones
         verificarColisiones();
 
+        // 6. Verificación de derrota
         if (submarino->getVida() <= 0) {
             qDebug() << "¡Jugador derrotado!";
             timerActualizacion->stop();
@@ -139,22 +144,33 @@ void Nivel2::cargarNivel() {
             });
         }
 
+        // 7. Verificación de oleadas
+        bool todosDestruidos = std::all_of(enemigos.begin(), enemigos.end(), [](SubmarinoEnemigo* e) {
+            return e->estaDestruido();
+        });
+
+        if (!enemigos.empty() && todosDestruidos) {
+            qDebug() << "Oleada completada.";
+            limpiarEnemigos();
+
+            ++indiceOleadaActual;         // ← Aquí sí debe ir el incremento
+            cargarOleadaActual();
+        }
+
+
     });
-
-
 
 
     timerActualizacion->start(16); // ~60 FPS
     this->setFocus();
 
-    // Botón para salir al menú en cualquier momento
+    // Botón salir al menú
     btnSalir = new QPushButton("Salir al menú", this);
     btnSalir->setGeometry(650, 10, 120, 30);
     connect(btnSalir, &QPushButton::clicked, this, [=]() {
         emit regresarAlMenu();
     });
     btnSalir->show();
-
 }
 
 
@@ -162,11 +178,6 @@ void Nivel2::cargarNivel() {
 void Nivel2::keyPressEvent(QKeyEvent* event) {
     teclasPresionadas.insert(event->key());
 
-    if (event->key() == Qt::Key_Space && submarino) {
-        QVector2D posicionInicial = submarino->getPosicion() + QVector2D(80, 55); // un poco al frente
-        QVector2D direccion = QVector2D(1, 0); // hacia la derecha
-        agregarTorpedo(posicionInicial, direccion, true);
-    }
 }
 // Evento: soltar tecla
 void Nivel2::keyReleaseEvent(QKeyEvent* event) {
@@ -265,6 +276,11 @@ void Nivel2::agregarTorpedo(const QVector2D& pos, const QVector2D& dir, bool del
 }
 
 
+
+
+
+
+
 void Nivel2::agregarSubmarinoEnemigo(const QVector2D& pos) {
     SubmarinoEnemigo* enemigo = new SubmarinoEnemigo(this, pos);
     enemigo->getSprite()->setParent(this);  // Por si no lo hiciste en el constructor
@@ -298,6 +314,48 @@ void Nivel2::mostrarMensajeDerrota() {
     mensaje->move(width() / 2 - mensaje->width() / 2, height() / 2 - mensaje->height() / 2);
     mensaje->show();
 }
+
+
+void Nivel2::cargarOleadaActual() {
+    if (indiceOleadaActual >= oleadas.size()) {
+        iniciarFase2();  // ← Aquí transicionas cuando se terminen las 3 oleadas
+        return;
+    }
+
+    const QVector<QVector2D>& posiciones = oleadas[indiceOleadaActual];
+    for (const QVector2D& pos : posiciones) {
+        SubmarinoEnemigo* enemigo = new SubmarinoEnemigo(this, pos);
+        enemigo->setObjetivo(submarino);
+        enemigos.push_back(enemigo);
+
+        // 🔧 Recuperar conexión de disparo
+        connect(enemigo, &SubmarinoEnemigo::torpedoDisparado, this, [=](QVector2D pos, QVector2D dir) {
+            agregarTorpedo(pos, dir, false); // false porque es un enemigo
+        });
+
+    }
+
+    ++indiceOleadaActual;
+}
+
+
+
+void Nivel2::limpiarEnemigos() {
+    for (int i = enemigos.size() - 1; i >= 0; --i) {
+        if (enemigos[i]->estaDestruido()) {
+            enemigos[i]->deleteLater();
+            enemigos.removeAt(i);
+        }
+    }
+}
+
+void Nivel2::iniciarFase2() {
+    qDebug() << "Fase 2 iniciada (aquí va la lógica de transición)";
+    // Aquí va la lógica para cambiar a la segunda fase del nivel
+}
+
+
+
 
 
 
