@@ -1,6 +1,9 @@
 #pragma once
 
 #include <QWidget>
+#include <QPushButton>
+#include <QLabel>
+#include <QVBoxLayout>
 #include "mapa.h"
 
 class Nivel : public QWidget
@@ -16,4 +19,15 @@ public:
 
 protected:
     Mapa *mapa;
+
+    QWidget* menuPausa = nullptr;
+    QPushButton* btnReiniciar = nullptr;
+    QPushButton* btnVolverAlMenu = nullptr;
+
+    void mostrarMenuPausa();
+    void ocultarMenuPausa();
+
+signals:
+    void regresarAlMenu();
+    void reiniciarEsteNivel();
 };

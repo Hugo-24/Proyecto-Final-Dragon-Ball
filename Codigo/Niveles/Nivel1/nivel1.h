@@ -10,14 +10,16 @@
 #include <QSet>
 #include <QLabel>
 #include <QWidget>
-
+#include <QPushButton>
+#include <QMessageBox>
 /**
  * Nivel1 representa el primer nivel del juego, que incluye scroll lateral,
  * selección de personaje (Roshi o Launch) y físicas básicas.
  */
 class Nivel1 : public Nivel {
     Q_OBJECT
-
+signals:
+    void volverAlMenu(); // Señal para regresar al menú principal
 public:
     explicit Nivel1(QWidget* parent = nullptr);
     void cargarNivel() override;
@@ -41,6 +43,7 @@ private:
     QLabel* mapa1;               // Primer fondo (inicio del nivel)
     QLabel* mapa2;               // Segundo fondo (continuación del nivel)
     int offsetX;                  // Desplazamiento horizontal para scroll lateral
+    void reiniciarNivel() override;
 };
 
 #endif // NIVEL1_H

@@ -71,19 +71,16 @@ void Nivel1::cargarNivel() {
         fondoNivel->setGeometry(0, 0, 8000, 600);
         fondoNivel->show();
 
-        // Alternar entre dos fondos en cada segmento
         for (int i = 0; i < 4; ++i) {
             QLabel* fondo = new QLabel(fondoNivel);
             QString ruta = (i % 2 == 0)
                                ? ":/Sprites/Fondos/Fondo_scroll_largo.jpg"
                                : ":/Sprites/Fondos/Fondo_scroll_largo_2.jpg";
-
             fondo->setPixmap(QPixmap(ruta).scaled(2000, 600));
             fondo->setGeometry(i * 2000, 0, 2000, 600);
             fondo->show();
         }
 
-        // Crear al jugador seleccionado
         jugador = personaje;
         jugador->setPosicion(QVector2D(100, 420));
         jugador->getSprite()->show();
@@ -92,23 +89,20 @@ void Nivel1::cargarNivel() {
         offsetX = 0;
         setFocus();
 
-        // Iniciar el bucle del juego
         if (!timer->isActive()) {
             timer->start(16); // ~60 FPS
         }
     };
 
-    // Selección de personaje: Roshi
     connect(btnRoshi, &QPushButton::clicked, this, [=]() {
         iniciarJuego(new Roshi(this));
     });
 
-    // Selección de personaje: Launch
     connect(btnLunch, &QPushButton::clicked, this, [=]() {
         iniciarJuego(new Lunch(this));
     });
 
-    // Lógica principal de juego: físicas, scroll lateral y proyectiles
+    // Bucle principal del juego
     connect(timer, &QTimer::timeout, this, [=]() {
         if (!jugador || !jugador->getSprite() || !fondoNivel) return;
 
@@ -121,37 +115,33 @@ void Nivel1::cargarNivel() {
             jugador->setVelocidad(QVector2D(0, jugador->getVelocidad().y()));
         }
 
-        // Aplicar físicas (incluye gravedad y salto)
+        // Aplicar gravedad y físicas
         jugador->aplicarFisica();
-
-        // Obtener posición lógica del jugador actualizada
         QVector2D pos = jugador->getPosicion();
 
-        // Scroll lateral: mover fondo si el personaje se acerca a los bordes visibles
+        // Scroll lateral
         if (pos.x() > 400 && offsetX < 7200) {
             offsetX += jugador->getVelocidad().x();
             fondoNivel->move(-offsetX, 0);
-            jugador->getSprite()->move(400, pos.y());  // Visual: mantenerlo en centro
-        }
-        else if (pos.x() < 100 && offsetX > 0) {
+            jugador->getSprite()->move(400, pos.y());
+        } else if (pos.x() < 100 && offsetX > 0) {
             offsetX += jugador->getVelocidad().x();
             fondoNivel->move(-offsetX, 0);
-            jugador->getSprite()->move(100, pos.y());  // Visual: mantenerlo a la izquierda
-        }
-        else {
-            // Cuando no hay scroll, mover sprite normalmente según posición lógica
-            jugador->getSprite()->move(pos.x() - offsetX, pos.y());
+            jugador->getSprite()->move(100, pos.y());
+        } else {
+            jugador->actualizar();
+            QVector2D posJugador = jugador->getPosicion();
+            jugador->getSprite()->move(posJugador.x() - offsetX, posJugador.y());
         }
 
         // Actualizar proyectiles
         for (int i = 0; i < proyectiles.size(); ++i) {
             Proyectil* p = proyectiles[i];
             p->actualizar();
+            QVector2D pos = p->getPosicion();
+            p->getSprite()->move(pos.x() - offsetX, pos.y());
 
-            QVector2D posP = p->getPosicion();
-            p->getSprite()->move(posP.x() - offsetX, posP.y());
-
-            if (posP.x() < -100 || posP.x() > 8200) {
+            if (pos.x() < -100 || pos.x() > 8200) {
                 p->getSprite()->hide();
                 delete p;
                 proyectiles.remove(i);
@@ -169,11 +159,8 @@ void Nivel1::keyPressEvent(QKeyEvent* event) {
     if (event->key() == Qt::Key_W) jugador->saltar();
     if (event->key() == Qt::Key_Space) jugador->atacar();
 
-    // Ataques especiales
+    // Disparo especial con R
     if (event->key() == Qt::Key_R) {
-        if (!jugador || !jugador->getSprite()) return;
-
-        // Verificamos si está en cooldown
         if (!jugador->estaListoParaDisparar()) return;
         jugador->setPuedeDisparar(false);
 
@@ -181,39 +168,32 @@ void Nivel1::keyPressEvent(QKeyEvent* event) {
 
         if (l && l->estaEnModoAgresiva()) {
             l->disparar();
-
-            // Esperar el tiempo total de la animación para permitir nuevo disparo
             QTimer::singleShot(800, this, [=]() { jugador->setPuedeDisparar(true); });
 
-            // Disparo después del retardo (animación sincronizada)
             QTimer::singleShot(550, this, [=]() {
                 QVector2D direccion = l->estaMirandoDerecha() ? QVector2D(1, 0) : QVector2D(-1, 0);
                 QVector2D posicion = l->getPosicion() + QVector2D(0, 10);
-
                 Proyectil* bala = new Proyectil(this, posicion, direccion, "lunch", 10.0f);
                 bala->getSprite()->raise();
                 proyectiles.append(bala);
             });
-        }
-        else if (!l) {
+        } else if (!l) {
             jugador->lanzarEnergia();
-
             QTimer::singleShot(500, this, [=]() { jugador->setPuedeDisparar(true); });
 
             QVector2D direccion = jugador->estaMirandoDerecha() ? QVector2D(1, 0) : QVector2D(-1, 0);
             QVector2D posicion = jugador->getPosicion() + QVector2D(0, -5);
-
             Proyectil* bola = new Proyectil(this, posicion, direccion, "roshi", 10.0f);
             bola->getSprite()->raise();
             proyectiles.append(bola);
         }
     }
 
-    // NUEVO: subfusil por toque (E)
+    // Subfusil: tecla E
     if (event->key() == Qt::Key_E) {
         auto* l = dynamic_cast<Lunch*>(jugador);
         if (l && l->estaEnModoAgresiva()) {
-            l->dispararSubfusil(); // Nuevo método de disparo rápido
+            l->dispararSubfusil();
         }
     }
 
@@ -222,6 +202,15 @@ void Nivel1::keyPressEvent(QKeyEvent* event) {
         auto* l = dynamic_cast<Lunch*>(jugador);
         if (l) l->transformar();
     }
+
+    // NUEVO: Menú de pausa con Esc
+    if (event->key() == Qt::Key_Escape) {
+        if (!menuPausa || !menuPausa->isVisible()) {
+            mostrarMenuPausa();
+        } else {
+            ocultarMenuPausa();
+        }
+    }
 }
 
 // Evento: tecla soltada
@@ -229,7 +218,26 @@ void Nivel1::keyReleaseEvent(QKeyEvent* event) {
     teclasPresionadas.remove(event->key());
 }
 
-// NUEVO: Método para que Lunch pueda agregar proyectiles a la lista
+// Agregar proyectiles desde Lunch
 void Nivel1::agregarProyectil(Proyectil* p) {
     proyectiles.append(p);
+}
+
+// Reiniciar el nivel (resetea completamente el estado)
+void Nivel1::reiniciarNivel() {
+    timer->stop();
+    this->close(); // Cierra la instancia actual
+
+    // Crear nueva instancia
+    Nivel1* nuevoNivel = new Nivel1(parentWidget());
+
+    // Conecta la señal base correctamente
+    connect(nuevoNivel, &Nivel::regresarAlMenu, this, [=]() {
+        emit regresarAlMenu(); // Propaga correctamente al Juego
+    });
+
+    // Mostrar nueva instancia y cargar el nivel
+    nuevoNivel->setFixedSize(800, 600);
+    nuevoNivel->show();
+    nuevoNivel->cargarNivel();
 }

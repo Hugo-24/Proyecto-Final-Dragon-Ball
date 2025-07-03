@@ -7,7 +7,8 @@
 
 class Juego : public QWidget {
     Q_OBJECT
-
+signals:
+    void regresarAlMenu();
 public:
     Juego(QWidget *parent = nullptr);
     void cambiarNivel(const std::string& id);
