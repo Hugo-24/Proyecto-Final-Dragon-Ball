@@ -4,6 +4,7 @@
 #include "submarinojugador.h"
 #include "submarinoenemigo.h"
 #include "QProgressBar"
+#include <QPushButton>
 
 class Objeto;
 class Torpedo;
@@ -13,10 +14,16 @@ class Nivel2 : public Nivel {
 public:
     explicit Nivel2(QWidget* parent = nullptr);
     void cargarNivel() override;
+    void mostrarMensajeDerrota();
 
 protected:
     void keyPressEvent(QKeyEvent* event) override;
     void keyReleaseEvent(QKeyEvent* event) override;
+
+signals:
+    void regresarAlMenu();
+
+
 
 private:
 
@@ -32,6 +39,8 @@ private:
     QVector<Torpedo*> torpedos;
     QVector<Torpedo*> torpedosJugador;
     QVector<SubmarinoEnemigo*> enemigos;
+
+    QPushButton* btnSalir;
 
 
 

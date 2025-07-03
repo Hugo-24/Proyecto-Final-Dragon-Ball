@@ -32,6 +32,7 @@ void Nivel2::cargarNivel() {
     submarino = new SubmarinoJugador(this);
     submarino->getSprite()->raise();
 
+
     barraVida = new QProgressBar(this);
     barraVida->setGeometry(10, 10, 200, 25);              // posición y tamaño
     barraVida->setRange(0, submarino->getVidaMaxima());  // rango de la barra
@@ -127,10 +128,33 @@ void Nivel2::cargarNivel() {
 
         // 5. Verificación de colisiones
         verificarColisiones();
+
+        if (submarino->getVida() <= 0) {
+            qDebug() << "¡Jugador derrotado!";
+            timerActualizacion->stop();
+            mostrarMensajeDerrota();
+
+            QTimer::singleShot(4000, this, [this]() {
+                emit regresarAlMenu();
+            });
+        }
+
     });
+
+
+
 
     timerActualizacion->start(16); // ~60 FPS
     this->setFocus();
+
+    // Botón para salir al menú en cualquier momento
+    btnSalir = new QPushButton("Salir al menú", this);
+    btnSalir->setGeometry(650, 10, 120, 30);
+    connect(btnSalir, &QPushButton::clicked, this, [=]() {
+        emit regresarAlMenu();
+    });
+    btnSalir->show();
+
 }
 
 
@@ -264,6 +288,15 @@ void Nivel2::mostrarExplosion(const QVector2D& posicion) {
         explosion->hide();
         explosion->deleteLater();
     });
+}
+
+
+void Nivel2::mostrarMensajeDerrota() {
+    QLabel* mensaje = new QLabel("¡Has perdido!", this);
+    mensaje->setStyleSheet("color: red; font-size: 30px; font-weight: bold;");
+    mensaje->adjustSize();
+    mensaje->move(width() / 2 - mensaje->width() / 2, height() / 2 - mensaje->height() / 2);
+    mensaje->show();
 }
 
 

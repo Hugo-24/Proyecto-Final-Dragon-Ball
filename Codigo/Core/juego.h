@@ -11,6 +11,8 @@ class Juego : public QWidget {
 public:
     Juego(QWidget *parent = nullptr);
     void cambiarNivel(const std::string& id);
+    Nivel* getNivelActual() const { return nivelActual; }
+
 
 private:
     std::map<std::string, Nivel*> niveles;

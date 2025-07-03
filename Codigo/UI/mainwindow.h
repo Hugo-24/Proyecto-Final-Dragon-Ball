@@ -1,6 +1,7 @@
 #pragma once
 #include <QMainWindow>
 #include "juego.h"
+#include "menu_principal.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT

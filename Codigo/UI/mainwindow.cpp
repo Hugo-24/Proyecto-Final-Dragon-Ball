@@ -48,5 +48,19 @@ void MainWindow::iniciarNivel1() {
 void MainWindow::iniciarNivel2() {
     juego = new Juego(this);
     juego->cambiarNivel("nivel2");
+
+    // Conecta la señal del nivel al slot del MainWindow
+    Nivel2* nivel2 = dynamic_cast<Nivel2*>(juego->getNivelActual());
+    if (nivel2) {
+        connect(nivel2, &Nivel2::regresarAlMenu, this, [this]() {
+            this->close();  // Cierra esta ventana MainWindow
+
+            // Reabrimos el menú principal desde cero
+            MainWindow* nuevoMenu = new MainWindow();
+            nuevoMenu->show();
+        });
+    }
+
     setCentralWidget(juego);
 }
+

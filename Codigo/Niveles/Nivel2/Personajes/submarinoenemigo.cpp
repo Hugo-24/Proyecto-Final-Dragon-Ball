@@ -59,8 +59,16 @@ void SubmarinoEnemigo::actualizar() {
     tiempoTotal += 0.1f;
 
     if (enModoAtaque && objetivo) {
-        QVector2D dir = (objetivo->getPosicion() - posicion).normalized();
-        setPosicion(posicion + dir * velocidad);
+        QVector2D direccion = (objetivo->getPosicion() - posicion);
+        float distancia = direccion.length();
+
+        float distanciaMinima = 180.0f; // 🛑 Distancia deseada para no superponerse
+
+        if (distancia > distanciaMinima) {
+            QVector2D dirNormalizado = direccion.normalized();
+            setPosicion(posicion + dirNormalizado * velocidad);
+        }
+        // Si está suficientemente cerca, no se mueve más
     } else {
         float angle = tiempoTotal;
         float x = centroMovimiento.x() + radio * std::cos(angle);
@@ -86,6 +94,7 @@ void SubmarinoEnemigo::actualizar() {
     barraVida->move(barraPos);
     barraVida->setValue(vida);
 }
+
 
 void SubmarinoEnemigo::verificarFoco(const Entidad* jugador) {
     QRect zonaFoco(posicion.x() - 500, posicion.y() - 60, 800, 120); //Rectangulo que verifica foco
