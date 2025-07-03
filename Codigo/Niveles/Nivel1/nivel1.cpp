@@ -179,7 +179,7 @@ void Nivel1::keyPressEvent(QKeyEvent* event) {
             });
         } else if (!l) {
             jugador->lanzarEnergia();
-            QTimer::singleShot(500, this, [=]() { jugador->setPuedeDisparar(true); });
+            QTimer::singleShot(400, this, [=]() { jugador->setPuedeDisparar(true); });
 
             QVector2D direccion = jugador->estaMirandoDerecha() ? QVector2D(1, 0) : QVector2D(-1, 0);
             QVector2D posicion = jugador->getPosicion() + QVector2D(0, -5);

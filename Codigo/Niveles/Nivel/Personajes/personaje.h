@@ -2,6 +2,7 @@
 #define PERSONAJE_H
 
 #include "entidad.h"
+#include <QTimer>
 
 // Clase base para personajes jugables como Roshi, Lunch, Goku
 class Personaje : public Entidad, public QObject {
@@ -27,12 +28,19 @@ public:
     bool estaListoParaDisparar() const { return puedeDisparar; }
     void setPuedeDisparar(bool estado) { puedeDisparar = estado; }
 
+    // Control de animación de caminar
+    void iniciarAnimacionCaminar();
+    void detenerAnimacionCaminar();
+
 protected:
     bool mirandoDerecha;         // true = derecha, false = izquierda
     virtual void actualizarSprite(); // Se redefine en subclases
 
-    //Estado que controla si el personaje puede disparar o está en cooldown
     bool puedeDisparar = true;
+
+    // Animación de caminar
+    QTimer* animTimer = nullptr;
+    bool pasoAlternado = false;  // Para alternar entre Walk1 y Walk2
 };
 
 #endif // PERSONAJE_H

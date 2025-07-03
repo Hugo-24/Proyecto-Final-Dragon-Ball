@@ -34,8 +34,6 @@
         <file>Sprites/Lunch/R_Walk2_Launch.png</file>
         <file>Sprites/Lunch/L_Walk1_Launch.png</file>
         <file>Sprites/Lunch/L_Walk2_Launch.png</file>
-        <file>Sprites/Lunch/R_Punching_Launch.png</file>
-        <file>Sprites/Lunch/L_Punching_Launch.png</file>
 
         <!-- Animación de bazuca de Launch -->
         <file>Sprites/Lunch/R_Bazooka1_Launch.png</file>

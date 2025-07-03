@@ -5,7 +5,7 @@
 #include <QTimer>
 #include <QDebug>
 
-    Lunch::Lunch(QWidget* parent)
+Lunch::Lunch(QWidget* parent)
     : Personaje(parent),
     transformada(false),
     rafagaActiva(false), // Ya no se usa activamente
@@ -17,22 +17,33 @@
     setPosicion(QVector2D(100, 450));
     sprite->show();
     sprite->raise();
-
-    // Ya no usamos el temporizador de ráfaga continua
 }
 
 void Lunch::actualizarSprite() {
+    static bool alternar = false;
     QString ruta;
 
-    // Sprite idle depende del modo (agresiva o tranquila) y dirección
-    if (transformada) {
-        ruta = mirandoDerecha
-                   ? ":/Sprites/Lunch/R_Idle_Launch.png"
-                   : ":/Sprites/Lunch/L_Idle_Launch.png";
+    if (getVelocidad().x() != 0) { // Si se está moviendo horizontalmente
+        if (transformada) {
+            ruta = mirandoDerecha
+                       ? (alternar ? ":/Sprites/Lunch/R_Walk1_Launch.png"
+                                   : ":/Sprites/Lunch/R_Walk2_Launch.png")
+                       : (alternar ? ":/Sprites/Lunch/L_Walk1_Launch.png"
+                                   : ":/Sprites/Lunch/L_Walk2_Launch.png");
+        } else {
+            ruta = mirandoDerecha
+                       ? (alternar ? ":/Sprites/Lunch/R_Walk1_BlueLunch.png"
+                                   : ":/Sprites/Lunch/R_Walk2_BlueLunch.png")
+                       : (alternar ? ":/Sprites/Lunch/L_Walk1_BlueLunch.png"
+                                   : ":/Sprites/Lunch/L_Walk2_BlueLunch.png");
+        }
+        alternar = !alternar;
     } else {
-        ruta = mirandoDerecha
-                   ? ":/Sprites/Lunch/R_Idle_BlueLunch.png"
-                   : ":/Sprites/Lunch/L_Idle_BlueLunch.png";
+        ruta = transformada
+                   ? (mirandoDerecha ? ":/Sprites/Lunch/R_Idle_Launch.png"
+                                     : ":/Sprites/Lunch/L_Idle_Launch.png")
+                   : (mirandoDerecha ? ":/Sprites/Lunch/R_Idle_BlueLunch.png"
+                                     : ":/Sprites/Lunch/L_Idle_BlueLunch.png");
     }
 
     setSprite(ruta);
