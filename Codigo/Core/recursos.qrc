@@ -74,5 +74,9 @@
         <file>Sprites/Proyectiles/R_BalaCohete.png</file>
         <file>Sprites/Proyectiles/L_BalaCohete.png</file>
         <file>Sprites/Proyectiles/BalaSubfusil.png</file>
+
+        <!-- UI -->
+        <file>Sprites/UI/corazon_lleno.png</file>
+        <file>Sprites/UI/corazon_vacio.png</file>
     </qresource>
 </RCC>

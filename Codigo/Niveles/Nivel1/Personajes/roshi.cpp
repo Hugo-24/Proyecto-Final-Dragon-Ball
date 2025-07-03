@@ -10,6 +10,7 @@ Roshi::Roshi(QWidget* parent) : Personaje(parent) {
 
 // Cambia sprite según dirección actual
 void Roshi::actualizarSprite() {
+     if (estaMuerto) return;
     static bool alternar = false; // alternar entre walk1 y walk2
     QString ruta;
 
