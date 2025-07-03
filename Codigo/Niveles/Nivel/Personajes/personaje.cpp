@@ -8,7 +8,7 @@ Personaje::Personaje(QWidget* parent)
         pasoAlternado = !pasoAlternado;
         actualizarSprite();
     });
-    animTimer->setInterval(150); // ⏱️ velocidad de cambio de sprite (ms)
+    animTimer->setInterval(200); // velocidad de cambio de sprite (ms)
 }
 
 // Mover a la izquierda
@@ -33,7 +33,7 @@ void Personaje::moverDerecha() {
 void Personaje::saltar() {
     if (!enElSuelo) return;
     QVector2D vel = getVelocidad();
-    vel.setY(-20);
+    vel.setY(-16);
     setVelocidad(vel);
     enElSuelo = false;
     detenerAnimacionCaminar(); // Opcional: detener animación al saltar
@@ -55,4 +55,6 @@ void Personaje::detenerAnimacionCaminar() {
 }
 
 // Por defecto no hace nada, se redefine en Roshi / Lunch
-void Personaje::actualizarSprite() {}
+void Personaje::actualizarSprite() {
+
+}

@@ -31,6 +31,9 @@ public:
     // Control de animación de caminar
     void iniciarAnimacionCaminar();
     void detenerAnimacionCaminar();
+    void setMuerto(bool muerto) {
+        estaMuerto = muerto;
+    }
 
 protected:
     bool mirandoDerecha;         // true = derecha, false = izquierda
@@ -41,6 +44,7 @@ protected:
     // Animación de caminar
     QTimer* animTimer = nullptr;
     bool pasoAlternado = false;  // Para alternar entre Walk1 y Walk2
+    bool estaMuerto = false;
 };
 
 #endif // PERSONAJE_H

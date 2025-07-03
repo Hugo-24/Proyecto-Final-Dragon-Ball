@@ -20,6 +20,7 @@ Lunch::Lunch(QWidget* parent)
 }
 
 void Lunch::actualizarSprite() {
+     if (estaMuerto) return;
     static bool alternar = false;
     QString ruta;
 
