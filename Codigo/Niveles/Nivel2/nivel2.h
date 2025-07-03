@@ -46,7 +46,7 @@ private:
     QPushButton* btnSalir;
 
     qint64 ultimoDisparo = 0;
-    int intervaloDisparo = 400;  // milisegundos
+    int intervaloDisparo = 150;  // milisegundos
 
 
 

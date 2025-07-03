@@ -103,7 +103,7 @@ void SubmarinoEnemigo::verificarFoco(const Entidad* jugador) {
         enModoAtaque = true;
         tiempoEnAtaque = 0;
         temporizadorAtaque->start(8000);
-        temporizadorDisparo->start(700);
+        temporizadorDisparo->start(900);
     }
 }
 
@@ -143,8 +143,17 @@ void SubmarinoEnemigo::recibirDaño(int cantidad) {
     if (vida == 0) {
         sprite->hide();
         barraVida->hide();
+
+        //Muy importante: detener timers
+        temporizadorAtaque->stop();
+        temporizadorDisparo->stop();
+
+        // También desconectar señales si es necesario
+        disconnect(temporizadorAtaque, nullptr, nullptr, nullptr);
+        disconnect(temporizadorDisparo, nullptr, nullptr, nullptr);
     }
 }
+
 
 bool SubmarinoEnemigo::estaDestruido() const {
     return vida <= 0;
@@ -156,5 +165,16 @@ void SubmarinoEnemigo::interactuar(Entidad* otra) {
 
 void SubmarinoEnemigo::setObjetivo(Entidad* obj) {
     objetivo = obj;
+}
+
+void SubmarinoEnemigo::destruir() {
+    temporizadorAtaque->stop();
+    temporizadorDisparo->stop();
+
+    sprite->hide();
+    barraVida->hide();
+
+    // Opción segura para eliminar más adelante:
+    this->deleteLater();
 }
 

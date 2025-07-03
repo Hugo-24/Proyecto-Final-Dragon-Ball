@@ -24,7 +24,11 @@ SubmarinoJugador::SubmarinoJugador(QWidget* parent)
 
 
 // Teclas: flechas o WASD
-void SubmarinoJugador::procesarEntrada(const QSet<int>& teclasPresionadas) {
+void SubmarinoJugador::procesarEntrada(const QSet<int>& teclasPresionadas, bool permitirMovimiento) {
+    if (!permitirMovimiento) {
+        return; // Detiene el movimiento si no está permitido
+    }
+
     QVector2D impulso(0, 0);
 
     if (teclasPresionadas.contains(Qt::Key_Up) || teclasPresionadas.contains(Qt::Key_W))
@@ -38,7 +42,6 @@ void SubmarinoJugador::procesarEntrada(const QSet<int>& teclasPresionadas) {
 
     velocidad += impulso;
 
-    // Limitar la velocidad máxima
     if (velocidad.length() > LIMITE_VELOCIDAD)
         velocidad = velocidad.normalized() * LIMITE_VELOCIDAD;
 }
@@ -64,7 +67,6 @@ void SubmarinoJugador::actualizar() {
 
     // Mover el sprite visualmente
     sprite->move(posicion.toPoint());
-    qDebug() << "Posición actual:" << posicion;
 
 }
 

@@ -18,6 +18,8 @@ public:
 
     void setObjetivo(Entidad* obj); // ← Añade esta línea
     void verificarFoco(const Entidad* jugador);
+    void destruir();  // Detiene timers y oculta elementos
+
 
 
 signals:

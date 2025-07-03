@@ -14,7 +14,7 @@ private:
 public:
     SubmarinoJugador(QWidget* parent = nullptr);
 
-    void procesarEntrada(const QSet<int>& teclasPresionadas);
+    void procesarEntrada(const QSet<int>& teclasPresionadas, bool permitirMovimiento);
     void aplicarFisica();
     void actualizar();
 

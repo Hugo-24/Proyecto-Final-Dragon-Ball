@@ -19,19 +19,30 @@ Torpedo::Torpedo(QWidget* parent, const QVector2D& posicion, const QVector2D& di
 
 
 void Torpedo::actualizar() {
-    // Movimiento real en la dirección recibida
-    posicion += direccion.normalized() * velocidad;
+    tiempoTotal += 0.05f;
+
+    if (direccion.x() != 0 && direccion.y() == 0) {
+        // Movimiento horizontal + oscilación vertical
+        float offsetY = amplitud * std::sin(frecuencia * tiempoTotal);
+        posicion.setX(posicion.x() + direccion.normalized().x() * velocidad);
+        posicion.setY(posicionInicialY + offsetY);
+    } else {
+        // Movimiento diagonal o vertical puro
+        posicion += direccion.normalized() * velocidad;
+    }
+
     sprite->move(posicion.toPoint());
 
-    // Lógica para eliminar si sale de la pantalla
+    // Borrado si sale de escena
     QWidget* escena = dynamic_cast<QWidget*>(sprite->parent());
     if (escena) {
         if (posicion.x() < -sprite->width() || posicion.x() > escena->width() ||
             posicion.y() < -sprite->height() || posicion.y() > escena->height()) {
-            sprite->hide(); // Desaparece al salir de la escena
+            sprite->hide();
         }
     }
 }
+
 
 
 

@@ -70,7 +70,14 @@ void Nivel2::cargarNivel() {
     // ⏱️ Timer principal de juego
     connect(timerActualizacion, &QTimer::timeout, this, [=]() {
         // 1. Movimiento del jugador
-        submarino->procesarEntrada(teclasPresionadas);
+        bool detenerMovimiento = teclasPresionadas.contains(Qt::Key_Space) && (
+                                     teclasPresionadas.contains(Qt::Key_A) ||
+                                     teclasPresionadas.contains(Qt::Key_W) ||
+                                     teclasPresionadas.contains(Qt::Key_S)
+                                     );
+
+        submarino->procesarEntrada(teclasPresionadas, !detenerMovimiento);  // ← pasa un flag indicando si debe moverse
+
         submarino->aplicarFisica();
         submarino->actualizar();
 
@@ -153,8 +160,7 @@ void Nivel2::cargarNivel() {
             qDebug() << "Oleada completada.";
             limpiarEnemigos();
 
-            ++indiceOleadaActual;         // ← Aquí sí debe ir el incremento
-            cargarOleadaActual();
+            cargarOleadaActual(); // El contador se incrementa en este método
         }
 
 
@@ -172,12 +178,6 @@ void Nivel2::cargarNivel() {
 void Nivel2::keyPressEvent(QKeyEvent* event) {
     teclasPresionadas.insert(event->key());
 
-
-    if (event->key() == Qt::Key_Space && submarino) {
-        QVector2D posicionInicial = submarino->getPosicion() + QVector2D(80, 55); // un poco al frente
-        QVector2D direccion = QVector2D(1, 0); // hacia la derecha
-        agregarTorpedo(posicionInicial, direccion, true);
-    }
     //Menú de pausa con Esc
     if (event->key() == Qt::Key_Escape) {
         if (!menuPausa || !menuPausa->isVisible()) {
@@ -279,12 +279,31 @@ void Nivel2::agregarMina(const QVector2D& pos) {
 // Añadir torpedo al mapa
 void Nivel2::agregarTorpedo(const QVector2D& pos, const QVector2D& dir, bool delJugador) {
     Torpedo* torpedo = new Torpedo(this, pos, dir);
+
+    QPixmap original = torpedo->getSprite()->pixmap();
+    QPixmap rotado = original;
+
+    if (delJugador) {
+        if (dir == QVector2D(-1, 0)) {
+            rotado = original.transformed(QTransform().scale(-1, 1));  // Izquierda
+        } else if (dir == QVector2D(0, -1)) {
+            rotado = original.transformed(QTransform().rotate(-90));   // Arriba
+        } else if (dir == QVector2D(0, 1)) {
+            rotado = original.transformed(QTransform().rotate(90));    // Abajo
+        }
+        // Derecha (1, 0) no requiere transformación
+        torpedo->getSprite()->setPixmap(rotado.scaled(torpedo->getSprite()->size()));
+    } else {
+        // Misiles enemigos van a la izquierda por defecto
+        rotado = original.transformed(QTransform().scale(-1, 1));
+        torpedo->getSprite()->setPixmap(rotado.scaled(torpedo->getSprite()->size()));
+    }
+
     objetosHostiles.push_back(torpedo);
 
     if (delJugador)
         torpedosJugador.push_back(torpedo);
 }
-
 
 
 
@@ -351,13 +370,14 @@ void Nivel2::cargarOleadaActual() {
 
 
 void Nivel2::limpiarEnemigos() {
-    for (int i = enemigos.size() - 1; i >= 0; --i) {
-        if (enemigos[i]->estaDestruido()) {
-            enemigos[i]->deleteLater();
-            enemigos.removeAt(i);
-        }
+    for (SubmarinoEnemigo* enemigo : enemigos) {
+        enemigo->destruir();  // 👈 forma correcta
     }
+    enemigos.clear();  // Elimina referencias
 }
+
+
+
 
 void Nivel2::iniciarFase2() {
     qDebug() << "Fase 2 iniciada (aquí va la lógica de transición)";
