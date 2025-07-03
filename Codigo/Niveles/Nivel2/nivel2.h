@@ -32,6 +32,10 @@ private:
     QSet<int> teclasPresionadas;
     QProgressBar* barraVida;
 
+    QVector<QVector<QVector2D>> oleadas;
+    int indiceOleadaActual = 0;
+    bool esperandoNuevaOleada = false;
+
 
     // Interacción objetos de colision:
     std::vector<Objeto*> objetosHostiles;
@@ -41,6 +45,10 @@ private:
 
     QPushButton* btnSalir;
 
+    qint64 ultimoDisparo = 0;
+    int intervaloDisparo = 400;  // milisegundos
+
+
 
 
     void agregarMina(const QVector2D& pos);
@@ -48,6 +56,12 @@ private:
     void verificarColisiones();  // método auxiliar para fase 2
     void agregarSubmarinoEnemigo(const QVector2D& pos);
     void mostrarExplosion(const QVector2D& posicion);
+
+    void cargarOleadaActual();
+
+    void limpiarEnemigos();
+
+    void iniciarFase2();
 
 
 };

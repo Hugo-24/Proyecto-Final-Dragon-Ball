@@ -103,7 +103,7 @@ void SubmarinoEnemigo::verificarFoco(const Entidad* jugador) {
         enModoAtaque = true;
         tiempoEnAtaque = 0;
         temporizadorAtaque->start(8000);
-        temporizadorDisparo->start(1500);
+        temporizadorDisparo->start(700);
     }
 }
 
@@ -114,13 +114,25 @@ void SubmarinoEnemigo::salirDeModoAtaque() {
 }
 
 void SubmarinoEnemigo::dispararTorpedo() {
-    if (!sprite || !enModoAtaque) return;
+    if (!sprite || !enModoAtaque || !objetivo) return;
 
-    QVector2D posTorpedo = this->getPosicion() + QVector2D(-sprite->width(), sprite->height() / 2);
-    QVector2D dir = (objetivo->getPosicion() - getPosicion()).normalized();
+    QVector2D direccion = objetivo->getPosicion() - getPosicion();
 
-    emit torpedoDisparado(posTorpedo, dir);
+    if (direccion.length() < 5.0f) {
+        qDebug() << "⚠️ Objetivo demasiado cerca o igual a enemigo. No se dispara.";
+        return;
+    }
+
+    QVector2D dirNormalizada = direccion.normalized();
+
+    // Calculamos una posición inicial del torpedo frente al sprite
+    QVector2D posTorpedo = this->getPosicion() + QVector2D(-15, sprite->height() / 2 - 5);
+
+    qDebug() << "🚀 Disparo enemigo desde" << posTorpedo << "hacia" << dirNormalizada;
+
+    emit torpedoDisparado(posTorpedo, dirNormalizada);
 }
+
 
 void SubmarinoEnemigo::recibirDaño(int cantidad) {
     vida -= cantidad;

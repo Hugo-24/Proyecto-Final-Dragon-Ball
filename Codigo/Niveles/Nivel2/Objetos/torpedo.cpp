@@ -19,25 +19,19 @@ Torpedo::Torpedo(QWidget* parent, const QVector2D& posicion, const QVector2D& di
 
 
 void Torpedo::actualizar() {
-    // Movimiento horizontal constante
-    posicion.setX(posicion.x() + direccion.normalized().x() * velocidad);
-
-    // Movimiento vertical senoidal (basado en tiempo, no en X)
-    tiempoTotal += 0.05f;  // Puedes ajustar este valor para controlar frecuencia
-    float offsetY = amplitud * std::sin(frecuencia * tiempoTotal);
-    posicion.setY(posicionInicialY + offsetY);
-
+    // Movimiento real en la dirección recibida
+    posicion += direccion.normalized() * velocidad;
     sprite->move(posicion.toPoint());
 
     // Lógica para eliminar si sale de la pantalla
     QWidget* escena = dynamic_cast<QWidget*>(sprite->parent());
     if (escena) {
-        if (posicion.x() > escena->width() || posicion.x() < -sprite->width()) {
+        if (posicion.x() < -sprite->width() || posicion.x() > escena->width() ||
+            posicion.y() < -sprite->height() || posicion.y() > escena->height()) {
             sprite->hide(); // Desaparece al salir de la escena
         }
     }
 }
-
 
 
 
