@@ -1,6 +1,5 @@
 #include "Juego.h"
 #include <QVBoxLayout>
-
 Juego::Juego(QWidget *parent) : QWidget(parent), nivelActual(nullptr) {
     // Crear los niveles y almacenarlos en el mapa
     niveles["nivel1"] = new Nivel1(this);
@@ -8,20 +7,30 @@ Juego::Juego(QWidget *parent) : QWidget(parent), nivelActual(nullptr) {
 }
 
 void Juego::cambiarNivel(const std::string& id) {
-    // Si hay un nivel actualmente activo, ocultarlo y quitarlo del layout
+    // Ocultar y eliminar nivel anterior si existe
     if (nivelActual) {
         layout()->removeWidget(nivelActual);
         nivelActual->hide();
+        nivelActual->deleteLater();
     }
 
-    // Buscar el nuevo nivel
-    nivelActual = niveles[id];
-    if (!nivelActual) return;
+    // Crear nuevo nivel
+    if (id == "nivel1") {
+        nivelActual = new Nivel1(this);
+    } else if (id == "nivel2") {
+        nivelActual = new Nivel2(this);
+    } else {
+        nivelActual = nullptr;
+        return;
+    }
 
-    // Llamar a cargarNivel() para inicializar su contenido
+    // Conectar señal para regresar al menú
+    connect(nivelActual, &Nivel::regresarAlMenu, this, [=]() {
+        emit regresarAlMenu();
+    });
+
     nivelActual->cargarNivel();
 
-    // Crear el layout si no existe aún
     if (!layout()) {
         QVBoxLayout* l = new QVBoxLayout(this);
         l->setContentsMargins(0, 0, 0, 0);

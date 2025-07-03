@@ -1,7 +1,15 @@
 #include "personaje.h"
 
 Personaje::Personaje(QWidget* parent)
-    : Entidad(parent), QObject(parent), mirandoDerecha(true) {}
+    : Entidad(parent), QObject(parent), mirandoDerecha(true), pasoAlternado(false)
+{
+    animTimer = new QTimer(this);
+    connect(animTimer, &QTimer::timeout, this, [=]() {
+        pasoAlternado = !pasoAlternado;
+        actualizarSprite();
+    });
+    animTimer->setInterval(150); // ⏱️ velocidad de cambio de sprite (ms)
+}
 
 // Mover a la izquierda
 void Personaje::moverIzquierda() {
@@ -9,7 +17,7 @@ void Personaje::moverIzquierda() {
     vel.setX(-4);
     setVelocidad(vel);
     mirandoDerecha = false;
-    actualizarSprite();
+    iniciarAnimacionCaminar();
 }
 
 // Mover a la derecha
@@ -18,23 +26,33 @@ void Personaje::moverDerecha() {
     vel.setX(4);
     setVelocidad(vel);
     mirandoDerecha = true;
-    actualizarSprite();
+    iniciarAnimacionCaminar();
 }
 
 // Saltar (salto hacia arriba)
 void Personaje::saltar() {
-    if (!enElSuelo) return; // Solo puede saltar desde el suelo
-
+    if (!enElSuelo) return;
     QVector2D vel = getVelocidad();
-    vel.setY(-20); // salto
+    vel.setY(-20);
     setVelocidad(vel);
     enElSuelo = false;
+    detenerAnimacionCaminar(); // Opcional: detener animación al saltar
 }
 
-// Este método se redefine en subclases para cambiar el sprite
-void Personaje::actualizarSprite() {
-    // Por defecto, no hace nada
-}
 bool Personaje::estaMirandoDerecha() const {
     return mirandoDerecha;
 }
+
+void Personaje::iniciarAnimacionCaminar() {
+    if (!animTimer->isActive())
+        animTimer->start();
+}
+
+void Personaje::detenerAnimacionCaminar() {
+    animTimer->stop();
+    pasoAlternado = false;
+    actualizarSprite();
+}
+
+// Por defecto no hace nada, se redefine en Roshi / Lunch
+void Personaje::actualizarSprite() {}

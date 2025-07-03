@@ -15,15 +15,14 @@ public:
     explicit Nivel2(QWidget* parent = nullptr);
     void cargarNivel() override;
     void mostrarMensajeDerrota();
+    void reiniciarNivel() override;
 
 protected:
     void keyPressEvent(QKeyEvent* event) override;
     void keyReleaseEvent(QKeyEvent* event) override;
 
 signals:
-    void regresarAlMenu();
-
-
+    void volverAlMenu();
 
 private:
 

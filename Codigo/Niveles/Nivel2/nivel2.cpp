@@ -164,13 +164,7 @@ void Nivel2::cargarNivel() {
     timerActualizacion->start(16); // ~60 FPS
     this->setFocus();
 
-    // Botón salir al menú
-    btnSalir = new QPushButton("Salir al menú", this);
-    btnSalir->setGeometry(650, 10, 120, 30);
-    connect(btnSalir, &QPushButton::clicked, this, [=]() {
-        emit regresarAlMenu();
-    });
-    btnSalir->show();
+
 }
 
 
@@ -178,6 +172,22 @@ void Nivel2::cargarNivel() {
 void Nivel2::keyPressEvent(QKeyEvent* event) {
     teclasPresionadas.insert(event->key());
 
+
+    if (event->key() == Qt::Key_Space && submarino) {
+        QVector2D posicionInicial = submarino->getPosicion() + QVector2D(80, 55); // un poco al frente
+        QVector2D direccion = QVector2D(1, 0); // hacia la derecha
+        agregarTorpedo(posicionInicial, direccion, true);
+    }
+    //Menú de pausa con Esc
+    if (event->key() == Qt::Key_Escape) {
+        if (!menuPausa || !menuPausa->isVisible()) {
+            mostrarMenuPausa();
+            timerActualizacion->stop(); // Pausar juego
+        } else {
+            ocultarMenuPausa();
+            timerActualizacion->start(16); // Reanudar
+        }
+    }
 }
 // Evento: soltar tecla
 void Nivel2::keyReleaseEvent(QKeyEvent* event) {
@@ -356,7 +366,21 @@ void Nivel2::iniciarFase2() {
 
 
 
-
-
+void Nivel2::reiniciarNivel() {
+    // Detener el juego
+    timerActualizacion->stop();
+    // Cerrar esta instancia del nivel
+    this->close();
+    // Crear nueva instancia del nivel con el mismo parent
+    Nivel2* nuevoNivel = new Nivel2(parentWidget());
+    // Conectar la señal para regresar al menú desde el nuevo nivel
+    connect(nuevoNivel, &Nivel2::regresarAlMenu, this, [=]() {
+        emit regresarAlMenu(); // Reenvía la señal al juego
+    });
+    // Mostrar la nueva instancia y cargar el nivel
+    nuevoNivel->show();
+    nuevoNivel->setFixedSize(800, 600); // Asegura tamaño completo
+    nuevoNivel->cargarNivel();
+}
 
 
