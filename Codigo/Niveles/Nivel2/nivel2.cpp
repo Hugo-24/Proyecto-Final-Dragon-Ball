@@ -80,13 +80,13 @@ void Nivel2::cargarNivel() {
     dialogo->setGeometry(100, 450, 600, 60);
     dialogo->show();
 
-    dialogo->setText("Submarino: Hemos llegado a la zona enemiga...");
+    dialogo->setText("Son Goku: Hemos llegado a la zona enemiga...");
 
     QTimer::singleShot(3000, this, [=]() {
-        dialogo->setText("Enemigo: ¡No saldrás de aquí con vida!");
+        dialogo->setText("Soldado RR: ¡No saldrás de aquí con vida!");
 
         QTimer::singleShot(3000, this, [=]() {
-            dialogo->setText("Submarino: ¡Veremos quién gana esta batalla!");
+            dialogo->setText("Son Goku: ¡Veremos quién gana esta batalla!");
 
             QTimer::singleShot(3000, this, [=]() {
                 dialogo->hide();
@@ -440,10 +440,10 @@ void Nivel2::iniciarFase2() {
     dialogoFinal->setGeometry(100, 450, 600, 60);
     dialogoFinal->show();
 
-    dialogoFinal->setText("Submarino: ¡Lo logramos... pero debemos salir de aquí!");
+    dialogoFinal->setText("Son Goku: ¡Lo logramos... pero debemos salir de aquí!");
 
     QTimer::singleShot(3000, this, [=]() {
-        dialogoFinal->setText("Submarino: La cueva está justo delante, ¡vamos!");
+        dialogoFinal->setText("Son Goku: La cueva está justo delante, ¡vamos!");
 
         QTimer::singleShot(3000, this, [=]() {
             dialogoFinal->hide();
@@ -463,19 +463,25 @@ void Nivel2::iniciarFase2() {
             animCueva->setEndValue(QPoint(width() - 200, 300));
             animCueva->start(QAbstractAnimation::DeleteWhenStopped);
 
+            QVector2D objetivoCueva(width() - 150, 300);  // Posición final de la cueva
+            QVector2D direccion = (objetivoCueva - submarino->getPosicion()).normalized();
+
             QTimer* movimientoAuto = new QTimer(this);
-            connect(movimientoAuto, &QTimer::timeout, this, [=]() {
+            connect(movimientoAuto, &QTimer::timeout, this, [=]() mutable {
                 QVector2D pos = submarino->getPosicion();
-                pos.setX(pos.x() + 2);
+                pos += direccion * 2.5f;  // Velocidad (ajusta si quieres que sea más lenta o rápida)
+
                 submarino->setPosicion(pos);
                 submarino->getSprite()->move(pos.toPoint());
 
-                if (pos.x() >= width() - 220) {
+                // Si está suficientemente cerca, finaliza
+                if ((pos - objetivoCueva).length() <= 5.0f) {
                     movimientoAuto->stop();
                     mostrarMensajeVictoria();
                 }
             });
-            movimientoAuto->start(16);
+            movimientoAuto->start(16); // ~60 FPS
+
         });
     });
 }
