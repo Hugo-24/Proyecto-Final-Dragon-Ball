@@ -5,6 +5,8 @@
 #include <QRectF>
 #include <cmath>
 #include <QDateTime>
+#include <QPropertyAnimation>
+
 
 
 #include "objeto.h"
@@ -60,61 +62,78 @@ void Nivel2::cargarNivel() {
 
     // 🚨 Paso 1: Definir las oleadas
     oleadas.clear();
-    oleadas.push_back({ QVector2D(600, 100), QVector2D(700, 300) }); // Primera oleada
-    oleadas.push_back({ QVector2D(550, 250), QVector2D(750, 150) }); // Segunda oleada
-    oleadas.push_back({ QVector2D(620, 200), QVector2D(720, 350) }); // Tercera oleada
+    oleadas.push_back({ QVector2D(600, 100), QVector2D(700, 300) });
+    oleadas.push_back({ QVector2D(550, 250), QVector2D(750, 150) });
+    oleadas.push_back({ QVector2D(620, 200), QVector2D(720, 350) });
 
-    indiceOleadaActual = 0; // Reiniciar índice
-    cargarOleadaActual();   // Cargar la primera oleada
+    indiceOleadaActual = 0;
+    cargarOleadaActual();
+
+    // 🔴 Pausar el juego para el diálogo inicial
+    timerActualizacion->stop();
+    controlesHabilitados = false;
+
+    QLabel* dialogo = new QLabel(this);
+    dialogo->setStyleSheet("QLabel { background-color: rgba(0, 0, 0, 180); color: white; font: bold 16px; padding: 10px; border-radius: 5px; }");
+    dialogo->setAlignment(Qt::AlignCenter);
+    dialogo->setGeometry(100, 450, 600, 60);
+    dialogo->show();
+
+    dialogo->setText("Submarino: Hemos llegado a la zona enemiga...");
+
+    QTimer::singleShot(3000, this, [=]() {
+        dialogo->setText("Enemigo: ¡No saldrás de aquí con vida!");
+
+        QTimer::singleShot(3000, this, [=]() {
+            dialogo->setText("Submarino: ¡Veremos quién gana esta batalla!");
+
+            QTimer::singleShot(3000, this, [=]() {
+                dialogo->hide();
+                dialogo->deleteLater();
+                controlesHabilitados = true;
+                timerActualizacion->start(16); // ▶️ Reanudar juego después del diálogo
+            });
+        });
+    });
 
     // ⏱️ Timer principal de juego
     connect(timerActualizacion, &QTimer::timeout, this, [=]() {
-        // 1. Movimiento del jugador
-        bool detenerMovimiento = teclasPresionadas.contains(Qt::Key_Space) && (
-                                     teclasPresionadas.contains(Qt::Key_A) ||
-                                     teclasPresionadas.contains(Qt::Key_W) ||
-                                     teclasPresionadas.contains(Qt::Key_S)
-                                     );
+        if (!fase2Activa && controlesHabilitados) {
+            bool detenerMovimiento = teclasPresionadas.contains(Qt::Key_Space) && (
+                                         teclasPresionadas.contains(Qt::Key_A) ||
+                                         teclasPresionadas.contains(Qt::Key_W) ||
+                                         teclasPresionadas.contains(Qt::Key_S)
+                                         );
+            submarino->procesarEntrada(teclasPresionadas, !detenerMovimiento);
+            submarino->aplicarFisica();
+            submarino->actualizar();
+        }
 
-        submarino->procesarEntrada(teclasPresionadas, !detenerMovimiento);  // ← pasa un flag indicando si debe moverse
-
-        submarino->aplicarFisica();
-        submarino->actualizar();
-
-        // 1. Disparo controlado
-        ////////////////////////////////////////
+        // Disparo controlado
         qint64 ahora = QDateTime::currentMSecsSinceEpoch();
 
-        if (teclasPresionadas.contains(Qt::Key_Space) && ahora - ultimoDisparo >= intervaloDisparo) {
-            QVector2D direccion(1, 0); // Por defecto: derecha
+        if (controlesHabilitados &&
+            teclasPresionadas.contains(Qt::Key_Space) &&
+            ahora - ultimoDisparo >= intervaloDisparo) {
 
-            if (teclasPresionadas.contains(Qt::Key_W)) direccion = QVector2D(0, -1);  // arriba
-            else if (teclasPresionadas.contains(Qt::Key_S)) direccion = QVector2D(0, 1);  // abajo
-            else if (teclasPresionadas.contains(Qt::Key_A)) direccion = QVector2D(-1, 0); // izquierda
+            QVector2D direccion(1, 0);
+            if (teclasPresionadas.contains(Qt::Key_W)) direccion = QVector2D(0, -1);
+            else if (teclasPresionadas.contains(Qt::Key_S)) direccion = QVector2D(0, 1);
+            else if (teclasPresionadas.contains(Qt::Key_A)) direccion = QVector2D(-1, 0);
 
             QVector2D origen = submarino->getPosicion();
             QSize tamañoSubmarino = submarino->getSprite()->size();
 
-            if (direccion == QVector2D(1, 0)) {        // Derecha
-                origen += QVector2D(tamañoSubmarino.width(), tamañoSubmarino.height() / 2);
-            }
-            else if (direccion == QVector2D(-1, 0)) {  // Izquierda
-                origen += QVector2D(-20, tamañoSubmarino.height() / 2);
-            }
-            else if (direccion == QVector2D(0, -1)) {  // Arriba
-                origen += QVector2D(tamañoSubmarino.width() / 2, -20);
-            }
-            else if (direccion == QVector2D(0, 1)) {   // Abajo
-                origen += QVector2D(tamañoSubmarino.width() / 2, tamañoSubmarino.height());
-            }
-
+            if (direccion == QVector2D(1, 0)) origen += QVector2D(tamañoSubmarino.width(), tamañoSubmarino.height() / 2);
+            else if (direccion == QVector2D(-1, 0)) origen += QVector2D(-20, tamañoSubmarino.height() / 2);
+            else if (direccion == QVector2D(0, -1)) origen += QVector2D(tamañoSubmarino.width() / 2, -20);
+            else if (direccion == QVector2D(0, 1)) origen += QVector2D(tamañoSubmarino.width() / 2, tamañoSubmarino.height());
 
             agregarTorpedo(origen, direccion, true);
             ultimoDisparo = ahora;
         }
 
-
-        // 2. Movimiento de torpedos
+        // Movimiento de torpedos
         for (int i = 0; i < torpedos.size(); ++i) {
             Torpedo* t = torpedos[i];
             t->actualizar();
@@ -127,20 +146,20 @@ void Nivel2::cargarNivel() {
             }
         }
 
-        // 3. Movimiento de enemigos
+        // Movimiento de enemigos
         for (SubmarinoEnemigo* enemigo : enemigos) {
             enemigo->actualizar();
         }
 
-        // 4. Actualización de objetos hostiles
+        // Objetos hostiles
         for (Objeto* obj : objetosHostiles) {
             obj->actualizar();
         }
 
-        // 5. Verificación de colisiones
+        // Colisiones
         verificarColisiones();
 
-        // 6. Verificación de derrota
+        // Derrota
         if (submarino->getVida() <= 0) {
             qDebug() << "¡Jugador derrotado!";
             timerActualizacion->stop();
@@ -151,7 +170,7 @@ void Nivel2::cargarNivel() {
             });
         }
 
-        // 7. Verificación de oleadas
+        // Verificación de oleadas
         bool todosDestruidos = std::all_of(enemigos.begin(), enemigos.end(), [](SubmarinoEnemigo* e) {
             return e->estaDestruido();
         });
@@ -159,18 +178,11 @@ void Nivel2::cargarNivel() {
         if (!enemigos.empty() && todosDestruidos) {
             qDebug() << "Oleada completada.";
             limpiarEnemigos();
-
-            cargarOleadaActual(); // El contador se incrementa en este método
+            cargarOleadaActual(); // ← incremento dentro del método
         }
-
-
     });
 
-
-    timerActualizacion->start(16); // ~60 FPS
     this->setFocus();
-
-
 }
 
 
@@ -371,18 +383,74 @@ void Nivel2::cargarOleadaActual() {
 
 void Nivel2::limpiarEnemigos() {
     for (SubmarinoEnemigo* enemigo : enemigos) {
-        enemigo->destruir();  // 👈 forma correcta
+        enemigo->destruir();  //  forma correcta
     }
     enemigos.clear();  // Elimina referencias
 }
 
 
 
-
 void Nivel2::iniciarFase2() {
-    qDebug() << "Fase 2 iniciada (aquí va la lógica de transición)";
-    // Aquí va la lógica para cambiar a la segunda fase del nivel
+    // 1. Limpiar enemigos y torpedos
+    limpiarEnemigos();
+    for (Torpedo* t : torpedosJugador) {
+        t->getSprite()->hide();
+        delete t;
+    }
+    torpedosJugador.clear();
+    teclasPresionadas.clear();
+
+    // 2. Detener control del jugador
+    controlesHabilitados = false;
+    timerActualizacion->stop();  // Detener el juego durante el diálogo
+
+    // 3. Mostrar diálogo final antes del escape
+    QLabel* dialogoFinal = new QLabel(this);
+    dialogoFinal->setStyleSheet("QLabel { background-color: rgba(0, 0, 0, 180); color: white; font: bold 16px; padding: 10px; border-radius: 5px; }");
+    dialogoFinal->setAlignment(Qt::AlignCenter);
+    dialogoFinal->setGeometry(100, 450, 600, 60);
+    dialogoFinal->show();
+
+    dialogoFinal->setText("Submarino: ¡Lo logramos... pero debemos salir de aquí!");
+
+    QTimer::singleShot(3000, this, [=]() {
+        dialogoFinal->setText("Submarino: La cueva está justo delante, ¡vamos!");
+
+        QTimer::singleShot(3000, this, [=]() {
+            dialogoFinal->hide();
+            dialogoFinal->deleteLater();
+
+            //  iniciar secuencia hacia la cueva
+            QLabel* cueva = new QLabel(this);
+            QPixmap spriteCueva(":/Sprites/Fondos/cueva.png");
+            spriteCueva = spriteCueva.transformed(QTransform().scale(-1, 1));  // Invertido horizontal
+            cueva->setPixmap(spriteCueva.scaled(250, 250)); // Más grande
+            cueva->move(width(), 300);
+            cueva->show();
+
+            QPropertyAnimation* animCueva = new QPropertyAnimation(cueva, "pos");
+            animCueva->setDuration(3000);
+            animCueva->setStartValue(QPoint(width(), 300));
+            animCueva->setEndValue(QPoint(width() - 200, 300));
+            animCueva->start(QAbstractAnimation::DeleteWhenStopped);
+
+            QTimer* movimientoAuto = new QTimer(this);
+            connect(movimientoAuto, &QTimer::timeout, this, [=]() {
+                QVector2D pos = submarino->getPosicion();
+                pos.setX(pos.x() + 2);
+                submarino->setPosicion(pos);
+                submarino->getSprite()->move(pos.toPoint());
+
+                if (pos.x() >= width() - 220) {
+                    movimientoAuto->stop();
+                    mostrarMensajeVictoria();
+                }
+            });
+            movimientoAuto->start(16);
+        });
+    });
 }
+
 
 
 
@@ -401,6 +469,18 @@ void Nivel2::reiniciarNivel() {
     nuevoNivel->show();
     nuevoNivel->setFixedSize(800, 600); // Asegura tamaño completo
     nuevoNivel->cargarNivel();
+}
+
+void Nivel2::mostrarMensajeVictoria() {
+    QLabel* mensaje = new QLabel("¡Victoria!", this);
+    mensaje->setStyleSheet("QLabel { color: white; font-size: 36px; font-weight: bold; background-color: rgba(0,0,0,150); padding: 10px; }");
+    mensaje->adjustSize();
+    mensaje->move((width() - mensaje->width()) / 2, (height() - mensaje->height()) / 2);
+    mensaje->show();
+
+    QTimer::singleShot(3000, this, [=]() {
+        emit regresarAlMenu();  // ← Este ya lo tienes conectado al botón también
+    });
 }
 
 

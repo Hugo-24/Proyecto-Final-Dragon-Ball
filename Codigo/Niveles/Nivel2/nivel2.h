@@ -25,7 +25,7 @@ signals:
     void volverAlMenu();
 
 private:
-
+    // Fase 1
 
     SubmarinoJugador* submarino;
     QTimer* timerActualizacion;
@@ -35,6 +35,17 @@ private:
     QVector<QVector<QVector2D>> oleadas;
     int indiceOleadaActual = 0;
     bool esperandoNuevaOleada = false;
+
+
+    //Fase 2
+    Entidad* gokui = nullptr;
+    Entidad* bubuzo = nullptr;
+
+    QProgressBar* barraVidaGokui = nullptr;
+    QProgressBar* barraVidaBubuzo = nullptr;
+
+    bool fase2Activa = false;
+
 
 
     // Interacción objetos de colision:
@@ -48,6 +59,7 @@ private:
     qint64 ultimoDisparo = 0;
     int intervaloDisparo = 150;  // milisegundos
 
+    bool controlesHabilitados = true;
 
 
 
@@ -62,6 +74,10 @@ private:
     void limpiarEnemigos();
 
     void iniciarFase2();
+
+    void mostrarMensajeVictoria();
+
+
 
 
 };
