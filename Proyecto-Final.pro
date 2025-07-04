@@ -1,4 +1,5 @@
 QT += core gui widgets
+QT += multimedia
 
 CONFIG += c++17
 TEMPLATE = app

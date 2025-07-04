@@ -5,6 +5,10 @@
 #include "submarinoenemigo.h"
 #include "QProgressBar"
 #include <QPushButton>
+#include <QMediaPlayer>
+#include <QAudioOutput>
+
+
 
 class Objeto;
 class Torpedo;
@@ -45,6 +49,11 @@ private:
     QProgressBar* barraVidaBubuzo = nullptr;
 
     bool fase2Activa = false;
+
+    // Audio de fondo
+    QMediaPlayer* musicaFondo = nullptr;
+    QAudioOutput* salidaAudio = nullptr;
+
 
 
 

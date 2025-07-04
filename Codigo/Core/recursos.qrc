@@ -79,5 +79,10 @@
         <!-- UI -->
         <file>Sprites/UI/corazon_lleno.png</file>
         <file>Sprites/UI/corazon_vacio.png</file>
+
+	<!-- Audio -->
+	<file>Sonidos/Nivel2-S/torpedo-efecto.mp3</file>
+	<file>Sonidos/Nivel2-S/nivel2-soundtrack.mp3</file>
+
     </qresource>
 </RCC>

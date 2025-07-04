@@ -8,10 +8,11 @@
 #include <QPropertyAnimation>
 
 
-
 #include "objeto.h"
 #include "mina.h"
 #include "torpedo.h"
+
+
 
 // Función auxiliar para detectar colisión por intersección de áreas
 static bool colisiona(QVector2D pos1, QSize size1, QVector2D pos2, QSize size2) {
@@ -69,7 +70,7 @@ void Nivel2::cargarNivel() {
     indiceOleadaActual = 0;
     cargarOleadaActual();
 
-    // 🔴 Pausar el juego para el diálogo inicial
+    // Pausar el juego para el diálogo inicial
     timerActualizacion->stop();
     controlesHabilitados = false;
 
@@ -183,6 +184,18 @@ void Nivel2::cargarNivel() {
     });
 
     this->setFocus();
+
+    // Música de fondo
+    musicaFondo = new QMediaPlayer(this);
+    salidaAudio = new QAudioOutput(this);
+    musicaFondo->setAudioOutput(salidaAudio);
+
+    musicaFondo->setSource(QUrl("qrc:/Sonidos/Nivel2-S/nivel2-soundtrack.mp3"));
+    musicaFondo->setLoops(QMediaPlayer::Infinite);
+    salidaAudio->setVolume(0.6);  // Puedes ajustar el volumen (0 a 100)
+
+    musicaFondo->play();
+
 }
 
 
@@ -208,33 +221,31 @@ void Nivel2::keyReleaseEvent(QKeyEvent* event) {
 
 // Colisiones entre submarino y objetos hostiles
 void Nivel2::verificarColisiones() {
-
-
-
-
     for (Objeto* obj : objetosHostiles) {
-
         if (!obj->getSprite()->isVisible()) continue;
+        obj->actualizar();
 
-        obj->actualizar(); // En caso de que el objeto se mueva o cambie
         // Ignorar colisiones con torpedos lanzados por el jugador
-        if (dynamic_cast<Torpedo*>(obj)) {
-            continue;
-        }
-
+        if (dynamic_cast<Torpedo*>(obj)) continue;
     }
 
     for (int i = 0; i < objetosHostiles.size(); ++i) {
         Objeto* obj1 = objetosHostiles[i];
-
         if (!obj1->getSprite()->isVisible()) continue;
 
         // Colisión con el jugador
         if (colisiona(submarino->getPosicion(), submarino->getSprite()->size(),
                       obj1->getPosicion(), obj1->getSprite()->size())) {
             mostrarExplosion(obj1->getPosicion());
-            obj1->interactuar(submarino);
 
+            // 🔊 Sonido de impacto
+            QMediaPlayer* efecto = new QMediaPlayer(this);
+            QAudioOutput* salida = new QAudioOutput(this);
+            efecto->setAudioOutput(salida);
+            efecto->setSource(QUrl("qrc:/Sonidos/Nivel2-S/torpedo-efecto.mp3"));
+            efecto->play();
+
+            obj1->interactuar(submarino);
             submarino->recibirDanio(10);
             barraVida->setValue(submarino->getVida());
         }
@@ -242,21 +253,29 @@ void Nivel2::verificarColisiones() {
         // Colisión entre objetos (torpedo vs mina)
         for (int j = i + 1; j < objetosHostiles.size(); ++j) {
             Objeto* obj2 = objetosHostiles[j];
-
             if (!obj2->getSprite()->isVisible()) continue;
 
             if (colisiona(obj1->getPosicion(), obj1->getSprite()->size(),
                           obj2->getPosicion(), obj2->getSprite()->size())) {
                 mostrarExplosion(obj1->getPosicion());
+
+                // 🔊 Sonido de impacto
+                QMediaPlayer* efecto = new QMediaPlayer(this);
+                QAudioOutput* salida = new QAudioOutput(this);
+                efecto->setAudioOutput(salida);
+                efecto->setSource(QUrl("qrc:/Sonidos/Nivel2-S/torpedo-efecto.mp3"));
+                efecto->play();
+
                 obj1->interactuar(obj2);
                 obj2->interactuar(obj1);
             }
         }
 
+        // Torpedos del jugador vs enemigos
         for (Torpedo* torpedo : torpedosJugador) {
             if (!torpedo->getSprite()->isVisible()) continue;
 
-            for (Entidad* entidad : enemigos) { // Asegúrate de tener un QVector<Entidad*> enemigos;
+            for (Entidad* entidad : enemigos) {
                 if (!entidad->getSprite()->isVisible()) continue;
 
                 if (colisiona(
@@ -265,20 +284,28 @@ void Nivel2::verificarColisiones() {
 
                     torpedo->interactuar(entidad);
 
-                    // Intenta hacer cast a SubmarinoEnemigo y aplicar daño
+                    // Si es un submarino enemigo, aplicar daño
                     SubmarinoEnemigo* enemigo = dynamic_cast<SubmarinoEnemigo*>(entidad);
                     if (enemigo) {
-                        enemigo->recibirDaño(10);  // Ajusta el daño a lo que desees
+                        enemigo->recibirDaño(10);
                     }
+
                     mostrarExplosion(torpedo->getPosicion());
+
+                    // 🔊 Sonido de impacto
+                    QMediaPlayer* efecto = new QMediaPlayer(this);
+                    QAudioOutput* salida = new QAudioOutput(this);
+                    efecto->setAudioOutput(salida);
+                    efecto->setSource(QUrl("qrc:/Sonidos/Nivel2-S/torpedo-efecto.mp3"));
+                    efecto->play();
                 }
             }
         }
 
-
         obj1->actualizar();
     }
 }
+
 
 // Añadir mina al mapa
 void Nivel2::agregarMina(const QVector2D& pos) {
@@ -354,6 +381,8 @@ void Nivel2::mostrarMensajeDerrota() {
     mensaje->adjustSize();
     mensaje->move(width() / 2 - mensaje->width() / 2, height() / 2 - mensaje->height() / 2);
     mensaje->show();
+    if (musicaFondo) musicaFondo->stop();
+
 }
 
 
@@ -479,7 +508,8 @@ void Nivel2::mostrarMensajeVictoria() {
     mensaje->show();
 
     QTimer::singleShot(3000, this, [=]() {
-        emit regresarAlMenu();  // ← Este ya lo tienes conectado al botón también
+        if (musicaFondo) musicaFondo->stop();
+        emit regresarAlMenu();  // ← Este ya está conectado al botón también
     });
 }
 
