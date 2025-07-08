@@ -5,6 +5,8 @@
 #include <QProgressBar>
 #include <QObject>
 #include "proyectil.h"
+class Nivel1; // Adelante declaración para evitar circularidad
+
 /**
  * Clase que representa un enemigo tipo Soldado de la Patrulla Roja.
  * Camina hasta una distancia del jugador, luego se detiene y dispara.
@@ -15,7 +17,7 @@ class SoldadoPatrullaRoja : public QObject, public Entidad {
 signals:
     void proyectilCreado(Proyectil* p);
 public:
-    SoldadoPatrullaRoja(QWidget* parent, const QVector2D& posInicial, Entidad* objetivo, bool mirarDerecha = true);
+    SoldadoPatrullaRoja(Nivel1* nivel, QWidget* parent, const QVector2D& posInicial, Entidad* objetivo, bool mirarDerecha = true);
 
     void actualizar() override;
     void recibirDanio(int cantidad);
@@ -45,8 +47,9 @@ private:
 
     QProgressBar* barraVida = nullptr;
 
+    Nivel1* nivel = nullptr; // NUEVO: Referencia directa al nivel
+
     void actualizarBarraVida();
     void cambiarSprite(const QString& ruta);
-
     void iniciarMuerte();
 };

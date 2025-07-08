@@ -29,6 +29,7 @@ public:
 
     // Permite que Lunch agregue proyectiles durante disparos
     void agregarProyectil(Proyectil* p);
+    float getOffsetX() const { return offsetX; }
 
 protected:
     void keyPressEvent(QKeyEvent* event) override;
@@ -48,7 +49,7 @@ private:
     int offsetX;                 // Desplazamiento horizontal para scroll lateral
     void reiniciarNivel() override;
 
-    // NUEVO: sistema de corazones
+    // Sistema de corazones
     QVector<QLabel*> corazones;  // Etiquetas de corazones
     int vidas;                   // Número de corazones actuales
     void inicializarCorazones(int cantidad);
@@ -56,6 +57,8 @@ private:
     void agregarEnemigosIniciales(); // Método para crear enemigos al inicio
     void mostrarMensajeDerrota();
     bool estaMuerto = false;
+    void limpiarTodosLosProyectiles();
+    void limpiarTodosLosEnemigos();
 };
 
 #endif // NIVEL1_H

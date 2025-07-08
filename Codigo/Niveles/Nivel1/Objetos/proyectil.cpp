@@ -19,6 +19,7 @@ Proyectil::Proyectil(QWidget* parent,
         imagen.load(":/Sprites/Proyectiles/Bola_Energia.png");
         sprite->setFixedSize(80, 80);
         danio = 15;  // Roshi causa más daño
+        esDelJugador = true; // Proyectil aliado
     } else if (tipo == "lunch") {
         if (direccion.x() >= 0)
             imagen.load(":/Sprites/Proyectiles/R_BalaCohete.png");
@@ -26,10 +27,12 @@ Proyectil::Proyectil(QWidget* parent,
             imagen.load(":/Sprites/Proyectiles/L_BalaCohete.png");
         sprite->setFixedSize(80, 40);
         danio = 15;  // Bazuca de Lunch
+        esDelJugador = true; // Proyectil aliado
     } else if (tipo == "subfusil") {
         imagen.load(":/Sprites/Proyectiles/BalaSubfusil.png");
         sprite->setFixedSize(28, 8);
         danio = 5;  // Subfusil más débil
+        esDelJugador = false; // Proyectil enemigo por defecto
     }
 
     // Validar imagen
@@ -63,4 +66,14 @@ void Proyectil::interactuar(Entidad* otra) {
 // Devuelve la cantidad de daño que causa este proyectil
 int Proyectil::getDanio() const {
     return danio;
+}
+
+// Nuevo: indicar si el proyectil pertenece al jugador
+void Proyectil::setEsDelJugador(bool valor) {
+    esDelJugador = valor;
+}
+
+// Nuevo: consultar si el proyectil pertenece al jugador
+bool Proyectil::esDelJugadorFunc() const {
+    return esDelJugador;
 }

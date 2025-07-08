@@ -1,42 +1,37 @@
 #ifndef ENTIDAD_H
 #define ENTIDAD_H
 
-#include <QVector2D>
 #include <QLabel>
-#include <QWidget>
-#include <QObject>
+#include <QVector2D>
+#include <QDebug>
 
-// Clase base para cualquier objeto con posición, velocidad y sprite
-class Entidad{
+class Entidad {
 public:
-    Entidad(QWidget* parent = nullptr);
+    Entidad(QWidget* parent);
     virtual ~Entidad();
 
-    virtual void mover();         // Lógica de desplazamiento
-    virtual void actualizar();    // Actualiza sprite según posición
-    virtual void aplicarFisica(); // Física simple (gravedad)
-    bool enElSuelo; // ¿Está tocando el suelo?
+    virtual void mover();                      // Actualiza posición lógica con velocidad
+    virtual void actualizar();                 // Aplica mover(); el sprite se mueve desde Nivel
+    virtual void aplicarFisica();              // Gravedad y límites
+    virtual void interactuar(Entidad* otra);   // Por defecto, no hace nada
 
-
-    void setPosicion(const QVector2D& pos);
+    void setPosicion(const QVector2D& pos);    // Asigna posición lógica Y mueve sprite (NO TOCAR ESTE)
+    void setPosicionLogica(const QVector2D& pos); // Asigna solo la posición lógica (NO mueve sprite)
     QVector2D getPosicion() const;
 
     void setVelocidad(const QVector2D& vel);
     QVector2D getVelocidad() const;
 
-    QLabel* getSprite();              // Acceso al sprite
+    QLabel* getSprite();
+    void setSprite(const QString& ruta);
 
-    void setSprite(const QString& ruta); // Cambiar imagen del sprite
-
-    virtual void interactuar(Entidad* otra);
-
-
-
+    void moverSpriteConOffset(float offsetX); // Corrige posición visual según scroll
 
 protected:
     QVector2D posicion;
     QVector2D velocidad;
-    QLabel* sprite;
+    QLabel* sprite = nullptr;
+    bool enElSuelo = false;
 };
 
 #endif // ENTIDAD_H

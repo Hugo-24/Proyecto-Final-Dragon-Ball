@@ -5,6 +5,7 @@
 #include <QTimer>
 #include <QDebug>
 
+// Constructor
 Lunch::Lunch(QWidget* parent)
     : Personaje(parent),
     transformada(false),
@@ -19,8 +20,9 @@ Lunch::Lunch(QWidget* parent)
     sprite->raise();
 }
 
+// Actualiza el sprite según el movimiento y estado
 void Lunch::actualizarSprite() {
-     if (estaMuerto) return;
+    if (estaMuerto) return;
     static bool alternar = false;
     QString ruta;
 
@@ -50,6 +52,7 @@ void Lunch::actualizarSprite() {
     setSprite(ruta);
 }
 
+// Alterna entre modo agresivo y modo tranquila
 void Lunch::transformar() {
     setPuedeDisparar(true); // Asegura que pueda volver a disparar tras la transformación
     transformada = !transformada;
@@ -57,6 +60,7 @@ void Lunch::transformar() {
     qDebug() << "Lunch se transforma a modo" << (transformada ? "agresiva" : "tranquila");
 }
 
+// Disparo de bazuca (solo en modo agresiva)
 void Lunch::disparar() {
     if (!transformada) return; // Solo puede usar bazuca en modo agresiva
 
@@ -93,6 +97,7 @@ void Lunch::disparar() {
     // Disparo real se realiza desde Nivel1 (550ms después)
 }
 
+// Disparo de subfusil (ráfaga rápida)
 void Lunch::dispararSubfusil() {
     if (!transformada) return; // Solo puede usar subfusil en modo agresiva
 
@@ -121,23 +126,27 @@ void Lunch::dispararSubfusil() {
                            ? ":/Sprites/Lunch/R_Idle_Launch.png"
                            : ":/Sprites/Lunch/L_Idle_Launch.png";
 
-    // Lanzar proyectil luego de la animación (200ms aprox)
+    // Lanzar proyectil luego de la animación (300ms aprox)
     QTimer::singleShot(300, this, [=]() {
         setSprite(rutaIdle);
 
         QVector2D direccion = mirandoDerecha ? QVector2D(1, 0) : QVector2D(-1, 0);
         QVector2D offset = QVector2D(40 * direccion.x(), 28); // Offset visual
-        QVector2D pos = getPosicion() + offset; // Importante: posición lógica (con offsetX incluido internamente)
+        QVector2D pos = getPosicion() + offset;
 
+        // Crear proyectil subfusil
         Proyectil* bala = new Proyectil(contenedor, pos, direccion, "subfusil", 12.0f); // Más veloz que bazuca
+        bala->setEsDelJugador(true);  // ← ¡SOLUCIONA el bug del daño al jugador!
         bala->getSprite()->raise();
 
+        // Agregarlo al nivel si es posible
         if (Nivel1* nivel = dynamic_cast<Nivel1*>(contenedor)) {
-            nivel->agregarProyectil(bala); // Para que lo actualice y destruya correctamente
+            nivel->agregarProyectil(bala);
         }
     });
 }
 
+// Getter del estado de transformación
 bool Lunch::estaEnModoAgresiva() const {
     return transformada;
 }

@@ -7,8 +7,8 @@
 class Roshi : public Personaje {
 public:
     Roshi(QWidget* parent);
-    void atacar();
-    void lanzarEnergia();
+    void atacar() override;
+    void lanzarEnergia() override;
 
 private:
     void volverAIdle();

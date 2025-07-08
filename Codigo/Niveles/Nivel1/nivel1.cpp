@@ -15,8 +15,8 @@
 Nivel1::Nivel1(QWidget* parent)
     : Nivel(parent),
     jugador(nullptr),
-    enemigos(),
     timer(new QTimer(this)),
+    enemigos(),
     fondoSeleccion(new QLabel(this)),
     selector(new QWidget(this)),
     fondoNivel(nullptr),
@@ -69,8 +69,38 @@ void Nivel1::mostrarMensajeDerrota() {
 
     // Espera unos segundos y luego regresa al menú principal
     QTimer::singleShot(4000, this, [this]() {
-        emit regresarAlMenu();
+        reiniciarNivel();
     });
+}
+void Nivel1::limpiarTodosLosEnemigos() {
+    for (int i = 0; i < enemigos.size(); ++i) {
+        SoldadoPatrullaRoja* e = enemigos[i];
+        if (!e) continue;
+
+        if (e->getSprite()) {
+            e->getSprite()->hide();
+        } else {
+            qDebug() << "Advertencia: sprite de enemigo nulo al limpiar.";
+        }
+
+        delete e;
+    }
+    enemigos.clear(); // Elimina todos los punteros del QVector
+}
+void Nivel1::limpiarTodosLosProyectiles() {
+    for (int i = 0; i < proyectiles.size(); ++i) {
+        Proyectil* p = proyectiles[i];
+        if (!p) continue;
+
+        if (p->getSprite()) {
+            p->getSprite()->hide();
+        } else {
+            qDebug() << "Advertencia: getSprite() devuelve nullptr al limpiar.";
+        }
+
+        delete p;
+    }
+    proyectiles.clear(); // Vacía el vector para evitar acceso a basura
 }
 
 void Nivel1::actualizarCorazones(int nuevaVida) {
@@ -146,10 +176,10 @@ void Nivel1::cargarNivel() {
         jugador->getSprite()->raise();
         //Crear enemigos de la Patrulla Roja
         // Aparecen ya caminando desde el fondo hacia el jugador
-        SoldadoPatrullaRoja* enemigo1 = new SoldadoPatrullaRoja(fondoNivel, QVector2D(800, 420), jugador, false);
+        SoldadoPatrullaRoja* enemigo1 = new SoldadoPatrullaRoja(this, this, QVector2D(800, 420), jugador, true);
         enemigos.append(enemigo1);
 
-        SoldadoPatrullaRoja* enemigo2 = new SoldadoPatrullaRoja(fondoNivel, QVector2D(1300, 420), jugador, true);
+        SoldadoPatrullaRoja* enemigo2 = new SoldadoPatrullaRoja(this, this, QVector2D(800, 420), jugador, true);
         enemigos.append(enemigo2);
         // Inicializa sistema de corazones (5 vidas por defecto)
         vidas = 5;
@@ -193,96 +223,113 @@ void Nivel1::cargarNivel() {
         // Obtener posición actual del jugador
         QVector2D pos = jugador->getPosicion();
 
-        // Scroll lateral: mover el fondo y fijar sprite visualmente si avanza
+        // Scroll lateral: mover el fondo y mantener sprite visual del jugador fijo
         if (pos.x() > 400 && offsetX < 7200) {
             offsetX += jugador->getVelocidad().x();
             fondoNivel->move(-offsetX, 0);
             if (!estaMuerto)
-                jugador->getSprite()->move(400, pos.y());  // Mantener centrado mientras se mueve
+                jugador->getSprite()->move(400, pos.y());  // Mantener centrado
         } else if (pos.x() < 100 && offsetX > 0) {
             offsetX += jugador->getVelocidad().x();
             fondoNivel->move(-offsetX, 0);
             if (!estaMuerto)
-                jugador->getSprite()->move(100, pos.y());  // Mantener cerca del borde izquierdo
+                jugador->getSprite()->move(100, pos.y());  // Mantener cerca del borde
         } else {
             // Si no hay scroll, actualizar normalmente el sprite
             if (!estaMuerto)
                 jugador->actualizar();
 
-            // Mover sprite a la posición lógica menos el desplazamiento de fondo
-            jugador->getSprite()->move(pos.x() - offsetX, pos.y());
+            // Usamos método nuevo para corregir scroll visual
+            jugador->moverSpriteConOffset(offsetX);
         }
 
-        // === NUEVO: Actualizar enemigos (IA, movimiento, disparo) ===
-        for (SoldadoPatrullaRoja* e : enemigos) {
-            e->actualizar();  // Actualiza IA del enemigo
-            if (!e->estaMuerto()) {
-                QVector2D posE = e->getPosicion();
-                e->getSprite()->move(posE.x() - offsetX, posE.y());  // Corrige posición visual según scroll
-            }
-        }
+        // === Actualizar enemigos (IA, movimiento, disparo) ===
+        for (int i = 0; i < enemigos.size(); ++i) {
+            SoldadoPatrullaRoja* e = enemigos[i];
+            if (!e || e->estaMuerto()) continue;
 
+            e->actualizar();  // Mueve la lógica primero
+
+            // Usamos método nuevo que corrige su desplazamiento visual
+            e->moverSpriteConOffset(offsetX);
+        }
         // === Proyectiles (jugador + enemigos) ===
         for (int i = 0; i < proyectiles.size(); ++i) {
             Proyectil* p = proyectiles[i];
-            p->actualizar();
-            QVector2D posP = p->getPosicion();
-            p->getSprite()->move(posP.x() - offsetX, posP.y());
 
-            // Rectángulo del proyectil para colisión
-            QRect rectProy(posP.toPoint(), p->getSprite()->size());
-
-            // --- Colisión con enemigos (si no está muerto) ---
-            bool impacto = false;
-            for (SoldadoPatrullaRoja* enemigo : enemigos) {
-                if (enemigo->estaMuerto()) continue;
-
-                QRect rectEnem(enemigo->getPosicion().toPoint(), enemigo->getSprite()->size());
-
-                if (rectProy.intersects(rectEnem)) {
-                    enemigo->recibirDanio(p->getDanio());
-                    impacto = true;
-                    break;
-                }
-            }
-
-            // --- NUEVO: Colisión con el jugador (solo si es proyectil enemigo) ---
-            QRect rectJugador(jugador->getPosicion().toPoint(), jugador->getSprite()->size());
-            if (!impacto && rectProy.intersects(rectJugador) && p->getDanio() == 1) {
-                // Disparo enemigo impacta al jugador (como si presionara tecla K)
-                if (!estaMuerto) {
-                    vidas--;
-                    actualizarCorazones(vidas);
-                    if (vidas <= 0) {
-                        timer->stop();
-                        mostrarMensajeDerrota();
-                    }
-                }
-                impacto = true;
-            }
-
-            // Si impactó con algo, eliminar proyectil
-            if (impacto) {
-                p->getSprite()->hide();
-                delete p;
-                proyectiles.remove(i);
+            // Validar proyectil nulo
+            if (!p) {
+                qDebug() << "¡Advertencia: proyectil nulo eliminado! Índice:" << i;
+                proyectiles.removeAt(i);
                 --i;
                 continue;
             }
 
-            // Eliminar proyectil si sale del nivel
-            if (posP.x() < -100 || posP.x() > 8200) {
-                p->getSprite()->hide();
+            QLabel* sprite = p->getSprite();
+            if (!sprite) {
+                qDebug() << "¡Advertencia: getSprite() devuelve nullptr! Eliminando proyectil índice:" << i;
                 delete p;
-                proyectiles.remove(i);
+                proyectiles.removeAt(i);
+                --i;
+                continue;
+            }
+
+            // Actualizar posición lógica
+            p->actualizar();
+            QVector2D posP = p->getPosicion();
+
+            // Validar que el sprite siga siendo válido antes de mover
+            if (sprite) {
+                sprite->move(posP.x() - offsetX, posP.y());
+            }
+
+            // Rectángulo de colisión
+            QRect rectProy(posP.toPoint(), sprite->size());
+            bool impacto = false;
+
+            if (p->esDelJugadorFunc()) {
+                // Colisión con enemigos
+                for (SoldadoPatrullaRoja*& enemigo : enemigos) {
+                    if (!enemigo || enemigo->estaMuerto()) continue;
+                    QRect rectEnem(enemigo->getPosicion().toPoint(), enemigo->getSprite()->size());
+                    if (rectProy.intersects(rectEnem)) {
+                        enemigo->recibirDanio(p->getDanio());
+                        impacto = true;
+                        break;
+                    }
+                }
+            } else {
+                // Colisión con jugador
+                QRect rectJugador(jugador->getPosicion().toPoint(), jugador->getSprite()->size());
+                if (rectProy.intersects(rectJugador)) {
+                    if (!estaMuerto) {
+                        vidas--;
+                        actualizarCorazones(vidas);
+                        if (vidas <= 0) {
+                            timer->stop();
+                            mostrarMensajeDerrota();
+                        }
+                    }
+                    impacto = true;
+                }
+            }
+
+            // --- Eliminar proyectil si impactó o salió del nivel ---
+            if (impacto || posP.x() < -100 || posP.x() > 8200) {
+                if (sprite) sprite->hide();  // Ocultar sprite si existe
+                delete p;                    // Liberar proyectil completamente
+                proyectiles.removeAt(i);
                 --i;
             }
         }
 
         // === Limpiar enemigos eliminados (muertos + ocultos) ===
         for (int i = 0; i < enemigos.size(); ++i) {
-            if (enemigos[i]->estaMuerto() && !enemigos[i]->getSprite()->isVisible()) {
-                enemigos.remove(i);
+            SoldadoPatrullaRoja* e = enemigos[i];
+            if (!e) continue;
+            if (e->estaMuerto() && (!e->getSprite() || !e->getSprite()->isVisible())) {
+                enemigos.removeAt(i);
+                delete e;
                 --i;
             }
         }
@@ -376,19 +423,24 @@ void Nivel1::agregarProyectil(Proyectil* p) {
 
 // Reiniciar el nivel (resetea completamente el estado)
 void Nivel1::reiniciarNivel() {
-    timer->stop();
-    this->close(); // Cierra la instancia actual
+    timer->stop();  // Detiene el bucle principal
 
     // Crear nueva instancia
     Nivel1* nuevoNivel = new Nivel1(parentWidget());
 
-    // Conecta la señal base correctamente
+    // Conecta la señal base correctamente (importante para volver al menú)
     connect(nuevoNivel, &Nivel::regresarAlMenu, this, [=]() {
         emit regresarAlMenu(); // Propaga correctamente al Juego
     });
 
-    // Mostrar nueva instancia y cargar el nivel
+    // Mostrar la nueva instancia
     nuevoNivel->setFixedSize(800, 600);
     nuevoNivel->show();
     nuevoNivel->cargarNivel();
+
+    // Eliminar la instancia actual después de pasar el control
+    this->deleteLater();
+    limpiarTodosLosProyectiles();
+    limpiarTodosLosEnemigos();
+
 }
