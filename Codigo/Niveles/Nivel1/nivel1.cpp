@@ -2,6 +2,7 @@
 #include "roshi.h"
 #include "lunch.h"
 #include "proyectil.h"
+#include "Enemigos/soldadopatrullarroja.h"
 
 #include <QVBoxLayout>
 #include <QPushButton>
@@ -14,6 +15,7 @@
 Nivel1::Nivel1(QWidget* parent)
     : Nivel(parent),
     jugador(nullptr),
+    enemigos(),
     timer(new QTimer(this)),
     fondoSeleccion(new QLabel(this)),
     selector(new QWidget(this)),
@@ -142,6 +144,13 @@ void Nivel1::cargarNivel() {
         jugador->setPosicion(QVector2D(100, 420));
         jugador->getSprite()->show();
         jugador->getSprite()->raise();
+        //Crear enemigos de la Patrulla Roja
+        // Aparecen ya caminando desde el fondo hacia el jugador
+        SoldadoPatrullaRoja* enemigo1 = new SoldadoPatrullaRoja(fondoNivel, QVector2D(800, 420), jugador, false);
+        enemigos.append(enemigo1);
+
+        SoldadoPatrullaRoja* enemigo2 = new SoldadoPatrullaRoja(fondoNivel, QVector2D(1300, 420), jugador, true);
+        enemigos.append(enemigo2);
         // Inicializa sistema de corazones (5 vidas por defecto)
         vidas = 5;
         inicializarCorazones(vidas);
@@ -181,7 +190,7 @@ void Nivel1::cargarNivel() {
             jugador->aplicarFisica();
         }
 
-        // Obtener posición actual (ya sea para scroll o actualización visual)
+        // Obtener posición actual del jugador
         QVector2D pos = jugador->getPosicion();
 
         // Scroll lateral: mover el fondo y fijar sprite visualmente si avanza
@@ -204,18 +213,76 @@ void Nivel1::cargarNivel() {
             jugador->getSprite()->move(pos.x() - offsetX, pos.y());
         }
 
-        // Actualizar proyectiles
+        // === NUEVO: Actualizar enemigos (IA, movimiento, disparo) ===
+        for (SoldadoPatrullaRoja* e : enemigos) {
+            e->actualizar();  // Actualiza IA del enemigo
+            if (!e->estaMuerto()) {
+                QVector2D posE = e->getPosicion();
+                e->getSprite()->move(posE.x() - offsetX, posE.y());  // Corrige posición visual según scroll
+            }
+        }
+
+        // === Proyectiles (jugador + enemigos) ===
         for (int i = 0; i < proyectiles.size(); ++i) {
             Proyectil* p = proyectiles[i];
             p->actualizar();
-            QVector2D pos = p->getPosicion();
-            p->getSprite()->move(pos.x() - offsetX, pos.y());
+            QVector2D posP = p->getPosicion();
+            p->getSprite()->move(posP.x() - offsetX, posP.y());
 
-            // Eliminar proyectiles que salen fuera del nivel
-            if (pos.x() < -100 || pos.x() > 8200) {
+            // Rectángulo del proyectil para colisión
+            QRect rectProy(posP.toPoint(), p->getSprite()->size());
+
+            // --- Colisión con enemigos (si no está muerto) ---
+            bool impacto = false;
+            for (SoldadoPatrullaRoja* enemigo : enemigos) {
+                if (enemigo->estaMuerto()) continue;
+
+                QRect rectEnem(enemigo->getPosicion().toPoint(), enemigo->getSprite()->size());
+
+                if (rectProy.intersects(rectEnem)) {
+                    enemigo->recibirDanio(p->getDanio());
+                    impacto = true;
+                    break;
+                }
+            }
+
+            // --- NUEVO: Colisión con el jugador (solo si es proyectil enemigo) ---
+            QRect rectJugador(jugador->getPosicion().toPoint(), jugador->getSprite()->size());
+            if (!impacto && rectProy.intersects(rectJugador) && p->getDanio() == 1) {
+                // Disparo enemigo impacta al jugador (como si presionara tecla K)
+                if (!estaMuerto) {
+                    vidas--;
+                    actualizarCorazones(vidas);
+                    if (vidas <= 0) {
+                        timer->stop();
+                        mostrarMensajeDerrota();
+                    }
+                }
+                impacto = true;
+            }
+
+            // Si impactó con algo, eliminar proyectil
+            if (impacto) {
                 p->getSprite()->hide();
                 delete p;
                 proyectiles.remove(i);
+                --i;
+                continue;
+            }
+
+            // Eliminar proyectil si sale del nivel
+            if (posP.x() < -100 || posP.x() > 8200) {
+                p->getSprite()->hide();
+                delete p;
+                proyectiles.remove(i);
+                --i;
+            }
+        }
+
+        // === Limpiar enemigos eliminados (muertos + ocultos) ===
+        for (int i = 0; i < enemigos.size(); ++i) {
+            if (enemigos[i]->estaMuerto() && !enemigos[i]->getSprite()->isVisible()) {
+                enemigos.remove(i);
                 --i;
             }
         }

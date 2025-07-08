@@ -4,6 +4,7 @@
 #include "nivel.h"
 #include "personaje.h"
 #include "proyectil.h"
+#include "Enemigos/soldadopatrullarroja.h"
 
 #include <QVector>
 #include <QTimer>
@@ -37,6 +38,7 @@ private:
     Personaje* jugador;           // Personaje activo (Roshi o Lunch)
     QTimer* timer;                // Timer principal (actualiza físicas y scroll)
     QSet<int> teclasPresionadas; // Teclas actualmente presionadas
+    QVector<SoldadoPatrullaRoja*> enemigos; // Enemigos activos
     QVector<Proyectil*> proyectiles; // Lista de proyectiles activos
     QLabel* fondoSeleccion;      // Fondo visible durante la selección de personaje
     QWidget* selector;           // Contenedor de botones para elegir personaje
@@ -51,6 +53,7 @@ private:
     int vidas;                   // Número de corazones actuales
     void inicializarCorazones(int cantidad);
     void actualizarCorazones(int nuevaVida);
+    void agregarEnemigosIniciales(); // Método para crear enemigos al inicio
     void mostrarMensajeDerrota();
     bool estaMuerto = false;
 };

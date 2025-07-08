@@ -18,9 +18,12 @@ public:
     void actualizar() override;
     void interactuar(Entidad* otra) override;
 
+    int getDanio() const; // Devuelve el daño del proyectil
+
 private:
     QVector2D direccion;  // Dirección de movimiento (1,0) o (-1,0)
     float velocidad;      // Velocidad del proyectil
+    int danio = 10;        // Nuevo: daño que causa este proyectil
 };
 
 #endif // PROYECTIL_H

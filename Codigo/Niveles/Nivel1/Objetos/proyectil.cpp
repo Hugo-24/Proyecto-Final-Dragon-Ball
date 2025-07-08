@@ -18,15 +18,18 @@ Proyectil::Proyectil(QWidget* parent,
     if (tipo == "roshi") {
         imagen.load(":/Sprites/Proyectiles/Bola_Energia.png");
         sprite->setFixedSize(80, 80);
+        danio = 15;  // Roshi causa más daño
     } else if (tipo == "lunch") {
         if (direccion.x() >= 0)
             imagen.load(":/Sprites/Proyectiles/R_BalaCohete.png");
         else
             imagen.load(":/Sprites/Proyectiles/L_BalaCohete.png");
         sprite->setFixedSize(80, 40);
+        danio = 15;  // Bazuca de Lunch
     } else if (tipo == "subfusil") {
         imagen.load(":/Sprites/Proyectiles/BalaSubfusil.png");
         sprite->setFixedSize(28, 8);
+        danio = 5;  // Subfusil más débil
     }
 
     // Validar imagen
@@ -43,6 +46,7 @@ Proyectil::Proyectil(QWidget* parent,
 void Proyectil::actualizar() {
     // Movimiento lineal constante
     posicion += direccion * velocidad;
+
     // Eliminación si sale de pantalla
     if (posicion.x() < -100 || posicion.x() > 8200) {
         sprite->hide();
@@ -54,4 +58,9 @@ void Proyectil::interactuar(Entidad* otra) {
     if (!otra) return;
     qDebug() << "Proyectil impactó con una entidad.";
     sprite->hide(); // Por ahora solo se oculta al impactar
+}
+
+// Devuelve la cantidad de daño que causa este proyectil
+int Proyectil::getDanio() const {
+    return danio;
 }
