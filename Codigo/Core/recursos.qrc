@@ -64,11 +64,34 @@
         <file>Sprites/Lunch/L_Subfusil3_Launch.png</file>
         <file>Sprites/Lunch/L_Subfusil4_Launch.png</file>
 
+        <!-- Soldado Patrulla Roja -->
+        <!-- Idle -->
+        <file>Sprites/SoldadoRR/R_Idle_SoldadoRR.png</file>
+        <file>Sprites/SoldadoRR/L_Idle_SoldadoRR.png</file>
+
+        <!-- Caminar -->
+        <file>Sprites/SoldadoRR/R_Walk1_SoldadoRR.png</file>
+        <file>Sprites/SoldadoRR/R_Walk2_SoldadoRR.png</file>
+        <file>Sprites/SoldadoRR/R_Walk3_SoldadoRR.png</file>
+        <file>Sprites/SoldadoRR/L_Walk1_SoldadoRR.png</file>
+        <file>Sprites/SoldadoRR/L_Walk2_SoldadoRR.png</file>
+        <file>Sprites/SoldadoRR/L_Walk3_SoldadoRR.png</file>
+
+        <!-- Disparar -->
+        <file>Sprites/SoldadoRR/R_Shoot1_SoldadoRR.png</file>
+        <file>Sprites/SoldadoRR/R_Shoot2_SoldadoRR.png</file>
+        <file>Sprites/SoldadoRR/R_Shoot3_SoldadoRR.png</file>
+        <file>Sprites/SoldadoRR/L_Shoot1_SoldadoRR.png</file>
+        <file>Sprites/SoldadoRR/L_Shoot2_SoldadoRR.png</file>
+        <file>Sprites/SoldadoRR/L_Shoot3_SoldadoRR.png</file>
+
         <!-- Sprites de muerte -->
         <file>Sprites/Lunch/R_Lunch_Muerta.png</file>
         <file>Sprites/Lunch/L_Lunch_Muerta.png</file>
         <file>Sprites/Roshi/R_Roshi_Muerto.png</file>
         <file>Sprites/Roshi/L_Roshi_Muerto.png</file>
+        <file>Sprites/SoldadoRR/R_Soldado_Muerto.png</file>
+        <file>Sprites/SoldadoRR/L_Soldado_Muerto.png</file>
 
         <!-- Proyectiles -->
         <file>Sprites/Proyectiles/Bola_Energia.png</file>
@@ -81,6 +104,7 @@
         <file>Sprites/UI/corazon_vacio.png</file>
 
 	<!-- Audio -->
+        <file>Sonidos/Menu/menu-soundtrack.mp3</file> 
 	<file>Sonidos/Nivel2-S/torpedo-efecto.mp3</file>
 	<file>Sonidos/Nivel2-S/nivel2-soundtrack.mp3</file>
 

@@ -51,6 +51,7 @@ void Lunch::actualizarSprite() {
 }
 
 void Lunch::transformar() {
+    setPuedeDisparar(true); // Asegura que pueda volver a disparar tras la transformación
     transformada = !transformada;
     actualizarSprite();
     qDebug() << "Lunch se transforma a modo" << (transformada ? "agresiva" : "tranquila");

@@ -7,7 +7,7 @@
 int main(int argc, char *argv[]) {
 
     // Silenciar los mensajes de stderr de FFmpeg
-    //freopen("NUL", "w", stderr); // <- Descoementar esta linea al finalizar el desarrollo y Debugging // Solo en Windows
+    //freopen("NUL", "w", stderr); // <- Descosmentar esta linea al finalizar el desarrollo y Debugging // Solo en Windows
 
     QApplication app(argc, argv);
     MainWindow window;

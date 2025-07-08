@@ -16,6 +16,7 @@ INCLUDEPATH += \
     Codigo/Niveles/Nivel1 \
     Codigo/Niveles/Nivel1/Personajes \
     Codigo/Niveles/Nivel1/Objetos \
+    Codigo/Niveles/Nivel1/Enemigos \
     Codigo/Niveles/Nivel2 \
     Codigo/Niveles/Nivel2/Personajes \
     Codigo/Niveles/Nivel2/Objetos
@@ -68,13 +69,15 @@ SOURCES += \
     Codigo/Niveles/Nivel1/nivel1.cpp \
     Codigo/Niveles/Nivel1/Personajes/roshi.cpp \
     Codigo/Niveles/Nivel1/Personajes/lunch.cpp \
-    Codigo/Niveles/Nivel1/Objetos/proyectil.cpp
+    Codigo/Niveles/Nivel1/Objetos/proyectil.cpp \
+    Codigo/Niveles/Nivel1/Enemigos/soldadopatrullarroja.cpp
 
 HEADERS += \
     Codigo/Niveles/Nivel1/nivel1.h \
     Codigo/Niveles/Nivel1/Personajes/roshi.h \
     Codigo/Niveles/Nivel1/Personajes/lunch.h \
-    Codigo/Niveles/Nivel1/Objetos/proyectil.h
+    Codigo/Niveles/Nivel1/Objetos/proyectil.h \
+    Codigo/Niveles/Nivel1/Enemigos/soldadopatrullarroja.h
 
 # =========================================
 # NIVEL 2
