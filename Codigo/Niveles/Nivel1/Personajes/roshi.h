@@ -9,6 +9,7 @@ public:
     Roshi(QWidget* parent);
     void atacar() override;
     void lanzarEnergia() override;
+    ~Roshi();
 
 private:
     void volverAIdle();

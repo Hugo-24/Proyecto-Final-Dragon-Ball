@@ -114,6 +114,7 @@
         <file>Sonidos/Nivel1-S/disparo-bazuca.mp3</file>
 	<file>Sonidos/Nivel2-S/torpedo-efecto.mp3</file>
 	<file>Sonidos/Nivel2-S/nivel2-soundtrack.mp3</file>
+        <file>Sonidos/efecto-victoria.mp3</file>
 
     </qresource>
 </RCC>

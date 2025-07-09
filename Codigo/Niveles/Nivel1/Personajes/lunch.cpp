@@ -20,6 +20,14 @@ Lunch::Lunch(QWidget* parent)
     sprite->raise();
 }
 
+Lunch::~Lunch() {
+    if (timerRafaga) {
+        timerRafaga->stop();
+        timerRafaga->deleteLater();
+        timerRafaga = nullptr;
+    }
+}
+
 // Actualiza el sprite según el movimiento y estado
 void Lunch::actualizarSprite() {
     if (estaMuerto) return;

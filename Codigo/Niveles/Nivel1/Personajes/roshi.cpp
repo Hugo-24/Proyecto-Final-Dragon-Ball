@@ -7,7 +7,9 @@ Roshi::Roshi(QWidget* parent) : Personaje(parent) {
     setSprite(":/Sprites/Roshi/R_Idle_Roshi.png");
     setPosicion(QVector2D(100, 450));
 }
-
+Roshi::~Roshi() {
+    // No se requiere limpieza manual
+}
 // Cambia sprite según dirección actual
 void Roshi::actualizarSprite() {
      if (estaMuerto) return;

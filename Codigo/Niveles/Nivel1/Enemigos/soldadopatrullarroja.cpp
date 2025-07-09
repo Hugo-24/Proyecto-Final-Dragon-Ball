@@ -52,6 +52,26 @@ void SoldadoPatrullaRoja::cambiarSprite(const QString& ruta) {
     sprite->setPixmap(pix.scaled(sprite->size()));
 }
 
+SoldadoPatrullaRoja::~SoldadoPatrullaRoja() {
+    if (barraVida) {
+        barraVida->deleteLater();
+        barraVida = nullptr;
+    }
+
+    if (timerAnimacion) {
+        timerAnimacion->stop();
+        timerAnimacion->deleteLater();
+        timerAnimacion = nullptr;
+    }
+
+    if (timerDisparo) {
+        timerDisparo->stop();
+        timerDisparo->deleteLater();
+        timerDisparo = nullptr;
+    }
+
+}
+
 // Animación de caminar (3 sprites)
 void SoldadoPatrullaRoja::animarCaminar() {
     const QString base = mirandoDerecha ? ":/Sprites/SoldadoRR/R_Walk" : ":/Sprites/SoldadoRR/L_Walk";
@@ -92,7 +112,7 @@ void SoldadoPatrullaRoja::disparar() {
         QVector2D posDisparo = posBase + QVector2D(offsetX, 28);
         QVector2D direccion = mirandoDerecha ? QVector2D(1, 0) : QVector2D(-1, 0);
 
-        Proyectil* bala = new Proyectil(nivel, posDisparo, direccion, "subfusil", 6.0f);
+        Proyectil* bala = new Proyectil(nivel, posDisparo, direccion, "subfusil", 8.0f);
         bala->setEsDelJugador(false);
         bala->getSprite()->raise();
 
@@ -106,8 +126,8 @@ void SoldadoPatrullaRoja::actualizar() {
 
     // Calcular distancia al jugador
     float distancia = (objetivo->getPosicion() - getPosicion()).length();
-    float rangoDisparo = 450.0f;
-    float rangoDeteccion = 600.0f;
+    float rangoDisparo = 350.0f;
+    float rangoDeteccion = 1200.0f;
 
     // Determinar dirección
     mirandoDerecha = (objetivo->getPosicion().x() > getPosicion().x());
@@ -168,37 +188,35 @@ void SoldadoPatrullaRoja::iniciarMuerte() {
     muerto = true;
     estado = Muriendo;
 
-    // Cambiar sprite a muerto
+    // Cambiar sprite a imagen de muerte
     QString rutaMuerte = mirandoDerecha ? ":/Sprites/SoldadoRR/R_Soldado_Muerto.png"
                                         : ":/Sprites/SoldadoRR/L_Soldado_Muerto.png";
-    cambiarSprite(rutaMuerte);
+    if (sprite) {
+        sprite->setPixmap(QPixmap(rutaMuerte).scaled(sprite->size()));
+    }
 
+    // Ocultar y eliminar barra de vida
     if (barraVida) {
         barraVida->hide();
-        barraVida->deleteLater();
         barraVida = nullptr;
     }
 
+    // Detener y eliminar timers
     if (timerAnimacion) {
         timerAnimacion->stop();
-        timerAnimacion->deleteLater();
         timerAnimacion = nullptr;
     }
-
     if (timerDisparo) {
         timerDisparo->stop();
-        timerDisparo->deleteLater();
         timerDisparo = nullptr;
     }
 
-    if (sprite) {
-        sprite->deleteLater();
-        sprite = nullptr;
-    }
-
-    QTimer::singleShot(2000, this, [=]() {
-        if (sprite) sprite->hide();
-        deleteLater();
+    // Esperar unos segundos para mostrar sprite de muerte antes de eliminar
+    QTimer::singleShot(1000, this, [this]() {
+        if (sprite) {
+            sprite->hide();
+            sprite = nullptr;
+        }
     });
 }
 

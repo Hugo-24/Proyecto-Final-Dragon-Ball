@@ -16,6 +16,7 @@ public:
     void transformar();         // Alternar entre modos
     bool estaEnModoAgresiva() const;
     // No redefine atacar(): Lunch no puede atacar cuerpo a cuerpo
+    ~Lunch();
 
 protected:
     void actualizarSprite() override;

@@ -4,7 +4,8 @@
 #include "nivel.h"
 #include "personaje.h"
 #include "proyectil.h"
-#include "Enemigos/soldadopatrullarroja.h"
+#include "soldadopatrullarroja.h"
+#include "corazon.h"
 
 #include <QVector>
 #include <QTimer>
@@ -15,9 +16,10 @@
 #include <QMessageBox>
 #include <QMediaPlayer>
 #include <QAudioOutput>
+
 /**
- * Nivel1 representa el primer nivel del juego, que incluye scroll lateral,
- * selección de personaje (Roshi o Launch) y físicas básicas.
+ * Nivel1 representa el primer nivel del juego, con scroll lateral,
+ * selección de personajes, enemigos, proyectiles, corazones curativos y sistema de victoria.
  */
 class Nivel1 : public Nivel {
     Q_OBJECT
@@ -27,48 +29,75 @@ signals:
 public:
     explicit Nivel1(QWidget* parent = nullptr);
     void cargarNivel() override;
-
-    // Permite que Lunch agregue proyectiles durante disparos
     void agregarProyectil(Proyectil* p);
     float getOffsetX() const { return offsetX; }
+    int getVidas() const { return vidas; }
+    void setVidas(int v) { vidas = v; }
 
 protected:
     void keyPressEvent(QKeyEvent* event) override;
     void keyReleaseEvent(QKeyEvent* event) override;
 
 private:
-    Personaje* jugador;           // Personaje activo (Roshi o Lunch)
-    QTimer* timer;                // Timer principal (actualiza físicas y scroll)
-    QSet<int> teclasPresionadas; // Teclas actualmente presionadas
-    QVector<SoldadoPatrullaRoja*> enemigos; // Enemigos activos
-    QVector<Proyectil*> proyectiles; // Lista de proyectiles activos
-    QLabel* fondoSeleccion;      // Fondo visible durante la selección de personaje
-    QWidget* selector;           // Contenedor de botones para elegir personaje
-    QWidget* fondoNivel;         // Contenedor de los fondos (scroll completo)
-    QLabel* mapa1;               // Primer fondo (inicio del nivel)
-    QLabel* mapa2;               // Segundo fondo (continuación del nivel)
-    int offsetX;                 // Desplazamiento horizontal para scroll lateral
-    void reiniciarNivel() override;
+    // Jugador y entradas
+    Personaje* jugador;
+    QSet<int> teclasPresionadas;
 
-    // Sistema de corazones
-    QVector<QLabel*> corazones;  // Etiquetas de corazones
-    int vidas;                   // Número de corazones actuales
+    // Escenario y scroll
+    QWidget* fondoNivel;
+    QLabel* fondoSeleccion;
+    QWidget* selector;
+    QLabel* mapa1;
+    QLabel* mapa2;
+    int offsetX;
+
+    // Enemigos y proyectiles
+    QVector<SoldadoPatrullaRoja*> enemigos;
+    QVector<Proyectil*> proyectiles;
+    void agregarEnemigoEnPosicion(const QVector2D& pos, bool haciaDerecha); // <-- CORREGIDA
+    void iniciarSpawningDeEnemigos(); // <-- AGREGADA
+    void agregarEnemigosIniciales();
+
+    // Timer principal
+    QTimer* timer;
+
+    // Timer para spawn progresivo de enemigos
+    QTimer* timerSpawnEnemigos = nullptr;
+    int totalEnemigosCreados = 0;
+    const int maxEnemigosNivel = 100;
+    QLabel* contadorEnemigosLabel = nullptr; // Contador visual de enemigos derrotados
+    bool controlesHabilitados = true;        // Permite pausar movimiento inicial
+
+    // Corazones
+    QVector<QLabel*> corazones;         // Corazones de vidas (máx 5)
+    QVector<Corazon*> corazonesCurativos; // Corazones curativos que se recogen
+    int vidas;
     void inicializarCorazones(int cantidad);
     void actualizarCorazones(int nuevaVida);
-    void agregarEnemigosIniciales(); // Método para crear enemigos al inicio
+
+    // Música
+    QMediaPlayer* reproductorNivel = nullptr;
+    QAudioOutput* salidaAudioNivel = nullptr;
+    QMediaPlayer* reproductorSeleccion = nullptr;
+    QAudioOutput* salidaAudioSeleccion = nullptr;
+    QMediaPlayer* reproductorVictoria = nullptr;
+    QAudioOutput* salidaAudioVictoria = nullptr;
+
+    // Lógica de juego
+    bool estaMuerto = false;
+    int enemigosDerrotados = 0;
     void mostrarMensajeDerrota();
     void mostrarExplosion(const QVector2D& pos);
-    bool estaMuerto = false;
+    void mostrarMensajeVictoria();
+
+    // Limpieza
+    void reiniciarNivel() override;
     void limpiarTodosLosProyectiles();
     void limpiarTodosLosEnemigos();
     void limpiarCorazones();
     void limpiarJugador();
     void limpiarFondo();
     void detenerMusica() override;
-    QMediaPlayer* reproductorNivel;
-    QAudioOutput* salidaAudioNivel;
-    QMediaPlayer* reproductorSeleccion = nullptr;
-    QAudioOutput* salidaAudioSeleccion = nullptr;
 };
 
 #endif // NIVEL1_H

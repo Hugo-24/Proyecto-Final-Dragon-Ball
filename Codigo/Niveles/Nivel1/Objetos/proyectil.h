@@ -22,6 +22,7 @@ public:
     void setEsDelJugador(bool valor);
     bool esDelJugadorFunc() const;
     QString getTipo() const; // Devuelve el tipo para validación
+    ~Proyectil();
 
 private:
     QVector2D direccion;  // Dirección de movimiento (1,0) o (-1,0)

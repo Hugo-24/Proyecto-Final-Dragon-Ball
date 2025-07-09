@@ -22,6 +22,9 @@ public:
     void actualizar() override;
     void recibirDanio(int cantidad);
     bool estaMuerto() const;
+    QProgressBar* getBarraVida() const { return barraVida; }
+    int getVida() const { return vida; }
+    ~SoldadoPatrullaRoja();
 
 private:
     void animarCaminar();
@@ -32,8 +35,8 @@ private:
     bool mirandoDerecha;     // Dirección del sprite
     bool muerto = false;
 
-    int vida = 20;           // Vida inicial
-    int tiempoDisparo = 1500; // Modo fácil: 1.5 segundos por disparo
+    int vida = 30;           // Vida inicial
+    int tiempoDisparo = 1000; // Modo fácil: 1 segundo por disparo
 
     // Animación y control
     QTimer* timerAnimacion;

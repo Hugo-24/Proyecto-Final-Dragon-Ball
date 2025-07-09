@@ -46,6 +46,13 @@ Proyectil::Proyectil(QWidget* parent,
     sprite->show();
 }
 
+Proyectil::~Proyectil() {
+    if (sprite) {
+        sprite->deleteLater();
+        sprite = nullptr;
+    }
+}
+
 // Actualiza la posición del proyectil
 void Proyectil::actualizar() {
     // Movimiento lineal constante

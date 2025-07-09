@@ -70,6 +70,7 @@ SOURCES += \
     Codigo/Niveles/Nivel1/Personajes/roshi.cpp \
     Codigo/Niveles/Nivel1/Personajes/lunch.cpp \
     Codigo/Niveles/Nivel1/Objetos/proyectil.cpp \
+    Codigo/Niveles/Nivel1/Objetos/corazon.cpp \
     Codigo/Niveles/Nivel1/Enemigos/soldadopatrullarroja.cpp
 
 HEADERS += \
@@ -77,6 +78,7 @@ HEADERS += \
     Codigo/Niveles/Nivel1/Personajes/roshi.h \
     Codigo/Niveles/Nivel1/Personajes/lunch.h \
     Codigo/Niveles/Nivel1/Objetos/proyectil.h \
+    Codigo/Niveles/Nivel1/Objetos/corazon.h \
     Codigo/Niveles/Nivel1/Enemigos/soldadopatrullarroja.h
 
 # =========================================

@@ -2,7 +2,8 @@
 #include "roshi.h"
 #include "lunch.h"
 #include "proyectil.h"
-#include "Enemigos/soldadopatrullarroja.h"
+#include "corazon.h"
+#include "soldadopatrullarroja.h"
 
 #include <QVBoxLayout>
 #include <QPushButton>
@@ -15,12 +16,12 @@
 Nivel1::Nivel1(QWidget* parent)
     : Nivel(parent),
     jugador(nullptr),
-    timer(new QTimer(this)),
-    enemigos(),
+    fondoNivel(nullptr),
     fondoSeleccion(new QLabel(this)),
     selector(new QWidget(this)),
-    fondoNivel(nullptr),
-    offsetX(0)
+    offsetX(0),
+    enemigos(),
+    timer(new QTimer(this))
 {
     setFixedSize(800, 600);
     setFocusPolicy(Qt::StrongFocus); // Capturar teclado
@@ -34,7 +35,40 @@ void Nivel1::inicializarCorazones(int cantidad) {
         corazones.append(corazon);
     }
 }
+void Nivel1::agregarEnemigoEnPosicion(const QVector2D& pos, bool haciaDerecha) {
+    SoldadoPatrullaRoja* enemigo = new SoldadoPatrullaRoja(this, this, pos, jugador, haciaDerecha);
+    enemigos.append(enemigo);
+}
 
+void Nivel1::agregarEnemigosIniciales() {
+    for (int i = 0; i < 5; ++i) {
+        float x = 400 + i * 50; // Aparecen cerca del jugador
+        bool derecha = (i % 2 == 0);
+        agregarEnemigoEnPosicion(QVector2D(x, 420), derecha);
+        totalEnemigosCreados++;
+    }
+}
+
+void Nivel1::iniciarSpawningDeEnemigos() {
+    timerSpawnEnemigos = new QTimer(this);
+    connect(timerSpawnEnemigos, &QTimer::timeout, this, [=]() {
+        if (totalEnemigosCreados >= maxEnemigosNivel) {
+            timerSpawnEnemigos->stop();
+            return;
+        }
+
+        // Crear hasta 15 enemigos por tanda
+        int cantidad = qMin(15, maxEnemigosNivel - totalEnemigosCreados);
+        for (int i = 0; i < cantidad; ++i) {
+            float xRandom = 500 + rand() % 7000;  // Posición aleatoria horizontal
+            bool derecha = (rand() % 2 == 0);
+            agregarEnemigoEnPosicion(QVector2D(xRandom, 420), derecha);
+            totalEnemigosCreados++;
+        }
+    });
+
+    timerSpawnEnemigos->start(10000); // Cada 10 segundos
+}
 void Nivel1::mostrarExplosion(const QVector2D& pos) {
     QLabel* expl = new QLabel(this);
     expl->setPixmap(QPixmap(":/Sprites/UI/explosion.png").scaled(80, 80));
@@ -54,6 +88,12 @@ void Nivel1::mostrarMensajeDerrota() {
     if (jugador) {
         jugador->detenerAnimacionCaminar();
         jugador->setMuerto(true);
+    }
+    //Para quitar el contador de enemigos
+    if (contadorEnemigosLabel) {
+        contadorEnemigosLabel->hide();
+        contadorEnemigosLabel->deleteLater();
+        contadorEnemigosLabel = nullptr;
     }
     // Mostrar sprite de muerte del personaje según el tipo y dirección
     if (jugador && jugador->getSprite()) {
@@ -80,7 +120,7 @@ void Nivel1::mostrarMensajeDerrota() {
     QAudioOutput* salidaMuerte = new QAudioOutput(this);
     efectoMuerte->setAudioOutput(salidaMuerte);
     efectoMuerte->setSource(QUrl("qrc:/Sonidos/Nivel1-S/muerte-sonido.mp3"));
-    salidaMuerte->setVolume(100);
+    salidaMuerte->setVolume(10);
     efectoMuerte->play();
 
     // Muestra mensaje visual de derrota en pantalla
@@ -106,7 +146,7 @@ void Nivel1::cargarNivel() {
     salidaAudioSeleccion = new QAudioOutput(this);
 
     reproductorSeleccion->setAudioOutput(salidaAudioSeleccion);
-    salidaAudioSeleccion->setVolume(50);
+    salidaAudioSeleccion->setVolume(10);
     reproductorSeleccion->setSource(QUrl("qrc:/Sonidos/Nivel1-S/menu_nivel1.mp3")); // o usa el mismo mp3 del menú
     reproductorSeleccion->setLoops(QMediaPlayer::Infinite);
     reproductorSeleccion->play();
@@ -160,18 +200,22 @@ void Nivel1::cargarNivel() {
             fondo->setGeometry(i * 2000, 0, 2000, 600);
             fondo->show();
         }
+        // Crear contador visual de enemigos derrotados (solo en juego)
+        contadorEnemigosLabel = new QLabel(this);
+        contadorEnemigosLabel->setText("Enemigos derrotados: 0 / 30");
+        contadorEnemigosLabel->setStyleSheet("color: white; background-color: rgba(0,0,0,150); font: bold 16px; padding: 5px;");
+        contadorEnemigosLabel->setGeometry(10, 550, 250, 30);
+        contadorEnemigosLabel->show();
 
+        //Set Jugador
         jugador = personaje;
         jugador->setPosicion(QVector2D(100, 420));
         jugador->getSprite()->show();
         jugador->getSprite()->raise();
         //Crear enemigos de la Patrulla Roja
         // Aparecen ya caminando desde el fondo hacia el jugador
-        SoldadoPatrullaRoja* enemigo1 = new SoldadoPatrullaRoja(this, this, QVector2D(800, 420), jugador, true);
-        enemigos.append(enemigo1);
-
-        SoldadoPatrullaRoja* enemigo2 = new SoldadoPatrullaRoja(this, this, QVector2D(800, 420), jugador, true);
-        enemigos.append(enemigo2);
+        agregarEnemigosIniciales();  // Enemigos iniciales cercanos
+        iniciarSpawningDeEnemigos(); // Tandas
         // Inicializa sistema de corazones (5 vidas por defecto)
         vidas = 5;
         inicializarCorazones(vidas);
@@ -197,20 +241,37 @@ void Nivel1::cargarNivel() {
 
     connect(btnRoshi, &QPushButton::clicked, this, [=]() {
         iniciarJuego(new Roshi(this));
+
     });
 
     connect(btnLunch, &QPushButton::clicked, this, [=]() {
         iniciarJuego(new Lunch(this));
     });
 
+    //Dialogo explicando el nivel
+    QLabel* dialogo = new QLabel(this);
+    dialogo->setStyleSheet("QLabel { background-color: rgba(0, 0, 0, 180); color: white; font: bold 16px; padding: 10px; border-radius: 5px; }");
+    dialogo->setAlignment(Qt::AlignCenter);
+    dialogo->setGeometry(100, 450, 600, 60);
+    dialogo->show();
+
+    dialogo->setText("Narrador: La Patrulla Roja avanza hacia la Kame House...");
+
+    QTimer::singleShot(3000, this, [=]() {
+        dialogo->setText("Maestro Roshi: ¡Debemos detenerlos antes de que sea demasiado tarde!");
+
+        QTimer::singleShot(3000, this, [=]() {
+            dialogo->setText("Objetivo: Derrota a 30 enemigos para proteger la Kame House.");
+        });
+    });
+
     // Bucle principal del juego
     connect(timer, &QTimer::timeout, this, [=]() {
-        // No hacer nada si no hay jugador o fondo
+        // Verificación inicial: si no hay jugador o fondo, salir del bucle
         if (!jugador || !jugador->getSprite() || !fondoNivel) return;
 
-        // No aplicar movimiento ni física si el jugador está muerto
+        // === Movimiento y físicas del jugador ===
         if (!estaMuerto) {
-            // Movimiento horizontal (A / D)
             if (teclasPresionadas.contains(Qt::Key_A)) {
                 jugador->moverIzquierda();
             } else if (teclasPresionadas.contains(Qt::Key_D)) {
@@ -219,97 +280,89 @@ void Nivel1::cargarNivel() {
                 jugador->setVelocidad(QVector2D(0, jugador->getVelocidad().y()));
             }
 
-            // Aplicar gravedad y físicas
             jugador->aplicarFisica();
         }
 
-        // Obtener posición actual del jugador
+        // === Scroll lateral: mantiene al jugador centrado ===
         QVector2D pos = jugador->getPosicion();
-
-        // Scroll lateral: mover el fondo y mantener sprite visual del jugador fijo
         if (pos.x() > 400 && offsetX < 7200) {
             offsetX += jugador->getVelocidad().x();
             fondoNivel->move(-offsetX, 0);
-            if (!estaMuerto)
-                jugador->getSprite()->move(400, pos.y());  // Mantener centrado
+            if (!estaMuerto) jugador->getSprite()->move(400, pos.y());
         } else if (pos.x() < 100 && offsetX > 0) {
             offsetX += jugador->getVelocidad().x();
             fondoNivel->move(-offsetX, 0);
-            if (!estaMuerto)
-                jugador->getSprite()->move(100, pos.y());  // Mantener cerca del borde
+            if (!estaMuerto) jugador->getSprite()->move(100, pos.y());
         } else {
-            // Si no hay scroll, actualizar normalmente el sprite
-            if (!estaMuerto)
-                jugador->actualizar();
-
-            // Usamos método nuevo para corregir scroll visual
+            if (!estaMuerto) jugador->actualizar();
             jugador->moverSpriteConOffset(offsetX);
         }
 
-        // === Actualizar enemigos (IA, movimiento, disparo) ===
+        // === Enemigos: IA y desplazamiento visual ===
         for (int i = 0; i < enemigos.size(); ++i) {
             SoldadoPatrullaRoja* e = enemigos[i];
             if (!e || e->estaMuerto()) continue;
 
-            e->actualizar();  // Mueve la lógica primero
-
-            // Usamos método nuevo que corrige su desplazamiento visual
-            e->moverSpriteConOffset(offsetX);
+            e->actualizar();                 // Actualiza lógica del enemigo
+            e->moverSpriteConOffset(offsetX); // Mueve sprite con el scroll
         }
-        // === Proyectiles (jugador + enemigos) ===
+
+        // === Proyectiles: movimiento, colisiones y eliminación ===
+        // === Proyectiles: actualización, colisiones y eliminación segura ===
         for (int i = 0; i < proyectiles.size(); ++i) {
             Proyectil* p = proyectiles[i];
 
-            // Validar proyectil nulo
+            // Validación: proyectil nulo
             if (!p) {
                 qDebug() << "¡Advertencia: proyectil nulo eliminado! Índice:" << i;
-                proyectiles.removeAt(i);
-                --i;
+                proyectiles.removeAt(i--);
                 continue;
             }
 
             QLabel* sprite = p->getSprite();
+
+            // Validación: sprite nulo
             if (!sprite) {
                 qDebug() << "¡Advertencia: getSprite() devuelve nullptr! Eliminando proyectil índice:" << i;
                 delete p;
-                proyectiles.removeAt(i);
-                --i;
+                proyectiles.removeAt(i--);
                 continue;
             }
 
-            // Actualizar posición lógica
-            p->actualizar();
+            // === Movimiento del proyectil ===
+            p->actualizar();  // Actualiza posición lógica
             QVector2D posP = p->getPosicion();
+            sprite->move(posP.x() - offsetX, posP.y()); // Corrige scroll visual
 
-            // Validar que el sprite siga siendo válido antes de mover
-            if (sprite) {
-                sprite->move(posP.x() - offsetX, posP.y());
-            }
-
-            // Rectángulo de colisión
             QRect rectProy(posP.toPoint(), sprite->size());
             bool impacto = false;
 
+            // === Colisiones con enemigos (si es del jugador) ===
             if (p->esDelJugadorFunc()) {
                 for (SoldadoPatrullaRoja*& enemigo : enemigos) {
                     if (!enemigo || enemigo->estaMuerto()) continue;
-                    QRect rectEnem(enemigo->getPosicion().toPoint(), enemigo->getSprite()->size());
+
+                    QLabel* spriteEnem = enemigo->getSprite();
+                    if (!spriteEnem) {
+                        qDebug() << "Advertencia: sprite de enemigo nulo en colisión.";
+                        continue;
+                    }
+
+                    QRect rectEnem(enemigo->getPosicion().toPoint(), spriteEnem->size());
                     if (rectProy.intersects(rectEnem)) {
+                        int vidaAntes = enemigo->getVida();
                         enemigo->recibirDanio(p->getDanio());
                         impacto = true;
 
-                        // Solo si es proyectil tipo "lunch" (bazuka)
+                        // Si es proyectil tipo "lunch" (bazuka), mostrar explosión y sonido
                         if (p->getTipo() == "lunch") {
-                            // Mostrar explosión
                             mostrarExplosion(enemigo->getPosicion());
 
-                            // Sonido de explosión bazuka
                             QMediaPlayer* efecto = new QMediaPlayer(this);
                             QAudioOutput* salida = new QAudioOutput(this);
                             efecto->setAudioOutput(salida);
-                            efecto->setSource(QUrl("qrc:/Sonidos/Nivel1-S/bazuka-efecto.mp3")); // mismo que en nivel2
+                            efecto->setSource(QUrl("qrc:/Sonidos/Nivel1-S/bazuka-efecto.mp3"));
                             efecto->play();
-
                             connect(efecto, &QMediaPlayer::mediaStatusChanged, efecto, [=](QMediaPlayer::MediaStatus status) {
                                 if (status == QMediaPlayer::EndOfMedia || status == QMediaPlayer::InvalidMedia) {
                                     efecto->deleteLater();
@@ -318,11 +371,60 @@ void Nivel1::cargarNivel() {
                             });
                         }
 
+                        // === Contador de enemigos derrotados ===
+                        if (vidaAntes > 0 && enemigo->getVida() <= 0) {
+                            enemigosDerrotados++;
+                            if (contadorEnemigosLabel)
+                                contadorEnemigosLabel->setText(QString("Enemigos derrotados: %1 / 30").arg(enemigosDerrotados));
+                            // Cada 6 enemigos derrotados aparece un Corazon curativo
+                            if (enemigosDerrotados % 5 == 0 && enemigosDerrotados < 30) {
+                                Corazon* c = new Corazon(this, enemigo->getPosicion(), this);
+                                corazonesCurativos.append(c);
+                            }
+                        }
+                        // Si se derrotan 30 enemigos, se gana el nivel
+                        if (enemigosDerrotados >= 30 && !reproductorVictoria) {
+                            if (timerSpawnEnemigos && timerSpawnEnemigos->isActive()) {
+                                timerSpawnEnemigos->stop();  // Detener aparición de enemigos
+                            }
+                            limpiarTodosLosEnemigos();    // Elimina enemigos
+                            limpiarCorazones();           // Elimina corazones
+                            //Para quitar el contador
+                            if (contadorEnemigosLabel) {
+                                contadorEnemigosLabel->hide();
+                                contadorEnemigosLabel->deleteLater();
+                                contadorEnemigosLabel = nullptr;
+                            }
+                            // Mensaje visual de victoria
+                            QLabel* mensaje = new QLabel("¡Has ganado!\nVenciste al Ejército de la Patrulla Roja\n¡La Kame House está a salvo!", this);
+                            mensaje->setStyleSheet("color: white; font-size: 28px; font-weight: bold; background-color: black; padding: 10px; border: 2px solid black;");
+                            mensaje->setAlignment(Qt::AlignCenter);
+                            mensaje->adjustSize();
+                            mensaje->move(width() / 2 - mensaje->width() / 2, height() / 2 - mensaje->height() / 2);
+                            mensaje->show();
+
+                            // Sonido de victoria
+                            detenerMusica();
+                            QMediaPlayer* victoria = new QMediaPlayer(this);
+                            QAudioOutput* salida = new QAudioOutput(this);
+                            victoria->setAudioOutput(salida);
+                            victoria->setSource(QUrl("qrc:/Sonidos/efecto-victoria.mp3"));
+                            victoria->play();
+                            reproductorVictoria = victoria;
+                            salidaAudioVictoria = salida;
+
+                            // Regresar al menú principal tras 10 segundos
+                            QTimer::singleShot(10000, this, [this]() {
+                                emit regresarAlMenu();
+                            });
+                        }
+
                         break;
                     }
                 }
+
             } else {
-                // Colisión con jugador
+                // === Colisión del proyectil enemigo con el jugador ===
                 QRect rectJugador(jugador->getPosicion().toPoint(), jugador->getSprite()->size());
                 if (rectProy.intersects(rectJugador)) {
                     if (!estaMuerto) {
@@ -337,20 +439,36 @@ void Nivel1::cargarNivel() {
                 }
             }
 
-            // --- Eliminar proyectil si impactó o salió del nivel ---
+            // === Eliminación del proyectil si impactó o salió del mapa ===
             if (impacto || posP.x() < -100 || posP.x() > 8200) {
-                if (sprite) sprite->hide();  // Ocultar sprite si existe
-                delete p;                    // Liberar proyectil completamente
-                proyectiles.removeAt(i);
-                --i;
+                sprite->hide(); // Validado previamente que no es nullptr
+                delete p;
+                proyectiles.removeAt(i--);
+            }
+        }
+        // === Verificar colisión con corazones curativos ===
+        for (int i = 0; i < corazonesCurativos.size(); ++i) {
+            Corazon* c = corazonesCurativos[i];
+            if (!c || !c->getSprite() || !c->getSprite()->isVisible()) continue;
+
+            QRect rectC(c->getSprite()->pos(), c->getSprite()->size());
+            QRect rectJugador(jugador->getSprite()->pos(), jugador->getSprite()->size());
+
+            if (rectC.intersects(rectJugador) && vidas < 5) {
+                c->getSprite()->hide();
+                vidas++;
+                actualizarCorazones(vidas);
+                corazonesCurativos.removeAt(i--);
+                delete c;
+            } else {
+                c->moverSpriteConOffset(offsetX); // Corrige scroll visual
             }
         }
 
-        // === Limpiar enemigos eliminados (muertos + ocultos) ===
+        // === Eliminar enemigos muertos y ocultos ===
         for (int i = 0; i < enemigos.size(); ++i) {
             SoldadoPatrullaRoja* e = enemigos[i];
-            if (!e) continue;
-            if (e->estaMuerto() && (!e->getSprite() || !e->getSprite()->isVisible())) {
+            if (!e || (e->estaMuerto() && (!e->getSprite() || !e->getSprite()->isVisible()))) {
                 enemigos.removeAt(i);
                 delete e;
                 --i;
@@ -450,46 +568,35 @@ void Nivel1::keyReleaseEvent(QKeyEvent* event) {
 void Nivel1::agregarProyectil(Proyectil* p) {
     proyectiles.append(p);
 }
+// Elimina todos los enemigos del nivel, ocultando primero sus sprites si existen.
+// Se asegura de evitar crashes por enemigos nulos o sin sprite.
 void Nivel1::limpiarTodosLosEnemigos() {
-    for (int i = 0; i < enemigos.size(); ++i) {
-        SoldadoPatrullaRoja* e = enemigos[i];
-        if (!e) continue;
-
-        if (e->getSprite()) {
-            e->getSprite()->hide();
-        } else {
-            qDebug() << "Advertencia: sprite de enemigo nulo al limpiar.";
-        }
-
-        delete e;
+    for (SoldadoPatrullaRoja*& e : enemigos) {
+        if (e) delete e;
     }
-    enemigos.clear(); // Elimina todos los punteros del QVector
+    enemigos.clear();
 }
+// Elimina todos los proyectiles activos del nivel, validando punteros antes de actuar.
+// Se evita acceder a sprites nulos para prevenir crashes.
 void Nivel1::limpiarTodosLosProyectiles() {
-    for (int i = 0; i < proyectiles.size(); ++i) {
-        Proyectil* p = proyectiles[i];
-        if (!p) continue;
-
-        if (p->getSprite()) {
-            p->getSprite()->hide();
-        } else {
-            qDebug() << "Advertencia: getSprite() devuelve nullptr al limpiar.";
-        }
-
-        delete p;
+    for (Proyectil*& p : proyectiles) {
+        if (p) delete p;
     }
-    proyectiles.clear(); // Vacía el vector para evitar acceso a basura
+    proyectiles.clear();
 }
 
+// Elimina todos los corazones del HUD (barra de vidas) con deleteLater para evitar fugas.
+// Este método solo se encarga de los corazones visuales (no los curativos).
 void Nivel1::limpiarCorazones() {
     for (int i = 0; i < corazones.size(); ++i) {
         if (corazones[i]) {
-            corazones[i]->deleteLater();
+            corazones[i]->deleteLater(); // Elimina de forma segura con Qt
         }
     }
     corazones.clear();
 }
 
+// Libera al jugador actual y pone el puntero a nullptr
 void Nivel1::limpiarJugador() {
     if (jugador) {
         delete jugador;
@@ -497,15 +604,16 @@ void Nivel1::limpiarJugador() {
     }
 }
 
+// Libera el widget de fondo del nivel si existe
 void Nivel1::limpiarFondo() {
     if (fondoNivel) {
-        fondoNivel->deleteLater();
+        fondoNivel->deleteLater(); // Qt se encarga de eliminar sus hijos
         fondoNivel = nullptr;
     }
 }
 
-
-
+// Actualiza la barra de corazones según la vida actual del jugador.
+// Muestra corazones llenos hasta nuevaVida, el resto vacíos.
 void Nivel1::actualizarCorazones(int nuevaVida) {
     for (int i = 0; i < corazones.size(); ++i) {
         if (i < nuevaVida) {
@@ -516,15 +624,16 @@ void Nivel1::actualizarCorazones(int nuevaVida) {
     }
 }
 
+// Detiene la música de fondo del nivel y libera reproductores
 void Nivel1::detenerMusica() {
     if (reproductorNivel) {
         reproductorNivel->stop();
-        reproductorNivel->deleteLater();
+        reproductorNivel->deleteLater(); // Elimina el objeto QMediaPlayer
         reproductorNivel = nullptr;
     }
 
     if (salidaAudioNivel) {
-        salidaAudioNivel->deleteLater();
+        salidaAudioNivel->deleteLater(); // Elimina la salida de audio
         salidaAudioNivel = nullptr;
     }
 }
