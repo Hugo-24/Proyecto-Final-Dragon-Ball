@@ -74,6 +74,15 @@ void Nivel1::mostrarMensajeDerrota() {
         jugador->getSprite()->setPixmap(QPixmap(rutaMuerte).scaled(100, 100));
     }
 
+    // Sonido de muerte
+    detenerMusica();
+    QMediaPlayer* efectoMuerte = new QMediaPlayer(this);
+    QAudioOutput* salidaMuerte = new QAudioOutput(this);
+    efectoMuerte->setAudioOutput(salidaMuerte);
+    efectoMuerte->setSource(QUrl("qrc:/Sonidos/Nivel1-S/muerte-sonido.mp3"));
+    salidaMuerte->setVolume(100);
+    efectoMuerte->play();
+
     // Muestra mensaje visual de derrota en pantalla
     QLabel* mensaje = new QLabel("¡Has muerto!", this);
     mensaje->setStyleSheet("color: red; font-size: 30px; font-weight: bold;");
@@ -381,6 +390,13 @@ void Nivel1::keyPressEvent(QKeyEvent* event) {
             });
         } else if (!l) {
             jugador->lanzarEnergia();
+            // Sonido disparo Roshi
+            QMediaPlayer* sfxRoshi = new QMediaPlayer(this);
+            QAudioOutput* outRoshi = new QAudioOutput(this);
+            sfxRoshi->setAudioOutput(outRoshi);
+            sfxRoshi->setSource(QUrl("qrc:/Sonidos/Nivel1-S/disparo-roshi.mp3"));
+            outRoshi->setVolume(80);
+            sfxRoshi->play();
             QTimer::singleShot(400, this, [=]() { jugador->setPuedeDisparar(true); });
 
             QVector2D direccion = jugador->estaMirandoDerecha() ? QVector2D(1, 0) : QVector2D(-1, 0);

@@ -94,7 +94,12 @@ void Lunch::disparar() {
         setSprite(rutaIdle);
     });
 
-    // Disparo real se realiza desde Nivel1 (550ms después)
+    QMediaPlayer* sfxBazuca = new QMediaPlayer(this);
+    QAudioOutput* outBazuca = new QAudioOutput(this);
+    sfxBazuca->setAudioOutput(outBazuca);
+    sfxBazuca->setSource(QUrl("qrc:/Sonidos/Nivel1-S/disparo-bazuca.mp3"));
+    outBazuca->setVolume(100);
+    sfxBazuca->play();
 }
 
 // Disparo de subfusil (ráfaga rápida)
@@ -133,6 +138,14 @@ void Lunch::dispararSubfusil() {
         QVector2D direccion = mirandoDerecha ? QVector2D(1, 0) : QVector2D(-1, 0);
         QVector2D offset = QVector2D(40 * direccion.x(), 28); // Offset visual
         QVector2D pos = getPosicion() + offset;
+
+        // Sonido subfusil
+        QMediaPlayer* sfxSubfusil = new QMediaPlayer(this);
+        QAudioOutput* outSubfusil = new QAudioOutput(this);
+        sfxSubfusil->setAudioOutput(outSubfusil);
+        sfxSubfusil->setSource(QUrl("qrc:/Sonidos/Nivel1-S/disparo-subfusil.mp3"));
+        outSubfusil->setVolume(80);
+        sfxSubfusil->play();
 
         // Crear proyectil subfusil
         Proyectil* bala = new Proyectil(contenedor, pos, direccion, "subfusil", 12.0f); // Más veloz que bazuca

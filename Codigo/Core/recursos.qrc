@@ -108,6 +108,10 @@
         <file>Sonidos/Nivel1-S/nivel1-soundtrack.mp3</file>
         <file>Sonidos/Nivel1-S/menu_nivel1.mp3</file>
         <file>Sonidos/Nivel1-S/bazuka-efecto.mp3</file>
+        <file>Sonidos/Nivel1-S/muerte-sonido.mp3</file>
+        <file>Sonidos/Nivel1-S/disparo-roshi.mp3</file>
+        <file>Sonidos/Nivel1-S/disparo-subfusil.mp3</file>
+        <file>Sonidos/Nivel1-S/disparo-bazuca.mp3</file>
 	<file>Sonidos/Nivel2-S/torpedo-efecto.mp3</file>
 	<file>Sonidos/Nivel2-S/nivel2-soundtrack.mp3</file>
 

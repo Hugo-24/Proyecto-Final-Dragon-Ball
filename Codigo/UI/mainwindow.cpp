@@ -43,7 +43,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
     reproductorMenu->setAudioOutput(salidaAudioMenu);
     salidaAudioMenu->setVolume(50); // Volumen entre 0-100
-    reproductorMenu->setSource(QUrl("qrc:/Sonidos/Nivel2-S/nivel2-soundtrack.mp3"));
+    reproductorMenu->setSource(QUrl("qrc:/Sonidos/Menu/menu-soundtrack.mp3"));
     reproductorMenu->setLoops(QMediaPlayer::Infinite); // Repetir indefinidamente
     reproductorMenu->play(); // ¡Inicia la música!
 
