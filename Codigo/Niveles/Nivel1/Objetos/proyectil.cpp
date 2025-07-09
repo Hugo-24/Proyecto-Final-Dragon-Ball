@@ -12,6 +12,7 @@ Proyectil::Proyectil(QWidget* parent,
     direccion(direccion.normalized()),
     velocidad(velocidad)
 {
+    this->tipo = tipo;
     QPixmap imagen;
 
     // Cargar imagen según tipo
@@ -76,4 +77,7 @@ void Proyectil::setEsDelJugador(bool valor) {
 // Nuevo: consultar si el proyectil pertenece al jugador
 bool Proyectil::esDelJugadorFunc() const {
     return esDelJugador;
+}
+QString Proyectil::getTipo() const {
+    return tipo;
 }

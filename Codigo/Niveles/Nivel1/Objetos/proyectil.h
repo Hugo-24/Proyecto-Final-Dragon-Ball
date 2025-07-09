@@ -21,12 +21,14 @@ public:
     int getDanio() const; // Devuelve el daño del proyectil
     void setEsDelJugador(bool valor);
     bool esDelJugadorFunc() const;
+    QString getTipo() const; // Devuelve el tipo para validación
 
 private:
     QVector2D direccion;  // Dirección de movimiento (1,0) o (-1,0)
     float velocidad;      // Velocidad del proyectil
     int danio = 10;        // Nuevo: daño que causa este proyectil
     bool esDelJugador = true; // Nuevo: indica si el proyectil fue disparado por el jugador
+    QString tipo; // Identificador del tipo de proyectil: "lunch", "roshi", "subfusil", etc.
 };
 
 #endif // PROYECTIL_H

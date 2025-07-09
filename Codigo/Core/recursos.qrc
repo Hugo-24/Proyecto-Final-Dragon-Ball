@@ -14,7 +14,7 @@
         <file>Sprites/Nave/minas.png</file>
         <file>Sprites/Nave/Nave_RR_Izquierda.png</file>
         <file>Sprites/Nave/Nave_Jugador.png</file>
-        <file>Sprites/Nave/explosion.png</file>
+        <file>Sprites/UI/explosion.png</file>
 
         <!-- Maestro Roshi -->
         <file>Sprites/Roshi/R_Idle_Roshi.png</file>
@@ -104,7 +104,10 @@
         <file>Sprites/UI/corazon_vacio.png</file>
 
 	<!-- Audio -->
-        <file>Sonidos/Menu/menu-soundtrack.mp3</file> 
+        <file>Sonidos/Menu/menu-soundtrack.mp3</file>
+        <file>Sonidos/Nivel1-S/nivel1-soundtrack.mp3</file>
+        <file>Sonidos/Nivel1-S/menu_nivel1.mp3</file>
+        <file>Sonidos/Nivel1-S/bazuka-efecto.mp3</file>
 	<file>Sonidos/Nivel2-S/torpedo-efecto.mp3</file>
 	<file>Sonidos/Nivel2-S/nivel2-soundtrack.mp3</file>
 

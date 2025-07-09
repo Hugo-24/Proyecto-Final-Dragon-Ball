@@ -97,7 +97,7 @@ void Nivel2::cargarNivel() {
         });
     });
 
-    // ⏱️ Timer principal de juego
+    // Timer principal de juego
     connect(timerActualizacion, &QTimer::timeout, this, [=]() {
         if (!fase2Activa && controlesHabilitados) {
             bool detenerMovimiento = teclasPresionadas.contains(Qt::Key_Space) && (
@@ -360,7 +360,7 @@ void Nivel2::agregarSubmarinoEnemigo(const QVector2D& pos) {
 
 void Nivel2::mostrarExplosion(const QVector2D& posicion) {
     QLabel* explosion = new QLabel(this);
-    QPixmap imagen(":/Sprites/Nave/explosion.png");
+    QPixmap imagen(":/Sprites/UI/explosion.png");
 
     explosion->setPixmap(imagen.scaled(40, 40)); // Tamaño opcional
     explosion->setAttribute(Qt::WA_TranslucentBackground);
@@ -519,4 +519,15 @@ void Nivel2::mostrarMensajeVictoria() {
     });
 }
 
+void Nivel2::detenerMusica() {
+    if (musicaFondo) {
+        musicaFondo->stop();
+        musicaFondo->deleteLater();
+        musicaFondo = nullptr;
+    }
 
+    if (salidaAudio) {
+        salidaAudio->deleteLater();
+        salidaAudio = nullptr;
+    }
+}

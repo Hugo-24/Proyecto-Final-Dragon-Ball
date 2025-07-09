@@ -13,7 +13,8 @@
 #include <QWidget>
 #include <QPushButton>
 #include <QMessageBox>
-
+#include <QMediaPlayer>
+#include <QAudioOutput>
 /**
  * Nivel1 representa el primer nivel del juego, que incluye scroll lateral,
  * selección de personaje (Roshi o Launch) y físicas básicas.
@@ -56,9 +57,18 @@ private:
     void actualizarCorazones(int nuevaVida);
     void agregarEnemigosIniciales(); // Método para crear enemigos al inicio
     void mostrarMensajeDerrota();
+    void mostrarExplosion(const QVector2D& pos);
     bool estaMuerto = false;
     void limpiarTodosLosProyectiles();
     void limpiarTodosLosEnemigos();
+    void limpiarCorazones();
+    void limpiarJugador();
+    void limpiarFondo();
+    void detenerMusica() override;
+    QMediaPlayer* reproductorNivel;
+    QAudioOutput* salidaAudioNivel;
+    QMediaPlayer* reproductorSeleccion = nullptr;
+    QAudioOutput* salidaAudioSeleccion = nullptr;
 };
 
 #endif // NIVEL1_H

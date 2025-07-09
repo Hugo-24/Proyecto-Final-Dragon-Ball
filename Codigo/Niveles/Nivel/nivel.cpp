@@ -10,7 +10,6 @@ Nivel::~Nivel() {
 void Nivel::reiniciarNivel() {
     emit reiniciarEsteNivel();
 }
-
 void Nivel::mostrarMenuPausa() {
     if (!menuPausa) {
         menuPausa = new QWidget(this);
@@ -41,12 +40,14 @@ void Nivel::mostrarMenuPausa() {
 
         connect(btnReiniciar, &QPushButton::clicked, this, [=]() {
             ocultarMenuPausa();
+            detenerMusica();
             reiniciarNivel();
         });
 
         connect(btnVolverAlMenu, &QPushButton::clicked, this, [=]() {
             ocultarMenuPausa();
-            emit regresarAlMenu();
+            detenerMusica();         // <<< Detenemos la música antes de salir
+            emit regresarAlMenu();   // <<< Señal para regresar
         });
 
         menuPausa->setLayout(layout);

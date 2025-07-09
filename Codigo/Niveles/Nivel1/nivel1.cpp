@@ -34,6 +34,20 @@ void Nivel1::inicializarCorazones(int cantidad) {
         corazones.append(corazon);
     }
 }
+
+void Nivel1::mostrarExplosion(const QVector2D& pos) {
+    QLabel* expl = new QLabel(this);
+    expl->setPixmap(QPixmap(":/Sprites/UI/explosion.png").scaled(80, 80));
+    expl->move(pos.x() - offsetX, pos.y() - 20);
+    expl->show();
+    expl->raise();
+
+    QTimer::singleShot(500, this, [expl]() {
+        expl->hide();
+        expl->deleteLater();
+    });
+}
+
 void Nivel1::mostrarMensajeDerrota() {
     estaMuerto = true;
 
@@ -72,53 +86,21 @@ void Nivel1::mostrarMensajeDerrota() {
         reiniciarNivel();
     });
 }
-void Nivel1::limpiarTodosLosEnemigos() {
-    for (int i = 0; i < enemigos.size(); ++i) {
-        SoldadoPatrullaRoja* e = enemigos[i];
-        if (!e) continue;
-
-        if (e->getSprite()) {
-            e->getSprite()->hide();
-        } else {
-            qDebug() << "Advertencia: sprite de enemigo nulo al limpiar.";
-        }
-
-        delete e;
-    }
-    enemigos.clear(); // Elimina todos los punteros del QVector
-}
-void Nivel1::limpiarTodosLosProyectiles() {
-    for (int i = 0; i < proyectiles.size(); ++i) {
-        Proyectil* p = proyectiles[i];
-        if (!p) continue;
-
-        if (p->getSprite()) {
-            p->getSprite()->hide();
-        } else {
-            qDebug() << "Advertencia: getSprite() devuelve nullptr al limpiar.";
-        }
-
-        delete p;
-    }
-    proyectiles.clear(); // Vacía el vector para evitar acceso a basura
-}
-
-void Nivel1::actualizarCorazones(int nuevaVida) {
-    for (int i = 0; i < corazones.size(); ++i) {
-        if (i < nuevaVida) {
-            corazones[i]->setPixmap(QPixmap(":/Sprites/UI/corazon_lleno.png").scaled(32, 32));
-        } else {
-            corazones[i]->setPixmap(QPixmap(":/Sprites/UI/corazon_vacio.png").scaled(32, 32));
-        }
-    }
-}
-
 // Carga el nivel: muestra selección de personaje y prepara scroll
 void Nivel1::cargarNivel() {
     // Fondo visible durante la selección de personaje
     fondoSeleccion->setPixmap(QPixmap(":/Sprites/Fondos/fondo_nivel1.jpg").scaled(800, 600));
     fondoSeleccion->setGeometry(0, 0, 800, 600);
     fondoSeleccion->show();
+    // Música de selección de personaje (fase previa al juego)
+    reproductorSeleccion = new QMediaPlayer(this);
+    salidaAudioSeleccion = new QAudioOutput(this);
+
+    reproductorSeleccion->setAudioOutput(salidaAudioSeleccion);
+    salidaAudioSeleccion->setVolume(50);
+    reproductorSeleccion->setSource(QUrl("qrc:/Sonidos/Nivel1-S/menu_nivel1.mp3")); // o usa el mismo mp3 del menú
+    reproductorSeleccion->setLoops(QMediaPlayer::Infinite);
+    reproductorSeleccion->play();
 
     // Contenedor de botones y texto de selección
     selector->setGeometry(0, 0, 800, 600);
@@ -185,6 +167,18 @@ void Nivel1::cargarNivel() {
         vidas = 5;
         inicializarCorazones(vidas);
         offsetX = 0;
+
+        // Música de fondo para el nivel
+        if (reproductorSeleccion) reproductorSeleccion->stop();
+        reproductorNivel = new QMediaPlayer(this);
+        salidaAudioNivel = new QAudioOutput(this);
+
+        reproductorNivel->setAudioOutput(salidaAudioNivel);
+        salidaAudioNivel->setVolume(50);  // Volumen entre 0 y 100
+
+        reproductorNivel->setSource(QUrl("qrc:/Sonidos/Nivel1-S/nivel1-soundtrack.mp3")); // Ajusta la ruta si es diferente
+        reproductorNivel->setLoops(QMediaPlayer::Infinite); // Repetir indefinidamente
+        reproductorNivel->play();  // ¡Empieza la música!
         setFocus();
 
         if (!timer->isActive()) {
@@ -288,13 +282,33 @@ void Nivel1::cargarNivel() {
             bool impacto = false;
 
             if (p->esDelJugadorFunc()) {
-                // Colisión con enemigos
                 for (SoldadoPatrullaRoja*& enemigo : enemigos) {
                     if (!enemigo || enemigo->estaMuerto()) continue;
                     QRect rectEnem(enemigo->getPosicion().toPoint(), enemigo->getSprite()->size());
                     if (rectProy.intersects(rectEnem)) {
                         enemigo->recibirDanio(p->getDanio());
                         impacto = true;
+
+                        // Solo si es proyectil tipo "lunch" (bazuka)
+                        if (p->getTipo() == "lunch") {
+                            // Mostrar explosión
+                            mostrarExplosion(enemigo->getPosicion());
+
+                            // Sonido de explosión bazuka
+                            QMediaPlayer* efecto = new QMediaPlayer(this);
+                            QAudioOutput* salida = new QAudioOutput(this);
+                            efecto->setAudioOutput(salida);
+                            efecto->setSource(QUrl("qrc:/Sonidos/Nivel1-S/bazuka-efecto.mp3")); // mismo que en nivel2
+                            efecto->play();
+
+                            connect(efecto, &QMediaPlayer::mediaStatusChanged, efecto, [=](QMediaPlayer::MediaStatus status) {
+                                if (status == QMediaPlayer::EndOfMedia || status == QMediaPlayer::InvalidMedia) {
+                                    efecto->deleteLater();
+                                    salida->deleteLater();
+                                }
+                            });
+                        }
+
                         break;
                     }
                 }
@@ -420,10 +434,93 @@ void Nivel1::keyReleaseEvent(QKeyEvent* event) {
 void Nivel1::agregarProyectil(Proyectil* p) {
     proyectiles.append(p);
 }
+void Nivel1::limpiarTodosLosEnemigos() {
+    for (int i = 0; i < enemigos.size(); ++i) {
+        SoldadoPatrullaRoja* e = enemigos[i];
+        if (!e) continue;
+
+        if (e->getSprite()) {
+            e->getSprite()->hide();
+        } else {
+            qDebug() << "Advertencia: sprite de enemigo nulo al limpiar.";
+        }
+
+        delete e;
+    }
+    enemigos.clear(); // Elimina todos los punteros del QVector
+}
+void Nivel1::limpiarTodosLosProyectiles() {
+    for (int i = 0; i < proyectiles.size(); ++i) {
+        Proyectil* p = proyectiles[i];
+        if (!p) continue;
+
+        if (p->getSprite()) {
+            p->getSprite()->hide();
+        } else {
+            qDebug() << "Advertencia: getSprite() devuelve nullptr al limpiar.";
+        }
+
+        delete p;
+    }
+    proyectiles.clear(); // Vacía el vector para evitar acceso a basura
+}
+
+void Nivel1::limpiarCorazones() {
+    for (int i = 0; i < corazones.size(); ++i) {
+        if (corazones[i]) {
+            corazones[i]->deleteLater();
+        }
+    }
+    corazones.clear();
+}
+
+void Nivel1::limpiarJugador() {
+    if (jugador) {
+        delete jugador;
+        jugador = nullptr;
+    }
+}
+
+void Nivel1::limpiarFondo() {
+    if (fondoNivel) {
+        fondoNivel->deleteLater();
+        fondoNivel = nullptr;
+    }
+}
+
+
+
+void Nivel1::actualizarCorazones(int nuevaVida) {
+    for (int i = 0; i < corazones.size(); ++i) {
+        if (i < nuevaVida) {
+            corazones[i]->setPixmap(QPixmap(":/Sprites/UI/corazon_lleno.png").scaled(32, 32));
+        } else {
+            corazones[i]->setPixmap(QPixmap(":/Sprites/UI/corazon_vacio.png").scaled(32, 32));
+        }
+    }
+}
+
+void Nivel1::detenerMusica() {
+    if (reproductorNivel) {
+        reproductorNivel->stop();
+        reproductorNivel->deleteLater();
+        reproductorNivel = nullptr;
+    }
+
+    if (salidaAudioNivel) {
+        salidaAudioNivel->deleteLater();
+        salidaAudioNivel = nullptr;
+    }
+}
 
 // Reiniciar el nivel (resetea completamente el estado)
 void Nivel1::reiniciarNivel() {
     timer->stop();  // Detiene el bucle principal
+    limpiarTodosLosProyectiles(); // Elimina proyectiles
+    limpiarTodosLosEnemigos();    // Elimina enemigos
+    limpiarCorazones();           // Elimina corazones
+    limpiarJugador();             // Elimina jugador
+    limpiarFondo();               // Elimina fondo
 
     // Crear nueva instancia
     Nivel1* nuevoNivel = new Nivel1(parentWidget());
@@ -440,7 +537,4 @@ void Nivel1::reiniciarNivel() {
 
     // Eliminar la instancia actual después de pasar el control
     this->deleteLater();
-    limpiarTodosLosProyectiles();
-    limpiarTodosLosEnemigos();
-
 }

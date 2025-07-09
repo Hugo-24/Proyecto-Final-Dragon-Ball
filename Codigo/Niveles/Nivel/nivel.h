@@ -16,7 +16,7 @@ public:
 
     virtual void cargarNivel() = 0; // Cada nivel lo implementa
     virtual void reiniciarNivel();  // Opcional, por si quieres reiniciar estado
-
+    virtual void detenerMusica() {}
 protected:
     Mapa *mapa;
 

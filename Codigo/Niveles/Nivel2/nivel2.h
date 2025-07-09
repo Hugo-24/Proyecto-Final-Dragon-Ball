@@ -86,8 +86,7 @@ private:
 
     void mostrarMensajeVictoria();
 
-
-
+    void detenerMusica() override;
 
 };
 
