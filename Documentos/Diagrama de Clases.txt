@@ -1,0 +1,367 @@
+1. Abstract Class: Entidad
+- posicion: QVector2D
+- velocidad: QVector2D
+- sprite: QLabel*
+- enElSuelo: bool
++ Entidad(QWidget* parent)
++ virtual ~Entidad()
++ virtual mover()
++ virtual actualizar()
++ virtual aplicarFisica()
++ virtual interactuar(Entidad* otra)
++ setPosicion(QVector2D)
++ setPosicionLogica(QVector2D)
++ getPosicion(): QVector2D
++ setVelocidad(QVector2D)
++ getVelocidad(): QVector2D
++ getSprite(): QLabel*
++ setSprite(QString)
++ moverSpriteConOffset(float)
+
+------------------------------------------------------------
+
+2. Abstract Class: Objeto (inherits from Entidad)
++ Objeto(QWidget* parent, QVector2D posicion)
++ virtual ~Objeto()
++ virtual interactuar(Entidad* otra) = 0
++ virtual actualizar()
+
+------------------------------------------------------------
+
+3. Class: Personaje (inherits from Entidad, QObject)
+- mirandoDerecha: bool
+- puedeDisparar: bool
+- animTimer: QTimer*
+- pasoAlternado: bool
+- estaMuerto: bool
++ Personaje(QWidget* parent)
++ moverIzquierda()
++ moverDerecha()
++ saltar()
++ atacar()
++ lanzarEnergia()
++ estaMirandoDerecha(): bool
++ estaListoParaDisparar(): bool
++ setPuedeDisparar(bool)
++ iniciarAnimacionCaminar()
++ detenerAnimacionCaminar()
++ setMuerto(bool)
+
+------------------------------------------------------------
+
+4. Class: Roshi (inherits from Personaje)
++ Roshi(QWidget* parent)
++ atacar() override
++ lanzarEnergia() override
++ ~Roshi()
+
+------------------------------------------------------------
+
+5. Class: Lunch (inherits from Personaje)
+- transformada: bool
+- rafagaActiva: bool
+- timerRafaga: QTimer*
+- contenedor: QWidget*
++ Lunch(QWidget* parent)
++ disparar()
++ dispararSubfusil()
++ transformar()
++ estaEnModoAgresiva(): bool
++ ~Lunch()
+
+------------------------------------------------------------
+
+6. Class: Proyectil (inherits from Objeto)
+- direccion: QVector2D
+- velocidad: float
+- danio: int
+- esDelJugador: bool
+- tipo: QString
++ Proyectil(QWidget*, QVector2D, QVector2D, QString, float)
++ actualizar() override
++ interactuar(Entidad*) override
++ getDanio(): int
++ setEsDelJugador(bool)
++ esDelJugadorFunc(): bool
++ getTipo(): QString
++ ~Proyectil()
+
+------------------------------------------------------------
+
+7. Class: Corazon (inherits from Objeto)
+- nivel: Nivel1*
+- timerDesaparicion: QTimer*
+- recogido: bool
+- expirado: bool
++ Corazon(QWidget*, QVector2D, Nivel1*)
++ ~Corazon()
++ interactuar(Entidad*) override
++ moverConScroll(float)
++ estaRecogido(): bool
++ debeDesaparecer(): bool
+
+------------------------------------------------------------
+
+8. Class: SoldadoPatrullaRoja (inherits from Entidad, QObject)
+- objetivo: Entidad*
+- mirandoDerecha: bool
+- muerto: bool
+- vida: int
+- tiempoDisparo: int
+- timerAnimacion: QTimer*
+- timerDisparo: QTimer*
+- frameActualCaminar: int
+- frameActualDisparo: int
+- estado: Estado {Caminar, Disparar, Muriendo, Inactivo}
+- barraVida: QProgressBar*
+- nivel: Nivel1*
++ SoldadoPatrullaRoja(Nivel1*, QWidget*, QVector2D, Entidad*, bool)
++ actualizar() override
++ recibirDanio(int)
++ estaMuerto(): bool
++ getBarraVida(): QProgressBar*
++ getVida(): int
++ ~SoldadoPatrullaRoja()
+# signal: proyectilCreado(Proyectil*)
+
+------------------------------------------------------------
+
+9. Abstract Class: Nivel (inherits from QWidget)
+- mapa: Mapa*
+- menuPausa: QWidget*
+- btnReiniciar: QPushButton*
+- btnVolverAlMenu: QPushButton*
++ Nivel(QWidget*)
++ virtual ~Nivel()
++ virtual cargarNivel() = 0
++ reiniciarNivel()
++ detenerMusica()
+# signals: regresarAlMenu(), reiniciarEsteNivel()
+
+------------------------------------------------------------
+
+10. Class: Nivel1 (inherits from Nivel)
+- jugador: Personaje*
+- teclasPresionadas: QSet<int>
+- fondoNivel: QWidget*
+- fondoSeleccion: QLabel*
+- selector: QWidget*
+- offsetX: int
+- enemigos: QVector<SoldadoPatrullaRoja*>
+- proyectiles: QVector<Proyectil*>
+- corazonesCurativos: QVector<Corazon*>
+- corazones: QVector<QLabel*>
+- contadorEnemigosLabel: QLabel*
+- timerSpawnEnemigos: QTimer*
+- timer: QTimer*
+- totalEnemigosCreados: int
+- maxEnemigosNivel: int
+- enemigosDerrotados: int
+- vidas: int
+- estaMuerto: bool
+- controlesHabilitados: bool
+- reproductorSeleccion: QMediaPlayer*
+- reproductorNivel: QMediaPlayer*
+- reproductorVictoria: QMediaPlayer*
+- salidaAudioSeleccion: QAudioOutput*
+- salidaAudioNivel: QAudioOutput*
+- salidaAudioVictoria: QAudioOutput*
++ Nivel1(QWidget*)
++ cargarNivel() override
++ reiniciarNivel() override
++ detenerMusica() override
++ agregarProyectil(Proyectil*)
++ getOffsetX(): float
++ getVidas(): int
++ setVidas(int)
+# signal: volverAlMenu()
+
+------------------------------------------------------------
+
+11. Class: Mapa (inherits from QWidget)
+- fondoLabel: QLabel*
++ Mapa(QString rutaFondo, QWidget*)
++ cargarDesdeArchivo(QString)
++ detectarColisiones()
+
+------------------------------------------------------------
+
+12. Class: Juego (inherits from QWidget)
+- niveles: std::map<std::string, Nivel*>
+- nivelActual: Nivel*
++ Juego(QWidget*)
++ cambiarNivel(std::string)
++ getNivelActual(): Nivel*
+# signal: regresarAlMenu()
+
+------------------------------------------------------------
+
+13. Class: MainWindow (inherits from QMainWindow)
+- juego: Juego*
+- reproductorMenu: QMediaPlayer*
+- salidaAudioMenu: QAudioOutput*
++ MainWindow(QWidget*)
+- iniciarNivel1()
+- iniciarNivel2()
+
+------------------------------------------------------------
+
+14. Class: MenuPrincipal (inherits from QWidget)
+- view: QGraphicsView*
+- scene: QGraphicsScene*
+- juego: Juego*
++ MenuPrincipal(QWidget*)
+- jugarNivel1()
+- jugarNivel2()
+
+------------------------------------------------------------
+
+15. Class: Torpedo (inherits from Objeto)
+- direccion: QVector2D
+- velocidad: float
+- tiempoTotal: float
+- amplitud: float
+- frecuencia: float
+- posicionInicialY: float
++ Torpedo(QWidget*, QVector2D, QVector2D)
++ actualizar() override
++ interactuar(Entidad*) override
+
+------------------------------------------------------------
+
+16. Class: Mina (inherits from Objeto)
+- contenedor: QWidget*
++ Mina(QWidget*, QVector2D)
++ interactuar(Entidad*) override
++ actualizar() override
+
+------------------------------------------------------------
+
+17. Class: SubmarinoJugador (inherits from Entidad)
+- vidaMaxima: int
+- vidaActual: int
++ SubmarinoJugador(QWidget*)
++ procesarEntrada(QSet<int>, bool)
++ aplicarFisica()
++ actualizar()
++ getVida(): int
++ getVidaMaxima(): int
++ recibirDanio(int)
+
+------------------------------------------------------------
+
+18. Class: SubmarinoEnemigo (inherits from Entidad, QObject)
+- direccion: QVector2D
+- velocidad: float
+- vida: int
+- tiempoTotal: float
+- radio: float
+- centroMovimiento: QVector2D
+- enModoAtaque: bool
+- tiempoEnAtaque: float
+- temporizadorAtaque: QTimer*
+- temporizadorDisparo: QTimer*
+- barraVida: QProgressBar*
+- objetivo: Entidad*
++ SubmarinoEnemigo(QWidget*, QVector2D)
++ actualizar() override
++ interactuar(Entidad*) override
++ recibirDanio(int)
++ estaDestruido(): bool
++ getVida(): int
++ setObjetivo(Entidad*)
++ verificarFoco(const Entidad*)
++ destruir()
+# signal: torpedoDisparado(QVector2D, QVector2D)
+
+------------------------------------------------------------
+
+19. Class: Nivel2 (inherits from Nivel)
+- submarino: SubmarinoJugador*
+- timerActualizacion: QTimer*
+- teclasPresionadas: QSet<int>
+- barraVida: QProgressBar*
+- oleadas: QVector<QVector<QVector2D>>
+- indiceOleadaActual: int
+- esperandoNuevaOleada: bool
+- gokui: Entidad*
+- bubuzo: Entidad*
+- barraVidaGokui: QProgressBar*
+- barraVidaBubuzo: QProgressBar*
+- fase2Activa: bool
+- musicaFondo: QMediaPlayer*
+- salidaAudio: QAudioOutput*
+- objetosHostiles: std::vector<Objeto*>
+- torpedos: QVector<Torpedo*>
+- torpedosJugador: QVector<Torpedo*>
+- enemigos: QVector<SubmarinoEnemigo*>
+- btnSalir: QPushButton*
+- ultimoDisparo: qint64
+- intervaloDisparo: int
+- controlesHabilitados: bool
++ Nivel2(QWidget*)
++ cargarNivel() override
++ mostrarMensajeDerrota()
++ reiniciarNivel() override
++ detenerMusica() override
+- keyPressEvent(QKeyEvent*) override
+- keyReleaseEvent(QKeyEvent*) override
+
+RELATIONSHIPS:
+
+Nivel1 – association – Personaje [1 → 1]
+Nivel1 – aggregation – SoldadoPatrullaRoja [1 → 0..*]
+Nivel1 – aggregation – Proyectil [1 → 0..*]
+Nivel1 – aggregation – Corazon [1 → 0..*]
+Nivel1 – composition – QLabel [1 → 0..5]
+Nivel1 – association – QMediaPlayer [1 → 0..3]
+Nivel1 – association – QAudioOutput [1 → 0..3]
+Nivel1 – composition – QTimer [1 → 1..2]
+Nivel1 – composition – QWidget [1 → 2..3]
+
+SoldadoPatrullaRoja – association – Nivel1 [1 → 1]
+SoldadoPatrullaRoja – association – Entidad [1 → 0..1]
+SoldadoPatrullaRoja – composition – QTimer [1 → 2]
+SoldadoPatrullaRoja – composition – QProgressBar [1 → 1]
+
+Corazon – association – Nivel1 [1 → 1]
+Corazon – composition – QTimer [1 → 1]
+
+Proyectil – temporary interaction – Entidad
+
+Lunch – association – QWidget [1 → 1]
+Lunch – composition – QTimer [1 → 1]
+
+Juego – aggregation – Nivel [1 → 0..*] 
+Juego – association – Nivel [1 → 0..1]
+
+MainWindow – composition – Juego [1 → 1]
+MainWindow – composition – QMediaPlayer [1 → 1]
+MainWindow – composition – QAudioOutput [1 → 1]
+
+MenuPrincipal – composition – Juego [1 → 1]
+MenuPrincipal – composition – QGraphicsView [1 → 1]
+MenuPrincipal – composition – QGraphicsScene [1 → 1]
+
+Nivel – composition – Mapa [1 → 1]
+Nivel – composition – QWidget [1 → 1]
+Nivel – composition – QPushButton [1 → 2]
+
+Nivel2 – composition – SubmarinoJugador [1 → 1]
+Nivel2 – aggregation – SubmarinoEnemigo [1 → 0..*]
+Nivel2 – aggregation – Torpedo [1 → 0..*]
+Nivel2 – aggregation – Objeto [1 → 0..*]
+Nivel2 – aggregation – QProgressBar [1 → 0..3]
+Nivel2 – association – Entidad [1 → 0..2]
+Nivel2 – composition – QPushButton [1 → 1]
+Nivel2 – association – QMediaPlayer [1 → 0..1]
+Nivel2 – association – QAudioOutput [1 → 0..1]
+Nivel2 – composition – QTimer [1 → 1]
+
+SubmarinoEnemigo – association – Entidad [1 → 0..1]
+SubmarinoEnemigo – composition – QTimer [1 → 2]
+SubmarinoEnemigo – composition – QProgressBar [1 → 1]
+
+Torpedo – no persistent relationship
+
+Mina – association – QWidget (contenedor) [1 → 1]
