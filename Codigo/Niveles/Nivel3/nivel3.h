@@ -55,7 +55,7 @@ private:
     QTimer* timer;
     QSet<int> teclasPresionadas;
     bool estaMuerto = false;
-    int vidas = 3;
+    int vidas = 5;
     int corazonesGenerados = 0;
     void actualizarMovimientoJugador();  // ← Para controlar el movimiento WASD
 

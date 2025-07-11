@@ -114,10 +114,10 @@ void GeneralBlue::iniciarAtaque() {
     // Selección normal de ataque aleatorio
     signed short int aleatorio = QRandomGenerator::global()->bounded(5);
     switch (aleatorio) {
-    case 0: animarDisparo();QTimer::singleShot(500, this, [=]() {animarDisparo();});QTimer::singleShot(1000, this, [=]() {animarDisparo();}); break;
+    case 0: animarDisparo();QTimer::singleShot(500, this, [=]() {animarDisparo();});QTimer::singleShot(500, this, [=]() {animarDisparo();}); break;
     case 1: lanzarRoca(); break;
     case 2: usarTelequinesis(); break;
-    case 3: animarDisparo();QTimer::singleShot(500, this, [=]() {animarDisparo();});QTimer::singleShot(1000, this, [=]() {animarDisparo();}); break;
+    case 3: animarDisparo();QTimer::singleShot(500, this, [=]() {animarDisparo();});QTimer::singleShot(500, this, [=]() {animarDisparo();}); break;
     case 4: lanzarRoca(); break;
     }
 }
@@ -283,7 +283,7 @@ void GeneralBlue::saltar() {
     }
     signed short int aleatorio = QRandomGenerator::global()->bounded(3); // Ahora con 4 posibles
     switch (aleatorio) {
-    case 0: animarDisparo();QTimer::singleShot(500, this, [=]() {animarDisparo();});QTimer::singleShot(1000, this, [=]() {animarDisparo();}); break;
+    case 0: animarDisparo();QTimer::singleShot(500, this, [=]() {animarDisparo();});QTimer::singleShot(500, this, [=]() {animarDisparo();}); break;
     case 1: lanzarRoca(); break;
     case 2: usarTelequinesis(); break;
     }

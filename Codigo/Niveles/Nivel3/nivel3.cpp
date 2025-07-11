@@ -48,7 +48,7 @@ void Nivel3::cargarNivel() {
     barraVidaJefe->show();
 
     // Corazones del jugador
-    vidas = 3;
+    vidas = 5;
     inicializarCorazones(vidas);
 
     // Música de fondo
@@ -135,7 +135,7 @@ void Nivel3::cargarNivel() {
 
             if (rC.intersects(rJ)) {
                 c->getSprite()->hide();
-                if (vidas < 3) {
+                if (vidas < 5) {
                     vidas++;
                     actualizarCorazones(vidas);
                 }
@@ -169,13 +169,13 @@ void Nivel3::cargarNivel() {
     // Línea 1
     dialogo->setText("General Blue: ¡Detente, Goku! Ahora estas en manos de la Red Ribbon.");
 
-    QTimer::singleShot(1500, this, [=]() {
+    QTimer::singleShot(2000, this, [=]() {
         dialogo->setText("General Blue: Entrégame el radar del dragón o te arrepentirás.");
 
-        QTimer::singleShot(1500, this, [=]() {
+        QTimer::singleShot(2000, this, [=]() {
             dialogo->setText("Goku: ¡Ni hablar! No permitiré que usen las esferas para hacer el mal.");
 
-            QTimer::singleShot(1000, this, [=]() {
+            QTimer::singleShot(1500, this, [=]() {
                 dialogo->setText("General Blue: ¡Entonces prepárate para enfrentarme!");
 
                 QTimer::singleShot(500, this, [=]() {

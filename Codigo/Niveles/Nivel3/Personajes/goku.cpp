@@ -76,7 +76,7 @@ void Goku::lanzarEnergia() {
 
     // Crear proyectil de energía
     QVector2D direccion = mirandoDerecha ? QVector2D(1, 0) : QVector2D(-1, 0);
-    QVector2D offset = QVector2D(40 * direccion.x(), 10);
+    QVector2D offset = QVector2D(40 * direccion.x(), 5);
     QVector2D posBola = getPosicion() + offset;
 
     // Crear y configurar el proyectil
