@@ -4,7 +4,7 @@
 #include "objeto.h"
 #include <QVector2D>
 
-class Nivel1;
+class Nivel;
 class QTimer;
 
 /**
@@ -14,7 +14,7 @@ class QTimer;
  */
 class Corazon : public Objeto {
 public:
-    Corazon(QWidget* parent, const QVector2D& posicion, Nivel1* nivel);
+    Corazon(QWidget* parent, const QVector2D& posicion, Nivel* nivel);
     ~Corazon();
 
     // Marca que fue recogido si colisiona con el jugador
@@ -30,7 +30,7 @@ public:
     bool debeDesaparecer() const;
 
 private:
-    Nivel1* nivel = nullptr;              // Referencia al nivel
+    Nivel* nivel = nullptr;              // Referencia al nivel
     QTimer* timerDesaparicion = nullptr;  // Timer de 10 segundos
     bool recogido = false;                // True si ya fue tomado
     bool expirado = false;                // True si pasaron los 10 segundos

@@ -19,7 +19,10 @@ INCLUDEPATH += \
     Codigo/Niveles/Nivel1/Enemigos \
     Codigo/Niveles/Nivel2 \
     Codigo/Niveles/Nivel2/Personajes \
-    Codigo/Niveles/Nivel2/Objetos
+    Codigo/Niveles/Nivel2/Objetos \
+    Codigo/Niveles/Nivel3 \
+    Codigo/Niveles/Nivel3/Personajes \
+    Codigo/Niveles/Nivel3/Enemigos
 
 # =========================================
 # CORE DEL JUEGO
@@ -29,7 +32,6 @@ SOURCES += \
     Codigo/Core/juego.cpp \
     Codigo/Core/mapa.cpp \
     Codigo/Core/objeto.cpp
-
 HEADERS += \
     Codigo/Core/entidad.h \
     Codigo/Core/juego.h \
@@ -97,6 +99,19 @@ HEADERS += \
     Codigo/Niveles/Nivel2/Personajes/submarinoenemigo.h \
     Codigo/Niveles/Nivel2/Objetos/mina.h \
     Codigo/Niveles/Nivel2/Objetos/torpedo.h
+
+# =========================================
+# NIVEL 3
+# =========================================
+SOURCES += \
+    Codigo/Niveles/Nivel3/nivel3.cpp \
+    Codigo/Niveles/Nivel3/Personajes/goku.cpp \
+    Codigo/Niveles/Nivel3/Enemigos/generalblue.cpp
+
+HEADERS += \
+    Codigo/Niveles/Nivel3/nivel3.h \
+    Codigo/Niveles/Nivel3/Personajes/goku.h \
+    Codigo/Niveles/Nivel3/Enemigos/generalblue.h
 
 # =========================================
 # RECURSOS

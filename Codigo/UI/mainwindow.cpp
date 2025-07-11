@@ -19,19 +19,23 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     // Botones de selección de nivel
     QPushButton *btnNivel1 = new QPushButton("Iniciar Nivel 1", this);
     QPushButton *btnNivel2 = new QPushButton("Iniciar Nivel 2", this);
+    QPushButton *btnNivel3 = new QPushButton("Iniciar Nivel 3", this);
 
     btnNivel1->setFixedSize(300, 60);
     btnNivel2->setFixedSize(300, 60);
+    btnNivel3->setFixedSize(300, 60);
 
     QFont font = btnNivel1->font();
     font.setPointSize(16);
     btnNivel1->setFont(font);
     btnNivel2->setFont(font);
+    btnNivel3->setFont(font);
 
     layout->setAlignment(Qt::AlignCenter);
     layout->setSpacing(30);
     layout->addWidget(btnNivel1, 0, Qt::AlignHCenter);
     layout->addWidget(btnNivel2, 0, Qt::AlignHCenter);
+    layout->addWidget(btnNivel3, 0, Qt::AlignHCenter);
 
     central->setLayout(layout);
     setFixedSize(800, 600);
@@ -50,6 +54,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     // Conexiones a los botones
     connect(btnNivel1, &QPushButton::clicked, this, &MainWindow::iniciarNivel1);
     connect(btnNivel2, &QPushButton::clicked, this, &MainWindow::iniciarNivel2);
+    connect(btnNivel3, &QPushButton::clicked, this, &MainWindow::iniciarNivel3);
 }
 
 // Iniciar Nivel 1
@@ -84,4 +89,19 @@ void MainWindow::iniciarNivel2() {
     });
 
     setCentralWidget(juego); // Mostrar el nivel
+}
+
+void MainWindow::iniciarNivel3() {
+    if (reproductorMenu) reproductorMenu->stop(); // Detener música del menú
+
+    juego = new Juego(this);
+    juego->cambiarNivel("nivel3");
+
+    connect(juego, &Juego::regresarAlMenu, this, [=]() {
+        MainWindow* nuevoMenu = new MainWindow();
+        nuevoMenu->show();
+        this->close();
+    });
+
+    setCentralWidget(juego);
 }

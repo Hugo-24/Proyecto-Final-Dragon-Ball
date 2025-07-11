@@ -14,6 +14,7 @@ private:
     // Métodos para iniciar niveles, conectados directamente con los botones
     void iniciarNivel1();
     void iniciarNivel2();
+    void iniciarNivel3();
 
 private:
     Juego* juego;

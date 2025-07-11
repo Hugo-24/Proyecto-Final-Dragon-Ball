@@ -14,6 +14,7 @@ public:
 private slots:
     void jugarNivel1();
     void jugarNivel2();
+    void jugarNivel3();
 
 private:
     QGraphicsView* view;

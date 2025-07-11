@@ -1,5 +1,5 @@
 #include "corazon.h"
-#include "nivel1.h"
+#include "nivel.h"
 #include <QTimer>
 #include <QDebug>
 
@@ -7,7 +7,7 @@
  * Constructor del Corazón curativo.
  * Crea el sprite, lo posiciona y arranca un temporizador para expirar tras 10 segundos.
  */
-Corazon::Corazon(QWidget* parent, const QVector2D& posicion, Nivel1* nivel)
+Corazon::Corazon(QWidget* parent, const QVector2D& posicion, Nivel* nivel)
     : Objeto(parent, posicion), nivel(nivel)
 {
     // Crear y mostrar sprite

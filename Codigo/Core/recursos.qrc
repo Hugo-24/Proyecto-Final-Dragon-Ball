@@ -7,6 +7,7 @@
         <file>Sprites/Fondos/Fondo_scroll_largo.jpg</file>
         <file>Sprites/Fondos/Fondo_scroll_largo_2.jpg</file>
 	<file>Sprites/Fondos/cueva.png</file>
+        <file>Sprites/Fondos/fondo_cueva.png</file>
 
         <!-- Naves y proyectiles submarinos -->
         <file>Sprites/Nave/Nave_RR.png</file>
@@ -64,11 +65,78 @@
         <file>Sprites/Lunch/L_Subfusil3_Launch.png</file>
         <file>Sprites/Lunch/L_Subfusil4_Launch.png</file>
 
+        <!-- Sprites Goku -->
+
+        <file>Sprites/Goku/R_Goku_Idle.png</file>
+        <file>Sprites/Goku/L_Goku_Idle.png</file>
+
+        <file>Sprites/Goku/R_Goku_Walk1.png</file>
+        <file>Sprites/Goku/R_Goku_Walk2.png</file>
+        <file>Sprites/Goku/L_Goku_Walk1.png</file>
+        <file>Sprites/Goku/L_Goku_Walk2.png</file>
+
+        <file>Sprites/Goku/R_Goku_Attack.png</file>
+        <file>Sprites/Goku/L_Goku_Attack.png</file>
+
         <!-- Soldado Patrulla Roja -->
         <!-- Idle -->
         <file>Sprites/SoldadoRR/R_Idle_SoldadoRR.png</file>
         <file>Sprites/SoldadoRR/L_Idle_SoldadoRR.png</file>
+        
+        <!-- General Blue - Idle -->
+        <file>Sprites/GeneralBlue/R_Idle_GeneralBlue.png</file>
+        <file>Sprites/GeneralBlue/L_Idle_GeneralBlue.png</file>
+        <!-- General Blue - Caminar derecha -->
+        <file>Sprites/GeneralBlue/R_Walk1.png</file>
+        <file>Sprites/GeneralBlue/R_Walk2.png</file>
 
+        <!-- General Blue - Caminar izquierda -->
+        <file>Sprites/GeneralBlue/L_Walk1.png</file>
+        <file>Sprites/GeneralBlue/L_Walk2.png</file>
+
+        <!-- General Blue - Disparo tipo subfusil -->
+        <!-- Derecha -->
+        <file>Sprites/GeneralBlue/R_Shoot1.png</file>
+        <file>Sprites/GeneralBlue/R_Shoot2.png</file>
+        <file>Sprites/GeneralBlue/R_Shoot3.png</file>
+        <file>Sprites/GeneralBlue/R_Shoot4.png</file>
+        <file>Sprites/GeneralBlue/R_Shoot5.png</file>
+
+        <!-- Izquierda -->
+        <file>Sprites/GeneralBlue/L_Shoot1.png</file>
+        <file>Sprites/GeneralBlue/L_Shoot2.png</file>
+        <file>Sprites/GeneralBlue/L_Shoot3.png</file>
+        <file>Sprites/GeneralBlue/L_Shoot4.png</file>
+        <file>Sprites/GeneralBlue/L_Shoot5.png</file>
+
+        <!-- General Blue - Ataque con roca -->
+        <!-- Derecha -->
+        <file>Sprites/GeneralBlue/R_Roca1.png</file>
+        <file>Sprites/GeneralBlue/R_Roca2.png</file>
+        <file>Sprites/GeneralBlue/R_Roca3.png</file>
+        <file>Sprites/GeneralBlue/R_Roca4.png</file>
+        <file>Sprites/GeneralBlue/R_Roca5.png</file>
+
+        <!-- Izquierda -->
+        <file>Sprites/GeneralBlue/L_Roca1.png</file>
+        <file>Sprites/GeneralBlue/L_Roca2.png</file>
+        <file>Sprites/GeneralBlue/L_Roca3.png</file>
+        <file>Sprites/GeneralBlue/L_Roca4.png</file>
+        <file>Sprites/GeneralBlue/L_Roca5.png</file>
+
+        <!-- General Blue - Telequinesis -->
+        <!-- Derecha -->
+        <file>Sprites/GeneralBlue/R_TK1.png</file>
+        <file>Sprites/GeneralBlue/R_TK2.png</file>
+        <file>Sprites/GeneralBlue/R_TK3.png</file>
+        <file>Sprites/GeneralBlue/R_TK4.png</file>
+
+        <!-- Izquierda -->
+        <file>Sprites/GeneralBlue/L_TK1.png</file>
+        <file>Sprites/GeneralBlue/L_TK2.png</file>
+        <file>Sprites/GeneralBlue/L_TK3.png</file>
+        <file>Sprites/GeneralBlue/L_TK4.png</file>
+    
         <!-- Caminar -->
         <file>Sprites/SoldadoRR/R_Walk1_SoldadoRR.png</file>
         <file>Sprites/SoldadoRR/R_Walk2_SoldadoRR.png</file>
@@ -90,14 +158,20 @@
         <file>Sprites/Lunch/L_Lunch_Muerta.png</file>
         <file>Sprites/Roshi/R_Roshi_Muerto.png</file>
         <file>Sprites/Roshi/L_Roshi_Muerto.png</file>
+        <file>Sprites/Goku/R_Goku_Muerto.png</file>
+        <file>Sprites/Goku/L_Goku_Muerto.png</file>
         <file>Sprites/SoldadoRR/R_Soldado_Muerto.png</file>
         <file>Sprites/SoldadoRR/L_Soldado_Muerto.png</file>
+        <file>Sprites/GeneralBlue/R_Muerto.png</file>
+        <file>Sprites/GeneralBlue/L_Muerto.png</file>
 
         <!-- Proyectiles -->
         <file>Sprites/Proyectiles/Bola_Energia.png</file>
         <file>Sprites/Proyectiles/R_BalaCohete.png</file>
         <file>Sprites/Proyectiles/L_BalaCohete.png</file>
         <file>Sprites/Proyectiles/BalaSubfusil.png</file>
+        <!-- Proyectil de roca gigante -->
+        <file>Sprites/Proyectiles/RocaGigante.png</file>
 
         <!-- UI -->
         <file>Sprites/UI/corazon_lleno.png</file>
@@ -114,6 +188,8 @@
         <file>Sonidos/Nivel1-S/disparo-bazuca.mp3</file>
 	<file>Sonidos/Nivel2-S/torpedo-efecto.mp3</file>
 	<file>Sonidos/Nivel2-S/nivel2-soundtrack.mp3</file>
+        <file>Sonidos/Nivel3-S/nivel3-soundtrack.mp3</file>
+        <file>Sonidos/Nivel3-S/efecto-za-warudo.mp3</file>
         <file>Sonidos/efecto-victoria.mp3</file>
 
     </qresource>
