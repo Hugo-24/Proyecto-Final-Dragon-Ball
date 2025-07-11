@@ -123,7 +123,7 @@ Compilación y ejecución
 
 Créditos
 
-    Desarrollo por estudiantes de Ingeniería de Sistemas - Universidad de Antioquia.
+    Desarrollo por estudiantes de Ingeniería Electronica - Universidad de Antioquia.
 
     Inspirado en los capítulos originales del anime Dragon Ball (Saga de la Red Ribbon).
 
