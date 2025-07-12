@@ -32,13 +32,13 @@ Proyectil::Proyectil(QWidget* parent,
             imagen.load(":/Sprites/Proyectiles/R_BalaCohete.png");
         else
             imagen.load(":/Sprites/Proyectiles/L_BalaCohete.png");
-        sprite->setFixedSize(80, 40);
+        sprite->setFixedSize(80, 40);     // Bala larga (bazuca)
         danio = 15;
         esDelJugador = true;
     }
     else if (tipo == "subfusil") {
         imagen.load(":/Sprites/Proyectiles/BalaSubfusil.png");
-        sprite->setFixedSize(28, 8);
+        sprite->setFixedSize(28, 8);      // Bala rápida y pequeña
         danio = 5;
         esDelJugador = false;
     }

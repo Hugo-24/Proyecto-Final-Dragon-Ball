@@ -24,6 +24,8 @@ Goku::Goku(QWidget* parent)
 // Destructor
 Goku::~Goku() {
 }
+
+// Permite activar/desactivar el movimiento del jugador (por cinemáticas, por ejemplo)
 void Goku::setPuedeMoverse(bool valor) {
     puedeMoverse = valor;
 }
@@ -31,7 +33,8 @@ void Goku::setPuedeMoverse(bool valor) {
 bool Goku::getPuedeMoverse() const {
     return puedeMoverse;
 }
-// Ataque cuerpo a cuerpo (placeholder por ahora)
+
+// Ataque cuerpo a cuerpo (por ahora es placeholder)
 void Goku::atacar() {
     if (estaMuerto) return;
 
@@ -53,17 +56,17 @@ void Goku::atacar() {
     });
 }
 
-// Lanza una bola de energía (igual que Roshi)
+// Lanza una bola de energía (similar al ataque de Roshi)
 void Goku::lanzarEnergia() {
     if (estaMuerto || !puedeDisparar) return;
 
-    // Cambiar sprite de disparo
+    // Cambiar sprite al de ataque
     QString rutaDisparo = mirandoDerecha
                               ? ":/Sprites/Goku/R_Goku_Attack.png"
                               : ":/Sprites/Goku/L_Goku_Attack.png";
     setSprite(rutaDisparo);
 
-    // Volver a idle después de 500ms
+    // Regresar a sprite idle después de 500 ms
     QLabel* spriteLabel = getSprite();
     QString rutaIdle = mirandoDerecha
                            ? ":/Sprites/Goku/R_Goku_Idle.png"
@@ -74,22 +77,22 @@ void Goku::lanzarEnergia() {
             spriteLabel->setPixmap(QPixmap(rutaIdle));
     });
 
-    // Crear proyectil de energía
+    // Posición y dirección de la bola
     QVector2D direccion = mirandoDerecha ? QVector2D(1, 0) : QVector2D(-1, 0);
     QVector2D offset = QVector2D(40 * direccion.x(), 5);
     QVector2D posBola = getPosicion() + offset;
 
-    // Crear y configurar el proyectil
-    Proyectil* bola = new Proyectil(contenedor, posBola, direccion, "roshi", 8.0f);  // Reutilizamos tipo "roshi"
+    // Crear y configurar proyectil
+    Proyectil* bola = new Proyectil(contenedor, posBola, direccion, "roshi", 8.0f); // Reutiliza tipo "roshi"
     bola->setEsDelJugador(true); // Importante: no dañe al jugador
     bola->getSprite()->raise();
 
-    // Agregar al nivel si es Nivel3
+    // Agregar el proyectil al nivel (si es Nivel3)
     if (Nivel3* nivel = dynamic_cast<Nivel3*>(contenedor)) {
         nivel->agregarProyectil(bola);
     }
 
-    // Sonido del disparo (reutilizado)
+    // Sonido del disparo (reutilizado del nivel 1)
     QMediaPlayer* sfx = new QMediaPlayer(this);
     QAudioOutput* out = new QAudioOutput(this);
     sfx->setAudioOutput(out);
@@ -98,9 +101,9 @@ void Goku::lanzarEnergia() {
     sfx->play();
 }
 
-// Actualiza el sprite de Goku cada frame según movimiento
+// Actualiza el sprite de Goku según movimiento (idle o caminando)
 void Goku::actualizarSprite() {
-    if (estaMuerto || !puedeMoverse) return;  // <- agregado
+    if (estaMuerto || !puedeMoverse) return;
 
     static bool alternar = false;
     QString ruta;

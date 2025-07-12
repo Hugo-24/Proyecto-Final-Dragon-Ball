@@ -3,29 +3,35 @@
 #include <QPixmap>
 #include <QDebug>
 
+/**
+ * Constructor de Roshi.
+ * Inicializa su sprite y posición en el nivel.
+ */
 Roshi::Roshi(QWidget* parent) : Personaje(parent) {
     setSprite(":/Sprites/Roshi/R_Idle_Roshi.png");
     setPosicion(QVector2D(100, 450));
 }
+
+/**
+ * Destructor.
+ */
 Roshi::~Roshi() {
-    // No se requiere limpieza manual
+    // No requiere liberación manual de recursos
 }
-// Cambia sprite según dirección actual
+
+/**
+ * Actualiza el sprite de Roshi dependiendo de su movimiento y dirección.
+ */
 void Roshi::actualizarSprite() {
-     if (estaMuerto) return;
-    static bool alternar = false; // alternar entre walk1 y walk2
+    if (estaMuerto) return;
+
+    static bool alternar = false;
     QString ruta;
 
-    if (getVelocidad().x() != 0) { // Si se está moviendo
-        if (mirandoDerecha) {
-            ruta = alternar
-                       ? ":/Sprites/Roshi/R_Walk1_Roshi.png"
-                       : ":/Sprites/Roshi/R_Walk2_Roshi.png";
-        } else {
-            ruta = alternar
-                       ? ":/Sprites/Roshi/L_Walk1_Roshi.png"
-                       : ":/Sprites/Roshi/L_Walk2_Roshi.png";
-        }
+    if (getVelocidad().x() != 0) {
+        ruta = mirandoDerecha
+                   ? (alternar ? ":/Sprites/Roshi/R_Walk1_Roshi.png" : ":/Sprites/Roshi/R_Walk2_Roshi.png")
+                   : (alternar ? ":/Sprites/Roshi/L_Walk1_Roshi.png" : ":/Sprites/Roshi/L_Walk2_Roshi.png");
         alternar = !alternar;
     } else {
         ruta = mirandoDerecha
@@ -36,10 +42,12 @@ void Roshi::actualizarSprite() {
     setSprite(ruta);
 }
 
+/**
+ * Ejecuta un ataque cuerpo a cuerpo con animación de puñetazo.
+ */
 void Roshi::atacar() {
     qDebug() << "Roshi ataca";
 
-    // Cambiar sprite a golpe
     QString rutaGolpe = mirandoDerecha
                             ? ":/Sprites/Roshi/R_Punching_Roshi.png"
                             : ":/Sprites/Roshi/L_Punching_Roshi.png";
@@ -51,12 +59,14 @@ void Roshi::atacar() {
                            ? ":/Sprites/Roshi/R_Idle_Roshi.png"
                            : ":/Sprites/Roshi/L_Idle_Roshi.png";
 
-    // AUMENTAMOS a 400 ms para que se vea mejor
     QTimer::singleShot(400, this, [spriteLabel, rutaIdle]() {
         spriteLabel->setPixmap(QPixmap(rutaIdle));
     });
 }
 
+/**
+ * Ejecuta un ataque de energía con animación de carga/disparo.
+ */
 void Roshi::lanzarEnergia() {
     qDebug() << "Roshi lanza energía";
 
@@ -71,9 +81,7 @@ void Roshi::lanzarEnergia() {
                            ? ":/Sprites/Roshi/R_Idle_Roshi.png"
                            : ":/Sprites/Roshi/L_Idle_Roshi.png";
 
-    // AUMENTAMOS a 500 ms para que se vea mejor el disparo
     QTimer::singleShot(500, this, [spriteLabel, rutaIdle]() {
         spriteLabel->setPixmap(QPixmap(rutaIdle));
     });
-
 }

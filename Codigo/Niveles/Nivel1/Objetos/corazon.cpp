@@ -12,18 +12,18 @@ Corazon::Corazon(QWidget* parent, const QVector2D& posicion, Nivel* nivel)
 {
     // Crear y mostrar sprite
     QPixmap pix(":/Sprites/UI/corazon_lleno.png");
-    sprite->setPixmap(pix.scaled(32, 32));
+    sprite->setPixmap(pix.scaled(32, 32)); // Escala el sprite a tamaño fijo
     sprite->setFixedSize(32, 32);
-    sprite->move(posicion.x(), posicion.y());
+    sprite->move(posicion.x(), posicion.y()); // Posiciona visualmente
     sprite->show();
 
     // Crear temporizador para expirar después de 10 segundos (sin usar "this" como padre)
-    timerDesaparicion = new QTimer(parent);
-    timerDesaparicion->setSingleShot(true);
+    timerDesaparicion = new QTimer(parent); // Se asocia al contenedor visual del juego
+    timerDesaparicion->setSingleShot(true); // Se dispara solo una vez
 
     // Programar lambda de expiración (Nivel1 verificará expirado)
     QObject::connect(timerDesaparicion, &QTimer::timeout, [=]() {
-        expirado = true;
+        expirado = true; // Marca para que el nivel lo elimine aunque no sea recogido
     });
 
     timerDesaparicion->start(10000); // 10 segundos
@@ -49,7 +49,7 @@ Corazon::~Corazon() {
  * Marca el corazón como recogido al colisionar con el jugador.
  */
 void Corazon::interactuar(Entidad* /*otra*/) {
-    recogido = true;
+    recogido = true; // No se destruye directamente: Nivel1 lo elimina
 }
 
 /**
@@ -61,10 +61,16 @@ void Corazon::moverConScroll(float offsetX) {
     }
 }
 
+/**
+ * Devuelve si el corazón ya fue recogido por el jugador.
+ */
 bool Corazon::estaRecogido() const {
     return recogido;
 }
 
+/**
+ * Devuelve si el corazón debe desaparecer por tiempo.
+ */
 bool Corazon::debeDesaparecer() const {
     return expirado;
 }

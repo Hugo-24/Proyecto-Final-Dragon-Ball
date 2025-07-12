@@ -19,17 +19,17 @@ public:
     void interactuar(Entidad* otra) override;
 
     int getDanio() const; // Devuelve el daño del proyectil
-    void setEsDelJugador(bool valor);
-    bool esDelJugadorFunc() const;
-    QString getTipo() const; // Devuelve el tipo para validación
+    void setEsDelJugador(bool valor); // Establece si fue disparado por el jugador
+    bool esDelJugadorFunc() const;    // Devuelve si pertenece al jugador
+    QString getTipo() const;          // Devuelve el tipo para validación
     ~Proyectil();
 
 private:
     QVector2D direccion;  // Dirección de movimiento (1,0) o (-1,0)
     float velocidad;      // Velocidad del proyectil
-    int danio = 10;        // Nuevo: daño que causa este proyectil
-    bool esDelJugador = true; // Nuevo: indica si el proyectil fue disparado por el jugador
-    QString tipo; // Identificador del tipo de proyectil: "lunch", "roshi", "subfusil", etc.
+    int danio = 10;       // Daño que causa este proyectil
+    bool esDelJugador = true; // Indica si fue disparado por el jugador
+    QString tipo;         // Identificador del tipo de proyectil
 };
 
 #endif // PROYECTIL_H

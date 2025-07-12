@@ -12,7 +12,7 @@
 #include <QTimer>
 #include <QDebug>
 
-// Constructor: inicializa los atributos en el orden declarado para evitar warnings
+// Constructor del nivel: configura el tamaño de la ventana, foco de teclado y objetos clave.
 Nivel1::Nivel1(QWidget* parent)
     : Nivel(parent),
     jugador(nullptr),
@@ -23,83 +23,95 @@ Nivel1::Nivel1(QWidget* parent)
     enemigos(),
     timer(new QTimer(this))
 {
-    setFixedSize(800, 600);
-    setFocusPolicy(Qt::StrongFocus); // Capturar teclado
+    setFixedSize(800, 600);                 // Dimensiones fijas de la escena
+    setFocusPolicy(Qt::StrongFocus);       // Permitir captura de eventos de teclado
 }
+
+// Inicializa la barra de vidas (corazones llenos al comenzar)
 void Nivel1::inicializarCorazones(int cantidad) {
     for (int i = 0; i < cantidad; ++i) {
         QLabel* corazon = new QLabel(this);
         corazon->setPixmap(QPixmap(":/Sprites/UI/corazon_lleno.png").scaled(32, 32));
-        corazon->setGeometry(10 + i * 36, 10, 32, 32);
+        corazon->setGeometry(10 + i * 36, 10, 32, 32);  // Posición con separación
         corazon->show();
         corazones.append(corazon);
     }
 }
+
+// Agrega un enemigo en la posición deseada, con dirección inicial
 void Nivel1::agregarEnemigoEnPosicion(const QVector2D& pos, bool haciaDerecha) {
     SoldadoPatrullaRoja* enemigo = new SoldadoPatrullaRoja(this, this, pos, jugador, haciaDerecha);
     enemigos.append(enemigo);
 }
 
+// Genera los primeros enemigos cerca del jugador (antes del spawn progresivo)
 void Nivel1::agregarEnemigosIniciales() {
     for (int i = 0; i < 5; ++i) {
-        float x = 400 + i * 50; // Aparecen cerca del jugador
-        bool derecha = (i % 2 == 0);
+        float x = 400 + i * 50; // Se posicionan en fila cerca del inicio
+        bool derecha = (i % 2 == 0); // Alternan dirección inicial
         agregarEnemigoEnPosicion(QVector2D(x, 420), derecha);
         totalEnemigosCreados++;
     }
 }
 
+// Inicia el temporizador que genera enemigos en tandas cada 10 segundos
 void Nivel1::iniciarSpawningDeEnemigos() {
     timerSpawnEnemigos = new QTimer(this);
     connect(timerSpawnEnemigos, &QTimer::timeout, this, [=]() {
         if (totalEnemigosCreados >= maxEnemigosNivel) {
-            timerSpawnEnemigos->stop();
+            timerSpawnEnemigos->stop(); // No generar más si ya se alcanzó el límite
             return;
         }
 
-        // Crear hasta 15 enemigos por tanda
+        // Crea hasta 15 enemigos nuevos por tanda
         int cantidad = qMin(15, maxEnemigosNivel - totalEnemigosCreados);
         for (int i = 0; i < cantidad; ++i) {
-            float xRandom = 500 + rand() % 7000;  // Posición aleatoria horizontal
+            float xRandom = 500 + rand() % 7000;  // Posición horizontal aleatoria
             bool derecha = (rand() % 2 == 0);
             agregarEnemigoEnPosicion(QVector2D(xRandom, 420), derecha);
             totalEnemigosCreados++;
         }
     });
 
-    timerSpawnEnemigos->start(10000); // Cada 10 segundos
+    timerSpawnEnemigos->start(10000); // Repite cada 10 segundos
 }
-void Nivel1::mostrarExplosion(const QVector2D& pos) {
-    QLabel* expl = new QLabel(this);
-    expl->setPixmap(QPixmap(":/Sprites/UI/explosion.png").scaled(80, 80));
-    expl->move(pos.x() - offsetX, pos.y() - 20);
-    expl->show();
-    expl->raise();
 
+// Muestra una explosión visual en la posición indicada, luego la elimina
+void Nivel1::mostrarExplosion(const QVector2D& pos) {
+    QLabel* expl = new QLabel(this); // Crea un nuevo QLabel para representar la explosión
+    expl->setPixmap(QPixmap(":/Sprites/UI/explosion.png").scaled(80, 80)); // Asigna el sprite
+    expl->move(pos.x() - offsetX, pos.y() - 20); // Posiciona con corrección de scroll
+    expl->show();
+    expl->raise(); // Asegura que se vea encima
+
+    // Oculta y elimina la explosión tras 500 ms
     QTimer::singleShot(500, this, [expl]() {
         expl->hide();
         expl->deleteLater();
     });
 }
 
+// Muestra secuencia de derrota al perder todas las vidas
 void Nivel1::mostrarMensajeDerrota() {
     estaMuerto = true;
 
+    // Detiene animación y marca como muerto al jugador
     if (jugador) {
         jugador->detenerAnimacionCaminar();
         jugador->setMuerto(true);
     }
-    //Para quitar el contador de enemigos
+
+    // Oculta contador de enemigos
     if (contadorEnemigosLabel) {
         contadorEnemigosLabel->hide();
         contadorEnemigosLabel->deleteLater();
         contadorEnemigosLabel = nullptr;
     }
-    // Mostrar sprite de muerte del personaje según el tipo y dirección
+
+    // Determina sprite de muerte según el personaje y su dirección
     if (jugador && jugador->getSprite()) {
         QString rutaMuerte;
 
-        // Determina el sprite correspondiente a la muerte
         if (dynamic_cast<Roshi*>(jugador)) {
             rutaMuerte = jugador->estaMirandoDerecha()
             ? ":/Sprites/Roshi/R_Roshi_Muerto.png"
@@ -110,11 +122,10 @@ void Nivel1::mostrarMensajeDerrota() {
             : ":/Sprites/Lunch/L_Lunch_Muerta.png";
         }
 
-        // Aplica el sprite de muerte y lo muestra con tamaño correcto
-        jugador->getSprite()->setPixmap(QPixmap(rutaMuerte).scaled(100, 100));
+        jugador->getSprite()->setPixmap(QPixmap(rutaMuerte).scaled(100, 100)); // Aplica sprite
     }
 
-    // Sonido de muerte
+    // Sonido de muerte con volumen bajo
     detenerMusica();
     QMediaPlayer* efectoMuerte = new QMediaPlayer(this);
     QAudioOutput* salidaMuerte = new QAudioOutput(this);
@@ -123,18 +134,19 @@ void Nivel1::mostrarMensajeDerrota() {
     salidaMuerte->setVolume(10);
     efectoMuerte->play();
 
-    // Muestra mensaje visual de derrota en pantalla
-    QLabel* mensaje = new QLabel("¡Has muerto!", this);
+    // Muestra mensaje de derrota visual centrado
+    QLabel* mensaje = new QLabel("\u00a1Has muerto!", this);
     mensaje->setStyleSheet("color: red; font-size: 30px; font-weight: bold;");
     mensaje->adjustSize();
     mensaje->move(width() / 2 - mensaje->width() / 2, height() / 2 - mensaje->height() / 2);
     mensaje->show();
 
-    // Espera unos segundos y luego regresa al menú principal
+    // Espera 4 segundos antes de reiniciar el nivel
     QTimer::singleShot(4000, this, [this]() {
         reiniciarNivel();
     });
 }
+
 // Carga el nivel: muestra selección de personaje y prepara scroll
 void Nivel1::cargarNivel() {
     // Fondo visible durante la selección de personaje
@@ -413,8 +425,8 @@ void Nivel1::cargarNivel() {
                             reproductorVictoria = victoria;
                             salidaAudioVictoria = salida;
 
-                            // Regresar al menú principal tras 10 segundos
-                            QTimer::singleShot(10000, this, [this]() {
+                            // Regresar al menú principal tras 8 segundos
+                            QTimer::singleShot(8000, this, [this]() {
                                 emit regresarAlMenu();
                             });
                         }
@@ -646,20 +658,7 @@ void Nivel1::reiniciarNivel() {
     limpiarCorazones();           // Elimina corazones
     limpiarJugador();             // Elimina jugador
     limpiarFondo();               // Elimina fondo
+    estaMuerto = false;          //Porque no esta muerto
 
-    // Crear nueva instancia
-    Nivel1* nuevoNivel = new Nivel1(parentWidget());
-
-    // Conecta la señal base correctamente (importante para volver al menú)
-    connect(nuevoNivel, &Nivel::regresarAlMenu, this, [=]() {
-        emit regresarAlMenu(); // Propaga correctamente al Juego
-    });
-
-    // Mostrar la nueva instancia
-    nuevoNivel->setFixedSize(800, 600);
-    nuevoNivel->show();
-    nuevoNivel->cargarNivel();
-
-    // Eliminar la instancia actual después de pasar el control
-    this->deleteLater();
+    emit reiniciarEsteNivel(); // <- Deja que el contenedor (como Juego) se encargue de la nueva instancia
 }

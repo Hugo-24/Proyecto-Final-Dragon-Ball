@@ -431,15 +431,8 @@ void Nivel3::reiniciarNivel() {
     limpiarJugador();
     limpiarJefe();
     limpiarFondo();
-
-    Nivel3* nuevo = new Nivel3(parentWidget());
-    connect(nuevo, &Nivel3::regresarAlMenu, this, [=]() {
-        emit regresarAlMenu();
-    });
-    nuevo->setFixedSize(800, 600);
-    nuevo->show();
-    nuevo->cargarNivel();
-
+    estaMuerto = false;              // Reset de estado
+    emit reiniciarEsteNivel();       // El contenedor (Juego) se encarga
     deleteLater();
 }
 

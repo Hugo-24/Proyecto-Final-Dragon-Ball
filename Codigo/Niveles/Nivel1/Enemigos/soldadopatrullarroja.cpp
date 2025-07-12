@@ -26,12 +26,12 @@ SoldadoPatrullaRoja::SoldadoPatrullaRoja(Nivel1* nivelRef, QWidget* parent, cons
         if (estado == Caminar) animarCaminar();
         else if (estado == Disparar) animarDisparo();
     });
-    timerAnimacion->start(200);
+    timerAnimacion->start(200); // Velocidad de animación: cambia frame cada 200ms
 
     // Timer para disparar
     timerDisparo = new QTimer(this);
     connect(timerDisparo, &QTimer::timeout, this, &SoldadoPatrullaRoja::disparar);
-    timerDisparo->start(tiempoDisparo);
+    timerDisparo->start(tiempoDisparo); // Disparo cada 1000ms (modo fácil)
 
     // Barra de vida encima del sprite
     barraVida = new QProgressBar(parent);
@@ -49,34 +49,36 @@ SoldadoPatrullaRoja::SoldadoPatrullaRoja(Nivel1* nivelRef, QWidget* parent, cons
 void SoldadoPatrullaRoja::cambiarSprite(const QString& ruta) {
     if (muerto || !sprite) return;
     QPixmap pix(ruta);
-    sprite->setPixmap(pix.scaled(sprite->size()));
+    sprite->setPixmap(pix.scaled(sprite->size())); // Escala el nuevo sprite a 64x64
 }
 
 SoldadoPatrullaRoja::~SoldadoPatrullaRoja() {
+    // Liberar barra de vida
     if (barraVida) {
         barraVida->deleteLater();
         barraVida = nullptr;
     }
 
+    // Detener y liberar timer de animación
     if (timerAnimacion) {
         timerAnimacion->stop();
         timerAnimacion->deleteLater();
         timerAnimacion = nullptr;
     }
 
+    // Detener y liberar timer de disparo
     if (timerDisparo) {
         timerDisparo->stop();
         timerDisparo->deleteLater();
         timerDisparo = nullptr;
     }
-
 }
 
 // Animación de caminar (3 sprites)
 void SoldadoPatrullaRoja::animarCaminar() {
     const QString base = mirandoDerecha ? ":/Sprites/SoldadoRR/R_Walk" : ":/Sprites/SoldadoRR/L_Walk";
     cambiarSprite(base + QString::number((frameActualCaminar % 3) + 1) + "_SoldadoRR.png");
-    ++frameActualCaminar;
+    ++frameActualCaminar; // Avanza frame para la próxima llamada
 }
 
 // Animación de disparo (3 sprites)
@@ -113,10 +115,10 @@ void SoldadoPatrullaRoja::disparar() {
         QVector2D direccion = mirandoDerecha ? QVector2D(1, 0) : QVector2D(-1, 0);
 
         Proyectil* bala = new Proyectil(nivel, posDisparo, direccion, "subfusil", 8.0f);
-        bala->setEsDelJugador(false);
-        bala->getSprite()->raise();
+        bala->setEsDelJugador(false);  // Marca que la bala es del enemigo
+        bala->getSprite()->raise();    // Asegura que se dibuje encima del soldado
 
-        nivel->agregarProyectil(bala);
+        nivel->agregarProyectil(bala); // Agrega la bala al nivel
     });
 }
 
@@ -138,7 +140,7 @@ void SoldadoPatrullaRoja::actualizar() {
     if (distancia > rangoDisparo && distancia < rangoDeteccion) {
         estado = Caminar;
         QVector2D dir = mirandoDerecha ? QVector2D(1, 0) : QVector2D(-1, 0);
-        nuevaPos += dir * 1.5f;
+        nuevaPos += dir * 1.5f; // Avance rápido
     } else if (distancia <= rangoDisparo) {
         estado = Disparar;
     } else {
@@ -167,7 +169,7 @@ void SoldadoPatrullaRoja::actualizarBarraVida() {
     if (!barraVida || !sprite || !sprite->isVisible()) return;
 
     barraVida->setValue(vida);
-    QPoint arriba = sprite->pos() + QPoint(2, -10);
+    QPoint arriba = sprite->pos() + QPoint(2, -10); // Posición relativa encima del sprite
     barraVida->move(arriba);
 }
 

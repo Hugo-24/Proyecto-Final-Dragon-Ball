@@ -28,7 +28,7 @@ void Juego::cambiarNivel(const std::string& id) {
         nivelActual = new Nivel1(this);
     } else if (id == "nivel2") {
         nivelActual = new Nivel2(this);
-    } else if (id == "nivel3") { // ✅ Ahora manejamos nivel 3
+    } else if (id == "nivel3") { // Ahora manejamos nivel 3
         nivelActual = new Nivel3(this);
     } else {
         qDebug() << "Nivel no reconocido:" << QString::fromStdString(id);
@@ -37,7 +37,13 @@ void Juego::cambiarNivel(const std::string& id) {
 
     // Conectamos la señal para volver al menú si se usa
     connect(nivelActual, &Nivel::regresarAlMenu, this, [=]() {
-        emit regresarAlMenu();
+        emit regresarAlMenu();  // Propaga la señal hacia MainWindow
+    });
+
+    // Conexión para reiniciar el nivel correctamente
+    connect(nivelActual, &Nivel::reiniciarEsteNivel, this, [=]() {
+        qDebug() << "[Juego] Reiniciando nivel: " << QString::fromStdString(id);
+        this->cambiarNivel(id);  // Vuelve a cargar el mismo nivel desde cero
     });
 
     // Lógica de inicialización

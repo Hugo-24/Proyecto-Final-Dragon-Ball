@@ -3,19 +3,20 @@
 
 #include "personaje.h"
 
-// Clase concreta: Maestro Roshi jugable
+/**
+ * Clase Roshi: personaje jugable.
+ * Puede atacar cuerpo a cuerpo y lanzar energía.
+ */
 class Roshi : public Personaje {
 public:
     Roshi(QWidget* parent);
-    void atacar() override;
-    void lanzarEnergia() override;
     ~Roshi();
 
-private:
-    void volverAIdle();
+    void atacar() override;          // Ataque cuerpo a cuerpo
+    void lanzarEnergia() override;  // Disparo de energía
 
 protected:
-    void actualizarSprite() override; // Cambia sprite según dirección
+    void actualizarSprite() override; // Cambia sprite según dirección y movimiento
 };
 
 #endif // ROSHI_H
