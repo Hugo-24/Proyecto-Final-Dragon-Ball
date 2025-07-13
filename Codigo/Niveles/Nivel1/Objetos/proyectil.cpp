@@ -2,6 +2,7 @@
 #include <QPixmap>
 #include <QDebug>
 #include <QWidget>
+#include <stdexcept>  // ← Necesario para lanzar excepciones std::runtime_error
 
 /**
  * Constructor del proyectil.
@@ -21,32 +22,49 @@ Proyectil::Proyectil(QWidget* parent,
     QPixmap imagen;
 
     // === Selección del sprite según el tipo de proyectil ===
-    if (tipo == "roshi") {
-        imagen.load(":/Sprites/Proyectiles/Bola_Energia.png");
-        sprite->setFixedSize(80, 80);     // Tamaño redondo, grande
-        danio = 15;
-        esDelJugador = true;
+    try {
+        if (tipo == "roshi") {
+            if (!imagen.load(":/Sprites/Proyectiles/Bola_Energia.png")) {
+                throw std::runtime_error("Error: no se pudo cargar Bola_Energia.png");
+            }
+            sprite->setFixedSize(80, 80);     // Tamaño redondo, grande
+            danio = 15;
+            esDelJugador = true;
+        }
+        else if (tipo == "lunch") {
+            if (direccion.x() >= 0) {
+                if (!imagen.load(":/Sprites/Proyectiles/R_BalaCohete.png")) {
+                    throw std::runtime_error("Error: no se pudo cargar R_BalaCohete.png");
+                }
+            } else {
+                if (!imagen.load(":/Sprites/Proyectiles/L_BalaCohete.png")) {
+                    throw std::runtime_error("Error: no se pudo cargar L_BalaCohete.png");
+                }
+            }
+            sprite->setFixedSize(80, 40);     // Bala larga (bazuca)
+            danio = 15;
+            esDelJugador = true;
+        }
+        else if (tipo == "subfusil") {
+            if (!imagen.load(":/Sprites/Proyectiles/BalaSubfusil.png")) {
+                throw std::runtime_error("Error: no se pudo cargar BalaSubfusil.png");
+            }
+            sprite->setFixedSize(28, 8);      // Bala rápida y pequeña
+            danio = 5;
+            esDelJugador = false;
+        }
+        else if (tipo == "roca") {
+            if (!imagen.load(":/Sprites/Proyectiles/RocaGigante.png")) {
+                throw std::runtime_error("Error: no se pudo cargar RocaGigante.png");
+            }
+            sprite->setFixedSize(120, 120);   // Más grande que el personaje
+            danio = 20;                       // Alto daño
+            esDelJugador = false;
+        }
     }
-    else if (tipo == "lunch") {
-        if (direccion.x() >= 0)
-            imagen.load(":/Sprites/Proyectiles/R_BalaCohete.png");
-        else
-            imagen.load(":/Sprites/Proyectiles/L_BalaCohete.png");
-        sprite->setFixedSize(80, 40);     // Bala larga (bazuca)
-        danio = 15;
-        esDelJugador = true;
-    }
-    else if (tipo == "subfusil") {
-        imagen.load(":/Sprites/Proyectiles/BalaSubfusil.png");
-        sprite->setFixedSize(28, 8);      // Bala rápida y pequeña
-        danio = 5;
-        esDelJugador = false;
-    }
-    else if (tipo == "roca") {
-        imagen.load(":/Sprites/Proyectiles/RocaGigante.png");
-        sprite->setFixedSize(120, 120);   // Más grande que el personaje
-        danio = 20;                       // Alto daño
-        esDelJugador = false;
+    catch (const std::exception& e) {
+        qDebug() << "[EXCEPCIÓN SPRITE]: " << e.what();
+        imagen = QPixmap(); // Si falló, se asigna pixmap vacío (sprite no se mostrará)
     }
 
     // Validar que la imagen haya sido cargada correctamente

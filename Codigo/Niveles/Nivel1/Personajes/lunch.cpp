@@ -33,6 +33,7 @@ void Lunch::actualizarSprite() {
     static bool alternar = false;
     QString ruta;
 
+    // Si está caminando
     if (getVelocidad().x() != 0) {
         ruta = transformada
                    ? (mirandoDerecha ? (alternar ? ":/Sprites/Lunch/R_Walk1_Launch.png"
@@ -45,6 +46,7 @@ void Lunch::actualizarSprite() {
                                                  : ":/Sprites/Lunch/L_Walk2_BlueLunch.png"));
         alternar = !alternar;
     } else {
+        // Si está quieta
         ruta = transformada
                    ? (mirandoDerecha ? ":/Sprites/Lunch/R_Idle_Launch.png"
                                      : ":/Sprites/Lunch/L_Idle_Launch.png")
@@ -72,16 +74,22 @@ void Lunch::transformar() {
 void Lunch::disparar() {
     if (!transformada) return;
 
+    // QStringList es una lista de cadenas de texto (rutas a imágenes)
     QStringList frames = mirandoDerecha
                              ? QStringList{":/Sprites/Lunch/R_Bazooka1_Launch.png", ":/Sprites/Lunch/R_Bazooka2_Launch.png",
                                            ":/Sprites/Lunch/R_Bazooka3_Launch.png", ":/Sprites/Lunch/R_Bazooka4_Launch.png"}
-                             : QStringList{":/Sprites/Lunch/L_Bazooka1_Launch.png", ":/Sprites/Lunch/L_Bazooka2_Launch.png",
-                                           ":/Sprites/Lunch/L_Bazooka3_Launch.png", ":/Sprites/Lunch/L_Bazooka4_Launch.png"};
+                             : QStringList{":/Sprites/Lunch/L_Bazooka1_Lunch.png", ":/Sprites/Lunch/L_Bazooka2_Lunch.png",
+                                           ":/Sprites/Lunch/L_Bazooka3_Lunch.png", ":/Sprites/Lunch/L_Bazooka4_Lunch.png"};
 
     int delay = 200;
+
     for (int i = 0; i < frames.size(); ++i) {
         QTimer::singleShot(i * delay, this, [this, frame = frames[i]]() {
-            setSprite(frame);
+            try {
+                setSprite(frame);
+            } catch (const std::exception& e) {
+                qDebug() << "[EXCEPCIÓN Sprite bazuca]: " << e.what();
+            }
         });
     }
 
@@ -89,15 +97,24 @@ void Lunch::disparar() {
                                       : ":/Sprites/Lunch/L_Idle_Launch.png";
 
     QTimer::singleShot(delay * frames.size() + 50, this, [this, rutaIdle]() {
-        setSprite(rutaIdle);
+        try {
+            setSprite(rutaIdle);
+        } catch (const std::exception& e) {
+            qDebug() << "[EXCEPCIÓN Idle bazuca]: " << e.what();
+        }
     });
 
-    QMediaPlayer* sfxBazuca = new QMediaPlayer(this);
-    QAudioOutput* outBazuca = new QAudioOutput(this);
-    sfxBazuca->setAudioOutput(outBazuca);
-    sfxBazuca->setSource(QUrl("qrc:/Sonidos/Nivel1-S/disparo-bazuca.mp3"));
-    outBazuca->setVolume(100);
-    sfxBazuca->play();
+    // Reproducir sonido
+    try {
+        QMediaPlayer* sfxBazuca = new QMediaPlayer(this);
+        QAudioOutput* outBazuca = new QAudioOutput(this);
+        sfxBazuca->setAudioOutput(outBazuca);
+        sfxBazuca->setSource(QUrl("qrc:/Sonidos/Nivel1-S/disparo-bazuca.mp3"));
+        outBazuca->setVolume(100);
+        sfxBazuca->play();
+    } catch (const std::exception& e) {
+        qDebug() << "[EXCEPCIÓN sonido bazuca]: " << e.what();
+    }
 }
 
 /**
@@ -114,8 +131,12 @@ void Lunch::dispararSubfusil() {
 
     for (int i = 0; i < frames.size(); ++i) {
         QTimer::singleShot(75 * i, this, [this, frame = frames[i]]() {
-            setSprite(frame);
-            sprite->setFixedSize(80, 80);
+            try {
+                setSprite(frame);
+                sprite->setFixedSize(80, 80);
+            } catch (const std::exception& e) {
+                qDebug() << "[EXCEPCIÓN sprite subfusil]: " << e.what();
+            }
         });
     }
 
@@ -123,25 +144,39 @@ void Lunch::dispararSubfusil() {
                                       : ":/Sprites/Lunch/L_Idle_Launch.png";
 
     QTimer::singleShot(300, this, [=]() {
-        setSprite(rutaIdle);
+        try {
+            setSprite(rutaIdle);
+        } catch (const std::exception& e) {
+            qDebug() << "[EXCEPCIÓN idle subfusil]: " << e.what();
+        }
 
         QVector2D direccion = mirandoDerecha ? QVector2D(1, 0) : QVector2D(-1, 0);
         QVector2D offset = QVector2D(40 * direccion.x(), 28);
         QVector2D pos = getPosicion() + offset;
 
-        QMediaPlayer* sfxSubfusil = new QMediaPlayer(this);
-        QAudioOutput* outSubfusil = new QAudioOutput(this);
-        sfxSubfusil->setAudioOutput(outSubfusil);
-        sfxSubfusil->setSource(QUrl("qrc:/Sonidos/Nivel1-S/disparo-subfusil.mp3"));
-        outSubfusil->setVolume(80);
-        sfxSubfusil->play();
+        // Sonido del subfusil
+        try {
+            QMediaPlayer* sfxSubfusil = new QMediaPlayer(this);
+            QAudioOutput* outSubfusil = new QAudioOutput(this);
+            sfxSubfusil->setAudioOutput(outSubfusil);
+            sfxSubfusil->setSource(QUrl("qrc:/Sonidos/Nivel1-S/disparo-subfusil.mp3"));
+            outSubfusil->setVolume(80);
+            sfxSubfusil->play();
+        } catch (const std::exception& e) {
+            qDebug() << "[EXCEPCIÓN sonido subfusil]: " << e.what();
+        }
 
-        Proyectil* bala = new Proyectil(contenedor, pos, direccion, "subfusil", 12.0f);
-        bala->setEsDelJugador(true);
-        bala->getSprite()->raise();
+        // Crear el proyectil y agregarlo al nivel
+        try {
+            Proyectil* bala = new Proyectil(contenedor, pos, direccion, "subfusil", 12.0f);
+            bala->setEsDelJugador(true);
+            bala->getSprite()->raise();
 
-        if (Nivel1* nivel = dynamic_cast<Nivel1*>(contenedor)) {
-            nivel->agregarProyectil(bala);
+            if (Nivel1* nivel = dynamic_cast<Nivel1*>(contenedor)) {
+                nivel->agregarProyectil(bala);
+            }
+        } catch (const std::exception& e) {
+            qDebug() << "[EXCEPCIÓN crear proyectil subfusil]: " << e.what();
         }
     });
 }

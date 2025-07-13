@@ -93,25 +93,26 @@ void Nivel1::mostrarExplosion(const QVector2D& pos) {
 
 // Muestra secuencia de derrota al perder todas las vidas
 void Nivel1::mostrarMensajeDerrota() {
-    estaMuerto = true;
+    estaMuerto = true;  // Marca que el jugador ha muerto, lo que detiene la lógica en el bucle del juego
 
-    // Detiene animación y marca como muerto al jugador
+    // Detiene la animación de caminar y marca al jugador como muerto
     if (jugador) {
         jugador->detenerAnimacionCaminar();
-        jugador->setMuerto(true);
+        jugador->setMuerto(true);  // Internamente desactiva movimiento/disparo
     }
 
-    // Oculta contador de enemigos
+    // Oculta el contador de enemigos derrotados si estaba activo
     if (contadorEnemigosLabel) {
         contadorEnemigosLabel->hide();
-        contadorEnemigosLabel->deleteLater();
+        contadorEnemigosLabel->deleteLater(); // Libera memoria gráfica
         contadorEnemigosLabel = nullptr;
     }
 
-    // Determina sprite de muerte según el personaje y su dirección
+    // Cambia el sprite por el correspondiente de muerte, según personaje y dirección
     if (jugador && jugador->getSprite()) {
         QString rutaMuerte;
 
+        // Se usa dynamic_cast para verificar si el jugador es Roshi o Lunch
         if (dynamic_cast<Roshi*>(jugador)) {
             rutaMuerte = jugador->estaMirandoDerecha()
             ? ":/Sprites/Roshi/R_Roshi_Muerto.png"
@@ -122,10 +123,11 @@ void Nivel1::mostrarMensajeDerrota() {
             : ":/Sprites/Lunch/L_Lunch_Muerta.png";
         }
 
-        jugador->getSprite()->setPixmap(QPixmap(rutaMuerte).scaled(100, 100)); // Aplica sprite
+        // Aplica el sprite con tamaño ajustado
+        jugador->getSprite()->setPixmap(QPixmap(rutaMuerte).scaled(100, 100));
     }
 
-    // Sonido de muerte con volumen bajo
+    // Detiene música de fondo y reproduce sonido de muerte
     detenerMusica();
     QMediaPlayer* efectoMuerte = new QMediaPlayer(this);
     QAudioOutput* salidaMuerte = new QAudioOutput(this);
@@ -134,16 +136,16 @@ void Nivel1::mostrarMensajeDerrota() {
     salidaMuerte->setVolume(10);
     efectoMuerte->play();
 
-    // Muestra mensaje de derrota visual centrado
+    // Muestra mensaje visual en pantalla
     QLabel* mensaje = new QLabel("\u00a1Has muerto!", this);
     mensaje->setStyleSheet("color: red; font-size: 30px; font-weight: bold;");
-    mensaje->adjustSize();
+    mensaje->adjustSize(); // Ajusta tamaño al texto
     mensaje->move(width() / 2 - mensaje->width() / 2, height() / 2 - mensaje->height() / 2);
     mensaje->show();
 
-    // Espera 4 segundos antes de reiniciar el nivel
+    // Reinicia el nivel automáticamente después de 4 segundos
     QTimer::singleShot(4000, this, [this]() {
-        reiniciarNivel();
+        reiniciarNivel();  // Vuelve a cargar Nivel1 desde cero
     });
 }
 

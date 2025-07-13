@@ -126,6 +126,7 @@ void GeneralBlue::iniciarAtaque() {
  * Ataque de subfusil: 5 sprites + proyectil y sonido.
  */
 void GeneralBlue::animarDisparo() {
+    // QStringList es una lista de cadenas de texto (strings). Se usa para almacenar rutas de sprites.
     QStringList frames = mirandoDerecha
                              ? QStringList{
                                    ":/Sprites/GeneralBlue/R_Shoot1.png",
@@ -142,26 +143,47 @@ void GeneralBlue::animarDisparo() {
                                    ":/Sprites/GeneralBlue/L_Shoot5.png"
                                };
 
-    int delay = 100;
+    int delay = 100; // Tiempo en milisegundos entre cada frame
+
+    // Se programan 5 llamadas con delay creciente para mostrar cada frame de la animación
     for (int i = 0; i < frames.size(); ++i) {
         QTimer::singleShot(i * delay, this, [=]() {
-            cambiarSprite(frames[i]);
+            try {
+                // Mostrar el frame i de disparo
+                cambiarSprite(frames[i]);
+            } catch (const std::exception& e) {
+                // En caso de fallo, se muestra el error en consola
+                qDebug() << "[EXCEPCIÓN Sprite disparo]: " << e.what();
+            }
         });
     }
 
+    // Una vez terminada la animación, se ejecuta el disparo del proyectil
     QTimer::singleShot(frames.size() * delay + 20, this, [=]() {
-        cambiarSprite(mirandoDerecha ? ":/Sprites/GeneralBlue/R_Idle_GeneralBlue.png"
-                                     : ":/Sprites/GeneralBlue/L_Idle_GeneralBlue.png");
+        try {
+            // Se vuelve al sprite idle (reposo)
+            cambiarSprite(mirandoDerecha ? ":/Sprites/GeneralBlue/R_Idle_GeneralBlue.png"
+                                         : ":/Sprites/GeneralBlue/L_Idle_GeneralBlue.png");
+        } catch (const std::exception& e) {
+            qDebug() << "[EXCEPCIÓN Idle disparo]: " << e.what();
+        }
 
-        // Lanzar proyectil con mejor ajuste de posición
+        // Dirección del disparo
         QVector2D dir = mirandoDerecha ? QVector2D(1, 0) : QVector2D(-1, 0);
+
+        // Posición inicial de la bala, desplazada desde el centro del personaje
         QVector2D posBala = getPosicion() + QVector2D(mirandoDerecha ? 60 : -20, 20);
 
-        Proyectil* bala = new Proyectil(nivel, posBala, dir, "subfusil", 12.0f);
-        bala->setEsDelJugador(false);
-        nivel->agregarProyectil(bala);
+        try {
+            // Se crea el proyectil
+            Proyectil* bala = new Proyectil(nivel, posBala, dir, "subfusil", 12.0f);
+            bala->setEsDelJugador(false); // Es enemigo
+            nivel->agregarProyectil(bala);
+        } catch (const std::exception& e) {
+            qDebug() << "[EXCEPCIÓN Proyectil disparo]: " << e.what();
+        }
 
-        // Sonido
+        // Sonido de disparo
         QMediaPlayer* sfx = new QMediaPlayer(this);
         QAudioOutput* out = new QAudioOutput(this);
         sfx->setAudioOutput(out);
@@ -171,10 +193,8 @@ void GeneralBlue::animarDisparo() {
     });
 }
 
-/**
- * Ataque con roca gigante (5 sprites + proyectil).
- */
 void GeneralBlue::lanzarRoca() {
+    // Carga los sprites de animación del ataque de roca
     QStringList frames = mirandoDerecha
                              ? QStringList{
                                    ":/Sprites/GeneralBlue/R_Roca1.png",
@@ -191,47 +211,59 @@ void GeneralBlue::lanzarRoca() {
                                    ":/Sprites/GeneralBlue/L_Roca5.png"
                                };
 
-    int delay = 140;  // Tiempo entre frames
+    int delay = 140; // Tiempo entre cada frame de la animación
+
+    // Mostrar cada sprite de la animación en orden
     for (int i = 0; i < frames.size(); ++i) {
         QTimer::singleShot(i * delay, this, [=]() {
-            cambiarSprite(frames[i]);
+            try {
+                cambiarSprite(frames[i]);
+            } catch (const std::exception& e) {
+                qDebug() << "[EXCEPCIÓN Sprite roca]: " << e.what();
+            }
         });
     }
 
-    // Termina animación y lanza la roca
+    // Al final, lanzar el proyectil "roca"
     QTimer::singleShot(frames.size() * delay + 20, this, [=]() {
-        cambiarSprite(mirandoDerecha ? ":/Sprites/GeneralBlue/R_Idle_GeneralBlue.png"
-                                     : ":/Sprites/GeneralBlue/L_Idle_GeneralBlue.png");
+        try {
+            cambiarSprite(mirandoDerecha ? ":/Sprites/GeneralBlue/R_Idle_GeneralBlue.png"
+                                         : ":/Sprites/GeneralBlue/L_Idle_GeneralBlue.png");
+        } catch (const std::exception& e) {
+            qDebug() << "[EXCEPCIÓN Idle roca]: " << e.what();
+        }
 
         QVector2D dir = mirandoDerecha ? QVector2D(1, 0) : QVector2D(-1, 0);
         QVector2D pos = getPosicion() + QVector2D(mirandoDerecha ? 30 : -40, -20);
 
-        Proyectil* roca = new Proyectil(nivel, pos, dir, "roca", 8.0f);
-        roca->setEsDelJugador(false);
-        nivel->agregarProyectil(roca);
-
-        // (Opcional: puedes agregar sonido si deseas)
+        try {
+            Proyectil* roca = new Proyectil(nivel, pos, dir, "roca", 8.0f);
+            roca->setEsDelJugador(false);
+            nivel->agregarProyectil(roca);
+        } catch (const std::exception& e) {
+            qDebug() << "[EXCEPCIÓN Proyectil roca]: " << e.what();
+        }
     });
 }
 
-/**
- * Ataque telequinético: paraliza al jugador por 4 segundos si no lo interrumpen.
- */
 void GeneralBlue::usarTelequinesis() {
+    // Si ya está usando la habilidad, no repetirla
     if (ejecutandoTelequinesis) return;
+
+    // Sonido de habilidad después de un leve retraso
     QTimer::singleShot(600, this, [=]() {
-        // Sonido
         QMediaPlayer* sfx = new QMediaPlayer(this);
         QAudioOutput* out = new QAudioOutput(this);
         sfx->setAudioOutput(out);
         sfx->setSource(QUrl("qrc:/Sonidos/Nivel3-S/efecto-za-warudo.mp3"));
         out->setVolume(100);
         sfx->play();
-
     });
+
     ejecutandoTelequinesis = true;
     qDebug() << "Telequinesis iniciada";
-    // Sprites de animación
+
+    // Lista de sprites para la animación de telequinesis
     QStringList frames = mirandoDerecha
                              ? QStringList{
                                    ":/Sprites/GeneralBlue/R_TK1.png",
@@ -246,27 +278,36 @@ void GeneralBlue::usarTelequinesis() {
                                    ":/Sprites/GeneralBlue/L_TK4.png"
                                };
 
-    int delay = 150;
-    int total = frames.size() * delay;
+    int delay = 150;  // Tiempo entre frames
+    int total = frames.size() * delay;  // Duración total de la animación
 
-    // Ejecutar animación
+    // Ejecutar la animación frame por frame
     for (int i = 0; i < frames.size(); ++i) {
         QTimer::singleShot(i * delay, this, [=]() {
-            cambiarSprite(frames[i]);
+            try {
+                cambiarSprite(frames[i]);
+            } catch (const std::exception& e) {
+                qDebug() << "[EXCEPCIÓN Sprite telequinesis]: " << e.what();
+            }
         });
     }
 
-    // Aplicar efecto de parálisis después de animación
+    // Aplicar el efecto paralizante al jugador después de la animación
     QTimer::singleShot(total + 100, this, [=]() {
-        cambiarSprite(mirandoDerecha
-                          ? ":/Sprites/GeneralBlue/R_Idle_GeneralBlue.png"
-                          : ":/Sprites/GeneralBlue/L_Idle_GeneralBlue.png");
+        try {
+            cambiarSprite(mirandoDerecha
+                              ? ":/Sprites/GeneralBlue/R_Idle_GeneralBlue.png"
+                              : ":/Sprites/GeneralBlue/L_Idle_GeneralBlue.png");
+        } catch (const std::exception& e) {
+            qDebug() << "[EXCEPCIÓN Idle telequinesis]: " << e.what();
+        }
 
+        // Si hay objetivo (jugador), paralizarlo
         if (objetivo) {
             objetivo->setPuedeDisparar(false);
             objetivo->setPuedeMoverse(false);
 
-            // Liberar luego de 4 segundos
+            // Después de 4 segundos, se libera
             QTimer::singleShot(4000, this, [=]() {
                 objetivo->setPuedeDisparar(true);
                 objetivo->setPuedeMoverse(true);
@@ -276,6 +317,7 @@ void GeneralBlue::usarTelequinesis() {
         }
     });
 }
+
 void GeneralBlue::saltar() {
     if (!enElAire) {
         velocidad.setY(-16.0f); // impulso hacia arriba
