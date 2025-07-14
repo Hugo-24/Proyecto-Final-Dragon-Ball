@@ -307,6 +307,119 @@
 - keyPressEvent(QKeyEvent*) override
 - keyReleaseEvent(QKeyEvent*) override
 
+📦 Nivel3
+
+Hereda de: Nivel
+
+Clase: Nivel3 : Nivel
+
+Atributos:
+- jugador: Goku*
+- jefe: GeneralBlue*
+- corazones: QVector<QLabel*>
+- barraVidaJefe: QProgressBar*
+- timer: QTimer*
+- teclasPresionadas: QSet<int>
+- estaMuerto: bool
+- vidas: int
+- corazonesGenerados: int
+- proyectiles: QVector<Proyectil*>
+- corazonesCurativos: QVector<Corazon*>
+- musicaFondo: QMediaPlayer*
+- salidaAudio: QAudioOutput*
+- sonidoVictoria: QMediaPlayer*
+- salidaVictoria: QAudioOutput*
+- fondo: QLabel*
+- offsetX: int
+- controlesHabilitados: bool
+
+Métodos:
++ Nivel3(parent: QWidget* = nullptr)
++ void cargarNivel() override
++ void agregarProyectil(p: Proyectil*)
++ void agregarCorazon(c: Corazon*)
++ float getOffsetX() const
++ void detenerMusica() override
++ void reiniciarNivel() override
+
+# void keyPressEvent(event: QKeyEvent*) override
+# void keyReleaseEvent(event: QKeyEvent*) override
+- void actualizarMovimientoJugador()
+- void inicializarCorazones(cantidad: int)
+- void actualizarCorazones(nuevaVida: int)
+- void mostrarMensajeDerrota()
+- void mostrarMensajeVictoria()
+- void limpiarProyectiles()
+- void limpiarCorazones()
+- void limpiarJugador()
+- void limpiarJefe()
+- void limpiarFondo()
+
+🧍 Goku
+
+Hereda de: Personaje
+
+Clase: Goku : Personaje
+
+Atributos:
+- contenedor: QWidget*
+- puedeMoverse: bool
+
+Métodos:
++ Goku(parent: QWidget*)
++ ~Goku()
++ void lanzarEnergia() override
++ void atacar() override
++ void setPuedeMoverse(valor: bool)
++ bool getPuedeMoverse() const
+# void actualizarSprite() override
+
+🧠 GeneralBlue
+
+Hereda de: Entidad, QObject
+
+Clase: GeneralBlue : Entidad, QObject
+
+Atributos:
+- nivel: Nivel3*
+- objetivo: Goku*
+- vida: int = 250
+- vidaMaxima: int = 250
+- vidaAnteriorParaCuracion: int = 250
+- derrotado: bool = false
+- ejecutandoTelequinesis: bool = false
+- mirandoDerecha: bool = true
+- caminando: bool = false
+- enElAire: bool = false
+- estaAtacando: bool = false
+- sfxTelequinesis: QMediaPlayer*
+- salidaTelequinesis: QAudioOutput*
+- labelZaWarudo: QLabel*
+- velocidad: QVector2D
+- timerAtaque: QTimer*
+- timerAnimacion: QTimer*
+- barraVida: QProgressBar*
+
+Métodos:
++ GeneralBlue(nivel: Nivel3*, parent: QWidget*, posicionInicial: QVector2D, objetivo: Goku*)
++ ~GeneralBlue()
++ void actualizar() override
++ void recibirDanio(cantidad: int)
++ bool estaDerrotado() const
++ QProgressBar* getBarraVida() const
++ int getVida() const
+
+- void moverHaciaJugador()
+- void iniciarAtaque()
+- void saltar()
+- void animarDisparo()
+- void lanzarRoca()
+- void usarTelequinesis()
+- void soltarCorazon()
+- void morir()
+- void cambiarSprite(ruta: QString)
+- void actualizarSprite()
+
 RELATIONSHIPS:
 
 Nivel1 – association – Personaje [1 → 1]
@@ -365,3 +478,18 @@ SubmarinoEnemigo – composition – QProgressBar [1 → 1]
 Torpedo – no persistent relationship
 
 Mina – association – QWidget (contenedor) [1 → 1]
+
+
+Nivel hereda Nivel3
+Personaje hereda Goku
+Entidad hereda GeneralBlue
+
+Nivel3 contiene Goku  ➜ jugador: Goku*
+Nivel3 contiene GeneralBlue ➜ jefe: GeneralBlue*
+Nivel3 contiene Proyectil ➜ proyectiles: QVector<Proyectil*>
+Nivel3 contiene Corazon ➜ corazonesCurativos: QVector<Corazon*>
+
+GeneralBlue depende de Nivel3 ➜ nivel: Nivel3*
+GeneralBlue depende de Goku ➜ objetivo: Goku*
+
+Goku depende de Nivel3 (dynamic_cast sobre contenedor)
