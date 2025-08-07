@@ -487,8 +487,6 @@ void Nivel2::iniciarFase2() {
 }
 
 
-
-
 void Nivel2::reiniciarNivel() {
     // Detener el juego
     timerActualizacion->stop();

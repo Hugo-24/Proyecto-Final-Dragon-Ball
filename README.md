@@ -123,7 +123,9 @@ Compilación y ejecución
 
 Créditos
 
-    Desarrollo por estudiantes de Ingeniería Electronica - Universidad de Antioquia.
+    Desarrollo por estudiantes de Ingeniería Electronica y Telecomunicaciones - Universidad de Antioquia.
+    Autores: Emmanuel López Ramírez(Entropy) - [@EmmaNuel-Network](https://github.com/EmmaNuel-Network) correo: entropy.casp9@gmail.com
+             Hugo Esteban Barrero García(HGB)- [@Hugo-24](https://github.com/Hugo-24) correo: hugo.barrerog@udea.edu.co
 
     Inspirado en los capítulos originales del anime Dragon Ball (Saga de la Red Ribbon).
 
